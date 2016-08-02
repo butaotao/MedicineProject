@@ -23,8 +23,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.dachen.dgroupdoctorcompany.R;
-import com.dachen.dgroupdoctorcompany.adapter.HospitalListAdapter;
-import com.dachen.dgroupdoctorcompany.adapter.SearchAdapter;
 import com.dachen.dgroupdoctorcompany.adapter.SearchContactAdapter;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
@@ -34,29 +32,23 @@ import com.dachen.dgroupdoctorcompany.db.dbentity.Doctor;
 import com.dachen.dgroupdoctorcompany.db.dbentity.SearchRecords;
 import com.dachen.dgroupdoctorcompany.entity.BaseSearch;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
-import com.dachen.dgroupdoctorcompany.entity.HospitalList;
-import com.dachen.medicine.common.utils.LogUtils;
+import com.dachen.dgroupdoctorcompany.im.activity.Represent2DoctorChatActivity;
+import com.dachen.imsdk.db.dao.ChatGroupDao;
+import com.dachen.imsdk.entity.GroupInfo2Bean;
+import com.dachen.imsdk.net.SessionGroup;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
-import com.dachen.medicine.common.utils.ToastUtils;
-import com.dachen.medicine.config.UserInfo;
 import com.dachen.medicine.entity.Result;
-import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
 import com.dachen.medicine.view.ClearEditText;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.CopyOnWriteArrayList;
 
-public class SearchContactActivity extends BaseActivity implements OnClickListener,OnHttpListener {
+public class SearchContactActivity extends BaseActivity implements OnClickListener,OnHttpListener,SessionGroup.SessionGroupCallback {
     int totalNum;
     RelativeLayout rl_list;
     RelativeLayout rl_back;
@@ -64,6 +56,8 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
     ClearEditText et_search;
     int page = 1;
     ViewStub vstub_title;
+
+
     //SearchAdapter adapter;
     RelativeLayout rl_history;
     RelativeLayout rl_nofound;
@@ -86,6 +80,8 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
     public String seachdoctor;
     public String clear = "_*$@#_clearall_*$@#_";
     private int pageNo = 1;
+    private int selectMode;
+    private String mDoctorId;
 
 
     @Override
@@ -94,6 +90,7 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_allcontact);
         seachdoctor = getIntent().getStringExtra("seachdoctor");
+        selectMode  = getIntent().getIntExtra("selectMode", 0);
         findViewById(R.id.rl_sure).setVisibility(View.GONE);
         if (TextUtils.isEmpty(seachdoctor)){
             et_search.setHint("搜索姓名/手机号");
@@ -208,22 +205,33 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
                 arg2 = arg2 -1;
                 if (adapter.getItem(arg2) instanceof CompanyContactListEntity) {
                     CompanyContactListEntity info = (CompanyContactListEntity) adapter.getItem(arg2);
-
                     // 在这里编写自己想要实现的功能
-                    Intent intent = new Intent(SearchContactActivity.this,ColleagueDetailActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("peopledes",info);
-                    intent.putExtra("peopledes",bundle);
-                    startActivity(intent);
+                    if (selectMode == 1) {          //新建同事对话搜索
+                        Intent intent = new Intent();
+                        intent.putExtra("data", adapter.getItem(arg2));
+                        setResult(RESULT_OK,intent);
+                        finish();
+                    } else {
+                        Intent intent = new Intent(SearchContactActivity.this,ColleagueDetailActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("peopledes",info);
+                        intent.putExtra("peopledes",bundle);
+                        startActivity(intent);
+                    }
 
                 }else if(adapter.getItem(arg2) instanceof Doctor){
                     Doctor info = (Doctor) adapter.getItem(arg2);
                     // 在这里编写自己想要实现的功能
-                    Intent intent = new Intent(SearchContactActivity.this,DoctorDetailActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("doctordetail",info);
-                    intent.putExtra("doctordetail",bundle);
-                    startActivity(intent);
+                    mDoctorId = info.userId;
+                    if (selectMode == 2) {   //新建医生对话搜索
+                        createChatGroup(mDoctorId);
+                    } else {
+                        Intent intent = new Intent(SearchContactActivity.this, DoctorDetailActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("doctordetail", info);
+                        intent.putExtra("doctordetail", bundle);
+                        startActivity(intent);
+                    }
                 }
 
             }
@@ -252,6 +260,26 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
 
 
     }
+    private void createChatGroup(String userId){
+        List<String> userIds = new ArrayList<String>();
+        userIds.add(userId);
+        SessionGroup groupTool=new SessionGroup(this);
+        groupTool.setCallback(this);
+        groupTool.createGroup(userIds, "3_10");
+    }
+
+    @Override
+    public void onGroupInfo(GroupInfo2Bean.Data data, int what) {
+        ChatGroupDao dao=new ChatGroupDao();
+        dao.saveOldGroupInfo(data);
+        Represent2DoctorChatActivity.openUI(this, data.gname, data.gid, mDoctorId);
+    }
+
+    @Override
+    public void onGroupInfoFailed(String msg) {
+
+    }
+
 
     @Override
     public void onSuccess(Result response) {
@@ -382,7 +410,7 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
             msg.obj = keyword;
             mHandler.sendMessage(msg);
         }
-    };
+    }
 
     private MyThread myThread;
     private boolean isLoadMore = true;
@@ -475,6 +503,6 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
         super.onActivityResult(requestCode, resultCode, data);
     }
     public interface RefreshDataInterface{
-        public void refreshData();
+        void refreshData();
     }
 }

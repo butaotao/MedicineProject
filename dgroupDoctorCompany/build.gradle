@@ -98,11 +98,9 @@ dependencies {
     /*  compile fileTree(dir: 'libs', include: ['*.jar'])
                                                                     testCompile 'junit:junit:4.12'
                                                                     compile 'com.android.support:appcompat-v7:23.1.1'*/
-    compile project(':meidecineLibrary')
     compile project(':actionSheetLibrary')
     compile 'com.jakewharton:butterknife:7.0.1'
     compile files('libs/MiPush_SDK_Client_3_0_3.jar')
-    compile files('libs/asmack.jar')
     compile project(':pullToRefreshViewsLibrary')
     compile project(':ImSdk')
     compile files('libs/ormlite-jdbc-4.49-SNAPSHOT.jar')
