@@ -3,6 +3,7 @@ package com.dachen.dgroupdoctorcompany.views;
 import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
@@ -146,23 +147,25 @@ public class ChoiceDepDialog extends Dialog implements View.OnClickListener,Scro
         horizonlistview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                List<DepAdminsList> horizonremove = new ArrayList<DepAdminsList>();
-                horizonremove = horizon.subList(0, position + 1);
-                // horizon.clear();
-                //horizon.addAll(horizonremove);
-                horizon.remove(dep);
-                adpHorizonAdapter = new ChoiceAdpHorizonAdapter(mActivity, horizonremove);
-                horizonlistview.setAdapter(adpHorizonAdapter);
-                horizon = horizonremove;
-                DepAdminsList dep = horizon.get(horizon.size() - 1);
-                vertiList.clear();
-                String depid = "0";
-                depid = dep.cid;
-                vertiList = managerDao.queryManagerSiner(depid);
-                vertiAdapter = new ChoiceAdpVertiAdapter(mActivity, vertiList);
-                verListview.setAdapter(vertiAdapter);
-                select = horizon.get(position).orgName;
-                BaseRecordActivity.deptId = horizon.get(position).cid;
+                if (horizon.size()>=1&& !TextUtils.isEmpty(horizon.get(0).orgName)&&!horizon.get(0).orgName.equals("请选择")){
+                    List<DepAdminsList> horizonremove = new ArrayList<DepAdminsList>();
+                    horizonremove = horizon.subList(0, position + 1);
+                    // horizon.clear();
+                    //horizon.addAll(horizonremove);
+                    horizon.remove(dep);
+                    adpHorizonAdapter = new ChoiceAdpHorizonAdapter(mActivity, horizonremove);
+                    horizonlistview.setAdapter(adpHorizonAdapter);
+                    horizon = horizonremove;
+                    DepAdminsList dep = horizon.get(horizon.size() - 1);
+                    vertiList.clear();
+                    String depid = "0";
+                    depid = dep.cid;
+                    vertiList = managerDao.queryManagerSiner(depid);
+                    vertiAdapter = new ChoiceAdpVertiAdapter(mActivity, vertiList);
+                    verListview.setAdapter(vertiAdapter);
+                    select = horizon.get(position).orgName;
+                    BaseRecordActivity.deptId = horizon.get(position).cid;
+                }
                 //departdes.setText(horizon.get(position).orgName);
 
             }

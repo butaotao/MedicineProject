@@ -13,11 +13,11 @@ import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.base.UserLoginc;
+import com.dachen.dgroupdoctorcompany.entity.LoginRegisterResult;
 import com.dachen.dgroupdoctorcompany.utils.UserUtils;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.common.utils.SystemUtils;
 import com.dachen.medicine.common.utils.ToastUtils;
-import com.dachen.medicine.entity.LoginRegisterResult;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
@@ -127,10 +127,11 @@ public class ResetPasswdActivity extends BaseActivity implements
 	private void reset(String password, String userType) {
 		// TODO Auto-generated method stub
 		final String requestTag = "Reset";
+		showLoadingDialog();
 		new HttpManager().post(this, Constants.RESET_PASSWD,
 				LoginRegisterResult.class, Params.getResetPasswordParams(phone,
 						userType, smsid, ranCode, mPasswordEdit.getText()
-								.toString().trim()), this, false, 3);
+								.toString().trim()), this, false, 1);
 
 	}
 
@@ -142,6 +143,7 @@ public class ResetPasswdActivity extends BaseActivity implements
 
 	@Override
 	public void onSuccess(Result response) {
+		closeLoadingDialog();
 		// TODO Auto-generated method stub
 		if (null != response && 1 == response.getResultCode()) {
 			/*Intent intent = new Intent(ResetPasswdActivity.this,
@@ -199,7 +201,7 @@ public class ResetPasswdActivity extends BaseActivity implements
 
 		interfaces.put("interface1", Constants.USER_LORGIN_AUTO);
 		new HttpManager().post(this, interfaces,
-				LoginRegisterResult.class, params, new HttpManager.OnHttpListener<Result>() {
+				LoginRegisterResult.class, params, new OnHttpListener<Result>() {
 					@Override
 					public void onSuccess(Result result) {
 						if (result == null) {
@@ -246,6 +248,7 @@ public class ResetPasswdActivity extends BaseActivity implements
 
 	@Override
 	public void onFailure(Exception e, String errorMsg,int s) {
+		closeLoadingDialog();
 		// TODO Auto-generated method stub
 		ToastUtils.showToast(ResetPasswdActivity.this,errorMsg);
 	}

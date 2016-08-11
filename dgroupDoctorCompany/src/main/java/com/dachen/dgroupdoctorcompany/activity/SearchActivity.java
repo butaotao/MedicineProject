@@ -138,6 +138,8 @@ public class SearchActivity extends BaseActivity implements OnClickListener, OnH
                         if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                             // 在这里编写自己想要实现的功能
                             forSearch();
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(et_search.getWindowToken(), 0);
                         }
                         return false;
                     }
@@ -189,7 +191,7 @@ public class SearchActivity extends BaseActivity implements OnClickListener, OnH
     public void onSuccess(Result response) {
         closeLoadingDialog();
         if (null == response || response.getResultCode() != 1) {
-            ToastUtil.showToast(this, response);
+            ToastUtil.showToast(this, response.getResultMsg());
             return;
         }
         if (response instanceof HospitalList) {

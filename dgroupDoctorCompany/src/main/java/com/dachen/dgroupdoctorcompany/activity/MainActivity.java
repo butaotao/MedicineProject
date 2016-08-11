@@ -49,6 +49,7 @@ import com.dachen.dgroupdoctorcompany.receiver.HwPushReceiver;
 import com.dachen.dgroupdoctorcompany.service.VersionUpdateService;
 import com.dachen.dgroupdoctorcompany.utils.GaoDeMapUtils;
 import com.dachen.dgroupdoctorcompany.utils.UserInfo;
+import com.dachen.dgroupdoctorcompany.views.GuiderDialog;
 import com.dachen.imsdk.ImSdk;
 import com.dachen.imsdk.db.dao.ChatGroupDao;
 import com.dachen.imsdk.entity.event.NewMsgEvent;
@@ -164,6 +165,14 @@ public class MainActivity extends BaseActivity implements OnHttpListener,
         mGaoDeMapUtils = new GaoDeMapUtils(this.getApplicationContext(), this);
 
         getVersion();
+        if (SharedPreferenceUtil.getString(this,"showguider","0").equals("0")){
+            GuiderDialog dialog = new GuiderDialog(this);
+            dialog.showDialog();
+            SharedPreferenceUtil.putString(this,"showguider","1");
+        }
+
+      /*  Intent intent = new Intent(this,GuiderDialogActivity.class);
+        startActivity(intent);*/
     }
 
 
@@ -510,13 +519,13 @@ public class MainActivity extends BaseActivity implements OnHttpListener,
                                         @Override
                                         public void run() {
                                             final MessageDialog messageDialog = new MessageDialog(MainActivity.this, "取消", "马上更新", versionInfo.data.info);
-                                            messageDialog.setBtn1ClickListener(new View.OnClickListener() {
+                                            messageDialog.setBtn1ClickListener(new OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
                                                     messageDialog.dismiss();
                                                 }
                                             });
-                                            messageDialog.setBtn2ClickListener(new View.OnClickListener() {
+                                            messageDialog.setBtn2ClickListener(new OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
                                                     messageDialog.dismiss();

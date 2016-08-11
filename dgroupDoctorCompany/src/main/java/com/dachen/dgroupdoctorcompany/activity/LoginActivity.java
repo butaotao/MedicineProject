@@ -16,13 +16,13 @@ import android.widget.TextView;
 
 import com.baoyz.actionsheet.ActionSheet;
 import com.baoyz.actionsheet.ActionSheet.ActionSheetListener;
-import com.dachen.common.utils.Md5Util;
 import com.dachen.common.utils.QiNiuUtils;
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.app.CompanyApplication;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.base.UserLoginc;
+import com.dachen.dgroupdoctorcompany.entity.LoginRegisterResult;
 import com.dachen.dgroupdoctorcompany.utils.UserUtils;
 import com.dachen.imsdk.ImSdk;
 import com.dachen.medicine.common.utils.MActivityManager;
@@ -31,7 +31,6 @@ import com.dachen.medicine.common.utils.ToastUtils;
 import com.dachen.medicine.config.ContextConfig;
 import com.dachen.medicine.config.ContextConfig.EnvironmentType;
 import com.dachen.medicine.config.UserInfo;
-import com.dachen.medicine.entity.LoginRegisterResult;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
@@ -82,7 +81,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
         setContentView(R.layout.activity_login);
         setBackInVisiable();
         ButterKnife.bind(this);
-
+        setTheme(R.style.ActionSheetStyleiOS7);
         initViews();
         setTitle("登录");
         mPhoneNumberEdit.addTextChangedListener(watcherPhoneNum);
@@ -100,12 +99,12 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-          //  if (!TextUtils.isEmpty(s)){
-                if (!TextUtils.isEmpty(mPhoneNumberEdit.getText())){
-                    login_btn.setBackgroundResource(R.drawable.btn_blue_all_3cbaff);
-                    return;
-                }
-           // }
+            //  if (!TextUtils.isEmpty(s)){
+            if (!TextUtils.isEmpty(mPhoneNumberEdit.getText())){
+                login_btn.setBackgroundResource(R.drawable.btn_blue_all_3cbaff);
+                return;
+            }
+            // }
             login_btn.setBackgroundResource(R.drawable.btn_blue_all_9ddcff);
         }
 
@@ -128,10 +127,10 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
                     return;
                 }
             }*/
-           // login_btn.setBackgroundResource(R.drawable.btn_blue_all_9ddcff);
+            // login_btn.setBackgroundResource(R.drawable.btn_blue_all_9ddcff);
             if (!TextUtils.isEmpty(s)){
-                    login_btn.setBackgroundResource(R.drawable.btn_blue_all_3cbaff);
-                    return;
+                login_btn.setBackgroundResource(R.drawable.btn_blue_all_3cbaff);
+                return;
             }
             login_btn.setBackgroundResource(R.drawable.btn_blue_all_3cbaff);
         }
@@ -180,17 +179,25 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
     @Nullable
     @OnClick(R.id.rl_titlebar)
     void onLoginTitleClicked() {
-         if(clickTitle>3)
+        if(clickTitle>3)
         {
-        clickTitle = 0;
-        ActionSheet.createBuilder(this,  getSupportFragmentManager())
-                .setCancelButtonTitle("取消")
-                .setOtherButtonTitles("内网", "外网(阿里云环境)", "生产环境","生产测试环境", "屈军利")
-                .setCancelableOnTouchOutside(true).setListener(this).show();
-         }
-         else {
-          clickTitle++;
-         }
+            clickTitle = 0;
+            ActionSheet.createBuilder(this,  getSupportFragmentManager())
+                    .setCancelButtonTitle("取消")
+                    .setOtherButtonTitles("测试环境", "生产环境", "开发环境", "生产测试环境", "后台调试环境（后台用）")
+                    .setCancelableOnTouchOutside(true).setListener(this).show();
+
+
+
+
+          /*  ActionSheet.createBuilder(this,  getSupportFragmentManager())
+                    .setCancelButtonTitle("取消")
+                    .setOtherButtonTitles("测试环境", "生产环境", "开发环境", "生产测试环境", "后台调试环境（后台用）")
+                    .setCancelableOnTouchOutside(true).setListener(this).show();*/
+        }
+        else {
+            clickTitle++;
+        }
     }
     //
     private void login() {
@@ -202,11 +209,10 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
     }
 
     private void loginRequest(String phoneNum, String password) {
-        final String userType = Constants.USER_TYPE;
-        final String requestTag = "login";
+        final String userType = Constants.USER_TYPEC+"";
         new HttpManager().post(this, Constants.LOGIN + "", LoginRegisterResult.class,
                 Params.getLoginParams(phoneNum, password, userType, this), loginListener,
-                false, 3);
+                false, 1);
 
     }
     public final boolean verifyPhoneIfNeed() {
@@ -231,8 +237,8 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
             return verify;*/
             password = "";
         }
-       SharedPreferenceUtil.putString(this,"pss", "");
-       SharedPreferenceUtil.putString(this, "ph", "");
+        SharedPreferenceUtil.putString(this,"pss", "");
+        SharedPreferenceUtil.putString(this, "ph", "");
         return verify;
     }
 
@@ -263,26 +269,31 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
     @Override
     public void onOtherButtonClick(ActionSheet actionSheet, int index) {
         if (index == 0) {
-            ToastUtils.showToast(this,"已切换到内网" + NetConfig.API_INNER_URL);
-            ContextConfig.getInstance().setEnvironmentType(
-                    EnvironmentType.INNER);
-            SharedPreferenceUtil.putString(this, "netdes",  NetConfig.API_INNER_URL);
-            QiNiuUtils.changeEnv(QiNiuUtils.DOMAIN_3_7);
-            UserInfo.getInstance(this).setIp("2");
-        } else if (index == 1) {
-            ToastUtils.showToast(this,"已切换到外网" + NetConfig.API_OTER_URL);
+
+
+            //测试环境
+            ToastUtils.showToast(this,"已切换到测试环境" + NetConfig.API_OTER_URL);
             ContextConfig.getInstance().setEnvironmentType(
                     EnvironmentType.PUBLISH);
             SharedPreferenceUtil.putString(this, "netdes", NetConfig.API_OTER_URL);
             QiNiuUtils.changeEnv(QiNiuUtils.DOMAIN_ALI_YUN);
             UserInfo.getInstance(this).setIp("0");
-        } else if (index == 2) {
+        } else if (index == 1) {
+            //生产环境
             ToastUtils.showToast(this,"已切换到生产环境" + NetConfig.KANG_ZHE);
             ContextConfig.getInstance()
                     .setEnvironmentType(EnvironmentType.TEST);
             SharedPreferenceUtil.putString(this, "netdes", NetConfig.KANG_ZHE);
             UserInfo.getInstance(this).setIp("1");
             QiNiuUtils.changeEnv(QiNiuUtils.DOMAIN_KANGZHE);
+        } else if (index == 2) {
+            //开发环境
+            ToastUtils.showToast(this,"已切换到开发环境" + NetConfig.API_INNER_URL);
+            ContextConfig.getInstance().setEnvironmentType(
+                    EnvironmentType.INNER);
+            SharedPreferenceUtil.putString(this, "netdes",  NetConfig.API_INNER_URL);
+            QiNiuUtils.changeEnv(QiNiuUtils.DOMAIN_3_7);
+            UserInfo.getInstance(this).setIp("2");
         } else if(index ==3){//生产测试环境
             ToastUtils.showToast(this,"已切换到生产测试环境" + NetConfig.KANG_ZHE_TEST);
             ContextConfig.getInstance()
@@ -316,8 +327,9 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
                 CompanyApplication.setInitContactList(2);
                 LoginRegisterResult logins = (LoginRegisterResult) entity;
                 UserLoginc.setUserInfo(logins, LoginActivity.this);
-                UserUtils.logingetUserType(LoginActivity.this);
-                SharedPreferenceUtil.putString(LoginActivity.this,"password", Md5Util.toMD5(password));
+                Intent intent = new Intent(mThis, MainActivity.class);
+                intent.putExtra("login", "login");
+                mThis.startActivity(intent);
             }
         }
         @Override

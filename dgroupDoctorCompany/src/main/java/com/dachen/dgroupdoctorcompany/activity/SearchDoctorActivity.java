@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.adapter.SearchDoctorAdapter;
+import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.db.dbdao.DoctorDao;
 import com.dachen.dgroupdoctorcompany.db.dbdao.SearchRecordsDao;
@@ -138,6 +139,8 @@ public class SearchDoctorActivity extends BaseActivity implements OnClickListene
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     // 在这里编写自己想要实现的功能
                     forSearch();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(et_search.getWindowToken(), 0);
                 }
                 return false;
             }
@@ -250,23 +253,13 @@ public class SearchDoctorActivity extends BaseActivity implements OnClickListene
         maps.put("access_token", UserInfo.getInstance(this).getSesstion());
         maps.put("hospitalId", hospitId);
         maps.put("keyword", keyword);
-        new HttpManager().post(this, "org/saleFriend/getList", SearchDoctorListEntity.class,
+        new HttpManager().post(this, Constants.DRUG+"saleFriend/getList", SearchDoctorListEntity.class,
                 maps, this,
                 false, 1);
         showLoadingDialog();
     }
 
-    /*public void getSearchResultWithNull(String keyword){
 
-        HashMap<String ,String > maps = new HashMap<>();
-        maps.put("access_token", UserInfo.getInstance(this).getSesstion());
-        maps.put("hospitalId", hospitId);
-        maps.put("keyword", "");
-        new HttpManager().post(this, "org/saleFriend/getList", SearchDoctorListEntity.class,
-                maps, this,
-                false, 1);
-        showLoadingDialog();
-    }*/
     @Override
     public void onBackPressed() {
         finish();

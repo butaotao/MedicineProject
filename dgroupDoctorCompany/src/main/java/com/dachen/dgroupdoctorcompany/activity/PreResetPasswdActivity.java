@@ -69,7 +69,6 @@ public class PreResetPasswdActivity extends BaseActivity implements
 	private String smsid = "";
 	String authCode;
 	String phonenum;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -97,7 +96,6 @@ public class PreResetPasswdActivity extends BaseActivity implements
 
 
 
-
 		findViewById(R.id.rl_back).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -121,13 +119,15 @@ public class PreResetPasswdActivity extends BaseActivity implements
 	 * @return
 	 */
 	private void getVoiceCode(final String phoneNumber) {
+		showLoadingDialog();
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("phone", phoneNumber);
 		params.put("userType", Constants.USER_TYPE);
-		HashMap<String, String> interfaces = new HashMap<String, String>();
-		interfaces.put("interface1","health/user/preResetPasswordVoiceCode");
-		new HttpManager().post(this, interfaces,
-				TelePhoneVerifyData.class, params, this, 1);
+
+
+		new HttpManager().post(this, Constants.DRUG+"drugCompanyEmployee/updatePassword", TelePhoneVerifyData.class,
+				params, this,
+				false, 1);
 	}
 
 
@@ -163,7 +163,7 @@ public class PreResetPasswdActivity extends BaseActivity implements
 	}
 
 	private void sendAgain() {
-
+		showLoadingDialog();
 		phoneNumber = mPhoneNumEdit.getText().toString().trim();
 		final String userType = Constants.USER_TYPE;
 		final String requestTag = "preReset";
@@ -240,6 +240,7 @@ public class PreResetPasswdActivity extends BaseActivity implements
 	 * @return
 	 */
 	private void verifyCode(final String phoneNumber, final String randcode) {
+		showLoadingDialog();
 		final String templateId = "25118";
 		final String userType = Constants.USER_TYPE;
 		HashMap<String, String> params = new HashMap<String, String>();
@@ -247,9 +248,8 @@ public class PreResetPasswdActivity extends BaseActivity implements
 		params.put("userType", userType);
 		params.put("ranCode", randcode);
 		params.put("smsid", smsid);
-		HashMap<String, String> interfaces = new HashMap<String, String>();
-		interfaces.put("interface1", Constants.VERIFYRESETPASSWORD);
-		new HttpManager().post(this,interfaces, Result.class, params, this, 1);
+		params.put("templateId", templateId);
+		new HttpManager().post(this,Constants.VERIFYRESETPASSWORD, Result.class, params, this,false, 1);
 	}
 
 	@Override
@@ -262,6 +262,7 @@ public class PreResetPasswdActivity extends BaseActivity implements
 	public void onSuccess(Result result) {
 		// TODO Auto-generated method stub
 		System.err.println("response==" + result);
+		closeLoadingDialog();
 		if (result != null) {// 发送成功
 			if (result instanceof ResetPassword) {
 				if (1 == result.getResultCode()) {
@@ -324,6 +325,7 @@ public class PreResetPasswdActivity extends BaseActivity implements
 	public void onFailure(Exception e, String errorMsg,int s) {
 		// TODO Auto-generated method stub
 		ToastUtils.showToast(PreResetPasswdActivity.this,R.string.net_exception);
+		closeLoadingDialog();
 	}
 
 }

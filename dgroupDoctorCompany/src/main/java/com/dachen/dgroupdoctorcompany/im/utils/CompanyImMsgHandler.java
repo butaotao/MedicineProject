@@ -5,11 +5,13 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.alibaba.fastjson.JSON;
+import com.dachen.dgroupdoctorcompany.activity.ChatShareMsgActivity;
 import com.dachen.dgroupdoctorcompany.activity.WebActivityForCompany;
 import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
 import com.dachen.dgroupdoctorcompany.db.dbdao.DoctorDao;
 import com.dachen.imsdk.activities.ChatActivityV2;
 import com.dachen.imsdk.adapter.ChatAdapterV2;
+import com.dachen.imsdk.adapter.MsgMenuAdapter;
 import com.dachen.imsdk.db.po.ChatMessagePo;
 import com.dachen.imsdk.entity.ImgTextMsgV2;
 import com.dachen.imsdk.entity.MultiMpt;
@@ -62,7 +64,9 @@ public class CompanyImMsgHandler extends ImMsgHandler{
     @Override
     public boolean onForwardMessage(String msgId) {
         // TODO: 2016/8/1
-
+        Intent intent = new Intent(mContext, ChatShareMsgActivity.class);
+        intent.putExtra(MsgMenuAdapter.INTENT_EXTRA_MSG_ID, msgId);
+        mContext.startActivity(intent);
         return true;
     }
 }

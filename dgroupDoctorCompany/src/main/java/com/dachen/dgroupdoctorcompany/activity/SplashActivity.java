@@ -15,12 +15,12 @@ import com.dachen.dgroupdoctorcompany.base.UserLoginc;
 import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
 import com.dachen.dgroupdoctorcompany.db.dbdao.DoctorDao;
 import com.dachen.dgroupdoctorcompany.db.dbdao.RoleDao;
+import com.dachen.dgroupdoctorcompany.entity.LoginRegisterResult;
 import com.dachen.dgroupdoctorcompany.utils.UserUtils;
 import com.dachen.imsdk.ImSdk;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.common.utils.ToastUtils;
 import com.dachen.medicine.config.UserInfo;
-import com.dachen.medicine.entity.LoginRegisterResult;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 
@@ -99,9 +99,11 @@ public class SplashActivity extends BaseActivity implements HttpManager.OnHttpLi
     }
 //user/login/auto
     private void loginRequest(/*String phoneNum, String password*/) {
-        boolean id = TextUtils.isEmpty(SharedPreferenceUtil.getString(this, "id", ""));
-        boolean session = TextUtils.isEmpty(SharedPreferenceUtil.getString(this, "session", ""));//
-        if (!id&& !session){
+        String id = SharedPreferenceUtil.getString(this, "id", "");
+        String session = SharedPreferenceUtil.getString(this, "session", "");
+        boolean isIdExit = TextUtils.isEmpty(id);
+        boolean isSessionExit = TextUtils.isEmpty(session);//
+        if (!isIdExit&& !isSessionExit){
             HashMap<String, String> params = new HashMap<String, String>();
             params.put("userId", SharedPreferenceUtil.getString(this, "id", ""));
             params.put("serial", SharedPreferenceUtil.getString(this, "mRegId", ""));
@@ -109,7 +111,7 @@ public class SplashActivity extends BaseActivity implements HttpManager.OnHttpLi
             final String userType = Constants.USER_TYPE;
             new HttpManager().post(this, Constants.USER_LORGIN_AUTO + "", LoginRegisterResult.class,
                     params, this,
-                    false, 3);
+                    false, 1);
         }else {
             startLoginActivity();
         }

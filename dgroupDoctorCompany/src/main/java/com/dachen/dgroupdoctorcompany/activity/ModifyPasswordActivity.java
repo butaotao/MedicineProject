@@ -96,8 +96,8 @@ public class ModifyPasswordActivity extends BaseActivity {
         params.put("oldPassword", oldPwd);
         params.put("newPassword", newPwd);
         params.put("access_token", session);
-        new HttpManager().post(this, "health/user/updatePassword",
-                com.dachen.dgroupdoctorcompany.entity.Void.class, params, new HttpManager.OnHttpListener<Result>() {
+        new HttpManager().post(this, "drugorg/drugCompanyEmployee/updatePassword",
+                Void.class, params, new HttpManager.OnHttpListener<Result>() {
                     @Override
                     public void onSuccess(Result result) {
                         closeLoadingDialog();
@@ -105,9 +105,9 @@ public class ModifyPasswordActivity extends BaseActivity {
                             Void v = (Void) result;
                             if (v.resultCode == 1) {
                                 ToastUtils.showToast(ModifyPasswordActivity.this,"修改密码成功");
-                                SharedPreferenceUtil.putString(ModifyPasswordActivity.this,"password", Md5Util.toMD5(newPwd));
+
                                 finish();
-                            } else if (v.resultCode == 0) {
+                            } else if (v.resultCode == 0||v.resultCode ==100) {
                                 ToastUtils.showToast(ModifyPasswordActivity.this,"旧密码输入错误");
                             } else {
                                 ToastUtils.showToast(ModifyPasswordActivity.this,v.resultMsg);

@@ -18,11 +18,15 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.dachen.common.async.SimpleResultListener;
+import com.dachen.common.utils.ToastUtil;
 import com.dachen.dgroupdoctorcompany.R;
+import com.dachen.dgroupdoctorcompany.adapter.CircleCreateGroupAdapter;
 import com.dachen.dgroupdoctorcompany.adapter.SearchContactAdapter;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
@@ -32,10 +36,18 @@ import com.dachen.dgroupdoctorcompany.db.dbentity.Doctor;
 import com.dachen.dgroupdoctorcompany.db.dbentity.SearchRecords;
 import com.dachen.dgroupdoctorcompany.entity.BaseSearch;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
+import com.dachen.dgroupdoctorcompany.entity.CompanyDepment;
+import com.dachen.dgroupdoctorcompany.fragment.AddressList;
 import com.dachen.dgroupdoctorcompany.im.activity.Represent2DoctorChatActivity;
+import com.dachen.dgroupdoctorcompany.utils.CommonUitls;
+import com.dachen.dgroupdoctorcompany.utils.ExitActivity;
+import com.dachen.dgroupdoctorcompany.views.HorizontalListView;
+import com.dachen.imsdk.adapter.MsgMenuAdapter;
+import com.dachen.imsdk.consts.SessionType;
 import com.dachen.imsdk.db.dao.ChatGroupDao;
 import com.dachen.imsdk.entity.GroupInfo2Bean;
 import com.dachen.imsdk.net.SessionGroup;
+import com.dachen.imsdk.service.ImRequestManager;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
@@ -82,16 +94,40 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
     private int pageNo = 1;
     private int selectMode;
     private String mDoctorId;
-
-
+    private boolean mShare;
+    private String msgId;
+    HorizontalListView addlistview;
+    CircleCreateGroupAdapter addAdapter;
+    List<BaseSearch> horizonList;
+    Button btn_add;
+    ArrayList<CompanyContactListEntity> groupUsers;
+    private boolean inWork;
+    LinearLayout bottom_bar;
+    public boolean isShow;
+    public boolean showDoctor;
+    public boolean showColleague;
+    public boolean showAll;
+    public int  SHOWCONTENT;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_allcontact);
-        seachdoctor = getIntent().getStringExtra("seachdoctor");
-        selectMode  = getIntent().getIntExtra("selectMode", 0);
-        findViewById(R.id.rl_sure).setVisibility(View.GONE);
+        groupUsers = (ArrayList<CompanyContactListEntity>) getIntent().getSerializableExtra(SelectPeopleActivity.INTENT_EXTRA_GROUP_USERS);
+        if (groupUsers == null) {
+            groupUsers = new ArrayList<>();
+        }
+
+
+
+        btn_add = (Button) findViewById(R.id.btn_add);
+        btn_add.setOnClickListener(this);
+        msgId = getIntent().getStringExtra(MsgMenuAdapter.INTENT_EXTRA_MSG_ID);
+        addlistview = (HorizontalListView) findViewById(R.id.addlistview);
+        horizonList = CommonUitls.getListsHorizon();
+        addAdapter = new CircleCreateGroupAdapter(this, horizonList);
+        addlistview.setAdapter(addAdapter);
+      //  findViewById(R.id.rl_sure).setVisibility(View.GONE);
         if (TextUtils.isEmpty(seachdoctor)){
             et_search.setHint("搜索姓名/手机号");
         }else {
@@ -108,6 +144,9 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
         dao = new CompanyContactDao(this);
         searchRecordsDao = new SearchRecordsDao(this);
         doctorDao = new DoctorDao(this);
+        mShare = getIntent().getBooleanExtra("share", false);
+        seachdoctor = getIntent().getStringExtra("seachdoctor");
+        selectMode  = getIntent().getIntExtra("selectMode", 0);
         rl_history = (RelativeLayout) this.findViewById(R.id.rl_history);
         vstub_title = (ViewStub) findViewById(R.id.vstub_title);
         RelativeLayout rl = (RelativeLayout) this.findViewById(R.id.ll_sub);
@@ -168,8 +207,25 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
             }
         },seachdoctor);
         adapter.setisShowMore(true);
+        bottom_bar = (LinearLayout) findViewById(R.id.bottom_bar);
+        bottom_bar.setVisibility(View.GONE);
+        SHOWCONTENT = getIntent().getIntExtra(AddressList.SHOWCONTENT,0);
+        if (SHOWCONTENT==AddressList.SHOWALL){
+            showAll = true;
+            isShow = false;
+            bottom_bar.setVisibility(View.GONE);
+        }
+        if (SHOWCONTENT==AddressList.SHOWCOLLEAG){
+            showAll = false;
+            isShow = true;
+            showColleague = true;
+            showDoctor = false;
+            bottom_bar.setVisibility(View.GONE);
+        }
         listview.setAdapter(adapter);
+     //   if (selectMode==1){
 
+       // }
         et_search.setOnEditorActionListener(
                 new TextView.OnEditorActionListener() {
                     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -177,6 +233,8 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
                             // 在这里编写自己想要实现的功能
                             pageNo = 1;
                             forSearch();
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(et_search.getWindowToken(), 0);
                         }
                         return false;
                     }
@@ -211,7 +269,27 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
                         intent.putExtra("data", adapter.getItem(arg2));
                         setResult(RESULT_OK,intent);
                         finish();
-                    } else {
+                        /*BaseSearch contact = adapter.getItem(arg2);
+                        CompanyContactListEntity c2 = null;
+                        CompanyDepment.Data.Depaments c1 = null;
+                        if (contact instanceof CompanyContactListEntity) {
+                            c2 = (CompanyContactListEntity) (contact);
+                            if (c2.select) {
+                                c2.select = false;
+                                horizonList.remove(c2);
+                            } else {
+                                c2.select = true;
+                                if ( !groupUsers.contains(c2) &&!c2.userId.equals(SharedPreferenceUtil.getString(SearchContactActivity.this, "id", ""))) {
+                                    CommonUitls.addCompanyContactListEntity(c2);
+                                }
+                            }
+                            company.set(arg2, c2);
+                            adapter.notifyDataSetChanged();
+                            addAdapter.notifyDataSetChanged();
+                            btn_add.setText("开始(" + horizonList.size() + ")");
+                        }*/
+
+                    } else  if (selectMode != 1){
                         Intent intent = new Intent(SearchContactActivity.this,ColleagueDetailActivity.class);
                         Bundle bundle = new Bundle();
                         bundle.putSerializable("peopledes",info);
@@ -272,7 +350,26 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
     public void onGroupInfo(GroupInfo2Bean.Data data, int what) {
         ChatGroupDao dao=new ChatGroupDao();
         dao.saveOldGroupInfo(data);
-        Represent2DoctorChatActivity.openUI(this, data.gname, data.gid, mDoctorId);
+        if (mShare) {
+            ImRequestManager.forwardMsg(msgId,data.gid, 0, new ShareResultListener());
+        } else {
+            Represent2DoctorChatActivity.openUI(this, data.gname, data.gid, mDoctorId);
+        }
+    }
+
+    private class ShareResultListener implements SimpleResultListener {
+
+        @Override
+        public void onSuccess() {
+            ToastUtil.showToast(mThis,"转发成功");
+            finish();
+            ExitActivity.getInstance().exit();
+        }
+
+        @Override
+        public void onError(String msg) {
+            ToastUtil.showToast(mThis, msg);
+        }
     }
 
     @Override
@@ -316,8 +413,15 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
             listview.setAdapter(adapter);*/
         }else  if(v.getId() == R.id.tv_search){
             //ToastUtils.showToast(this,"搜索");
+            Intent intent = new Intent(this,SelectPeopleActivity.class);
+            setResult(RESULT_OK, intent);
+            finish();
+        }else  if(v.getId() == R.id.btn_add)   {
+
             finish();
         }
+
+
     }
 
     public void forSearch(){
@@ -361,7 +465,11 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
 
         @Override
         public void run() {
-            List<CompanyContactListEntity> tempCompany = dao.querySearchPage(keyword, pageNo);
+            if (showColleague||showAll){
+                List<CompanyContactListEntity> tempCompany;
+
+                    tempCompany = dao.querySearchPage(keyword, pageNo,true);
+
             if(pageNo == 1){
                 company = tempCompany;
             }
@@ -374,25 +482,48 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
                     isLoadMore = false;
                 }
             }
+            }else {
+                company.clear();
+            }
+            if (showDoctor||showAll){
+                List<Doctor> tempDoctors = doctorDao.querySearchPage(keyword, pageNo);
+                if(pageNo == 1){
+                    doctors = tempDoctors;
+                }
 
-            List<Doctor> tempDoctors = doctorDao.querySearchPage(keyword, pageNo);
-            if(pageNo == 1){
-                doctors = tempDoctors;
+                if (null != tempDoctors && tempDoctors.size() > 0){
+                    if(pageNo > 1){
+                        doctors.addAll(tempDoctors);
+                    }
+                    if(tempDoctors.size() < 50){
+                        isLoadMore = false;
+                    }
+                }
+            }else {
+                doctors.clear();
             }
 
-            if (null != tempDoctors && tempDoctors.size() > 0){
-                if(pageNo > 1){
-                    doctors.addAll(tempDoctors);
-                }
-                if(tempDoctors.size() < 50){
-                    isLoadMore = false;
-                }
-            }
 
             if(TextUtils.isEmpty(seachdoctor)){
-                for (int i=0; i<3; i++){
+                int size = 0;
+                for (int i=0; i<company.size(); i++){
                     if ( i<company.size() && null != company.get(i)){
-                        search.add(company.get(i));
+                        if (CommonUitls.getListsHorizon().contains(company.get(i))){
+                            continue;
+                        }
+                        size++;
+                        if (showColleague){
+                            search.add(company.get(i));
+                        }else {
+                            if (size<3){
+                                search.add(company.get(i));
+                            }else {
+                                break;
+                            }
+                        }
+
+
+
                     }
                 }
                 for (int j=0;j<3;j++){
@@ -445,6 +576,19 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
             hospitals.addAll(search);
             //listview.setAdapter(adapter);
             rl_noresult.setVisibility(View.GONE);
+            List<BaseSearch> searches = CommonUitls.getListsHorizon();
+            for (int i=0;i<company.size();i++){
+                for (int j=0;j<searches.size();j++){
+                    CompanyContactListEntity entity = company.get(i);
+                    CompanyContactListEntity entityHorizon = (CompanyContactListEntity)searches.get(j);
+                    if (entity.userId.equals((entityHorizon).userId)){
+                        entity.select =entityHorizon.select;
+                        company.set(i,entityHorizon);
+                        continue;
+                    }
+                }
+            }
+
             adapter = new SearchContactAdapter(this,R.layout.adapter_searchcontact,hospitals,company,doctors, new RefreshDataInterface() {
                 @Override
                 public void refreshData() {
@@ -459,6 +603,7 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
             adapter.sethospitalSize(doctors.size());
             adapter.setisShowMore(true);
             listview.setAdapter(adapter);
+            btn_add.setText("开始(" + searches.size() + ")");
         }else {
             hospitals.clear();
             adapter = new SearchContactAdapter(this,R.layout.adapter_searchcontact,hospitals,company,doctors, new RefreshDataInterface() {
@@ -473,7 +618,8 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
             adapter.sethospitalSize(doctors.size());
             listview.setAdapter(adapter);
             rl_noresult.setVisibility(View.VISIBLE);
-            tv_noresult.setText("没有”"+keyword+"“的相关搜索结果");
+            tv_noresult.setText("没有”" + keyword + "“的相关搜索结果");
+            btn_add.setText("开始(" + "0)");
         }
         if (keyword.equals(clear)){
             rl_noresult.setVisibility(View.GONE);
@@ -484,6 +630,8 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
     @Override
     public void onBackPressed() {
         if (finish){
+            Intent intent = new Intent(this,SelectPeopleActivity.class);
+            setResult(RESULT_OK,intent);
             finish();
         }else {
             adapter.setisShowMore(true);

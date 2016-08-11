@@ -1,10 +1,12 @@
 package com.dachen.dgroupdoctorcompany.db.dbdao;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.dachen.dgroupdoctorcompany.db.SQLiteHelper;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
+import com.dachen.medicine.common.utils.StringUtils;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
@@ -220,23 +222,45 @@ public class CompanyContactDao {
         return null;
     }
 
-    public List<CompanyContactListEntity> querySearchPage(String name, int pageNo) {
+    public List<CompanyContactListEntity> querySearchPage(String name, int pageNo,boolean limit) {
         QueryBuilder<CompanyContactListEntity, Integer> builder = articleDao.queryBuilder();
         String loginid = SharedPreferenceUtil.getString(context, "id", "");
         try {
-            builder.limit(50l).offset((pageNo - 1) * 50l);
+            if (limit){
+                builder.limit(50l).offset((pageNo - 1) * 50l);
+            }
+
             Where<CompanyContactListEntity, Integer> where = builder.where();
-            where.or(where.and(where.eq("userloginid", loginid), where.like("name", "%" + name + "%")),
-                    where.and(where.eq("userloginid", loginid), where.like("telephone", "%" + name + "%")));
+            if (name.equals("1")){
+                builder.orderBy("name", true);
+                 where.and(where.eq("userloginid", loginid), where.like("name", "%" + name + "%"));
+            }else {
+                boolean isNunicodeDigits= StringUtils.isNumeric(name);
+                if (isNunicodeDigits){
+                    builder.orderBy("name", true);
+                    where.or(where.and(where.eq("userloginid", loginid), where.like("telephone", "%" + name + "%"))
+                            ,where.and(where.eq("userloginid", loginid), where.like("name", "%" + name + "%"))
+                            );
+                }else {
+                    builder.orderBy("name", true);
+                    where.or(where.and(where.eq("userloginid", loginid), where.like("name", "%" + name + "%")),
+                            where.and(where.eq("userloginid", loginid), where.like("telephone", "%" + name + "%")));
+                }
+
+            }/*else {
+                where.or(where.and(where.eq("userloginid", loginid), where.like("name", "%" + name + "%")),
+                        where.and(where.eq("userloginid", loginid), where.like("telephone", "%" + name + "%")));
+            }*/
+
 
             List<CompanyContactListEntity> entities = new ArrayList<>();
             if (null != where.query()) {
                 entities.addAll(builder.distinct().query());
             }
-            if (entities.size() > 1) {
+           /* if (entities.size() > 1) {
                 Collections.sort(entities, new PinyinComparator());
-            }
-
+            }*/
+            List<CompanyContactListEntity> entitiess  = entities;
             return entities;
         } catch (SQLException e) {
             // TODO Auto-generated catch block
@@ -272,13 +296,16 @@ public class CompanyContactDao {
 
     class PinyinComparator implements Comparator<CompanyContactListEntity> {
         public int compare(CompanyContactListEntity o1, CompanyContactListEntity o2) {
-            if (o1.name.equals("@") || o2.name.equals("#")) {
-                return -1;
-            } else if (o1.name.equals("#") || o2.name.equals("@")) {
-                return 1;
-            } else {
-                return o1.name.compareTo(o2.name);
+            if (!TextUtils.isEmpty(o1.name)&&!TextUtils.isEmpty(o2.name)){
+                if (o1.name.equals("@") || o2.name.equals("#")) {
+                    return -1;
+                } else if (o1.name.equals("#") || o2.name.equals("@")) {
+                    return 1;
+                } else {
+                    return o1.name.compareTo(o2.name);
+                }
             }
+            return 1;
         }
     }
 

@@ -1,8 +1,5 @@
 package com.dachen.dgroupdoctorcompany.activity;
 
-/**
- * Created by Burt on 2016/3/3.
- */
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -16,11 +13,13 @@ import android.widget.RadioButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.dachen.common.async.SimpleResultListener;
 import com.dachen.common.utils.ToastUtil;
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.adapter.CircleCreateGroupAdapter;
 import com.dachen.dgroupdoctorcompany.adapter.CompanySelectPeopleListAdapter;
 import com.dachen.dgroupdoctorcompany.app.Constants;
+import com.dachen.dgroupdoctorcompany.archive.ArchiveUtils;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
 import com.dachen.dgroupdoctorcompany.db.dbdao.RoleDao;
@@ -28,18 +27,23 @@ import com.dachen.dgroupdoctorcompany.entity.BaseSearch;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.entity.CompanyDepment;
 import com.dachen.dgroupdoctorcompany.entity.Void;
+import com.dachen.dgroupdoctorcompany.fragment.AddressList;
 import com.dachen.dgroupdoctorcompany.im.activity.RepresentGroupChatActivity;
 import com.dachen.dgroupdoctorcompany.im.events.AddGroupUserEvent;
 import com.dachen.dgroupdoctorcompany.im.utils.ChatActivityUtilsV2;
 import com.dachen.dgroupdoctorcompany.utils.CommonUitls;
 import com.dachen.dgroupdoctorcompany.utils.CompareDatalogic;
+import com.dachen.dgroupdoctorcompany.utils.ExitActivity;
 import com.dachen.dgroupdoctorcompany.utils.GetAllDoctor;
 import com.dachen.dgroupdoctorcompany.views.HorizontalListView;
+import com.dachen.imsdk.adapter.MsgMenuAdapter;
+import com.dachen.imsdk.archive.entity.ArchiveItem;
 import com.dachen.imsdk.consts.SessionType;
 import com.dachen.imsdk.db.dao.ChatGroupDao;
 import com.dachen.imsdk.entity.GroupInfo2Bean.Data;
 import com.dachen.imsdk.net.SessionGroup;
 import com.dachen.imsdk.net.SessionGroup.SessionGroupCallback;
+import com.dachen.imsdk.service.ImRequestManager;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.common.utils.ToastUtils;
 import com.dachen.medicine.config.UserInfo;
@@ -76,7 +80,7 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
     RoleDao roleDao;
     HorizontalListView addlistview;
     CircleCreateGroupAdapter addAdapter;
-    List<BaseSearch> listsHorizon;
+    public static List<BaseSearch> listsHorizon;
     RadioButton btn_radio_addall;
     boolean selectall;
     SessionGroup groupTool;
@@ -93,13 +97,19 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
     private int mPageSize = 50;
     private TextView mNoContactsTips;
     private TextView mSearch;
-    LinearLayout layout_search;
-
+    private LinearLayout layout_search;
+    private boolean mShare;
+    private String msgId;
+    ArchiveItem mItem;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selectpeople);
 
+
+        mShare = getIntent().getBooleanExtra("share", false);
+        msgId = getIntent().getStringExtra(MsgMenuAdapter.INTENT_EXTRA_MSG_ID);
+        mItem = (ArchiveItem) getIntent().getSerializableExtra(ArchiveUtils.INTENT_KEY_ARCHIVE_ITEM);
         mPullToRefreshScrollView = (PullToRefreshScrollView) findViewById(R.id.refresh_scroll_view);
         mPullToRefreshScrollView.setMode(PullToRefreshBase.Mode.DISABLED);
 
@@ -359,14 +369,18 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
 //                CallIntent.getSelectData.getData(listsHorizon);
                 int groupType = getIntent().getIntExtra(INTENT_EXTRA_GROUP_TYPE, 0);
                 showLoadingDialog();
+
                 if (groupUsers.size() == 0)
                     groupTool.createGroup(getIdsList(false), "10");
                 else {
                     if (groupType == SessionType.session_double) {
                         groupTool.createGroup(getIdsList(true), "10");
-                    } else
+                    } else{
                         groupTool.addGroupUser(getIdsList(false), getIntent().getStringExtra(INTENT_EXTRA_GROUP_ID));
+                    }
+
                 }
+
                 break;
             case R.id.iv_back:
                 backtofront();
@@ -375,6 +389,8 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
             case R.id.et_search:
                 if (CompareDatalogic.isInitContact()) {
                     Intent intent = new Intent(this, SearchContactActivity.class);
+                    intent.putExtra(INTENT_EXTRA_GROUP_USERS,groupUsers);
+                    intent.putExtra(AddressList.SHOWCONTENT,AddressList.SHOWCOLLEAG);
                     intent.putExtra("selectMode", 1);    //搜索选择返回多选页
                     startActivityForResult(intent,REQUEST_SEARCH);
                 } else {
@@ -571,14 +587,41 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
 //                }
                 EventBus.getDefault().post(new AddGroupUserEvent(groupId));
 //                RepresentGroupChatActivity.openUI(mThis, gname, gid, uids);
-                ChatActivityUtilsV2.openUI(mThis, gid, "10");
+                ArrayList<Data.UserInfo> users = null;
+                if (data.userList != null)
+                    users = new ArrayList<>(Arrays.asList(data.userList));
+                if (mShare) {
+                    //转发信息
+                    if (mItem!=null){
+                     //   ImRequestManager.forwardMsg(mItem.po.msgId, data.gid, 0, new ShareResultListener());
+                        HashMap<String, Object> params = new HashMap<>();
+                        params.put("share_files",mItem);
+                        RepresentGroupChatActivity.openUI(mThis, data.gname, data.gid, users,params);
+                    }else {
+                        ImRequestManager.forwardMsg(msgId, data.gid, 0, new ShareResultListener());
+                        RepresentGroupChatActivity.openUI(mThis, data.gname, data.gid,users);
+                    }
+                } else {
+                    ChatActivityUtilsV2.openUI(mThis, gid, "10");
+                }
                 setResult(RESULT_OK);
                 finish();
             } else {
                 ArrayList<Data.UserInfo> users = null;
                 if (data.userList != null)
                     users = new ArrayList<>(Arrays.asList(data.userList));
-                RepresentGroupChatActivity.openUI(mThis, data.gname, data.gid, users);
+                if (mShare) {
+                    //转发信息
+                    if (mItem!=null){
+                        HashMap<String, Object> params = new HashMap<>();
+                        params.put("share_files",mItem);
+                        RepresentGroupChatActivity.openUI(mThis, data.gname, data.gid, users,params);
+                    }else {
+                        ImRequestManager.forwardMsg(msgId, data.gid, 0, new ShareResultListener());
+                    }
+                } else {
+                    RepresentGroupChatActivity.openUI(mThis, data.gname, data.gid, users);
+                }
                 EventBus.getDefault().post(new AddGroupUserEvent(groupId));
                 setResult(RESULT_OK);
                 finish();
@@ -592,6 +635,21 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
             ToastUtil.showToast(mThis, msg);
         }
     };
+
+    private class ShareResultListener implements SimpleResultListener {
+
+        @Override
+        public void onSuccess() {
+            ToastUtil.showToast(mThis,"转发成功");
+            finish();
+            ExitActivity.getInstance().exit();
+        }
+
+        @Override
+        public void onError(String msg) {
+            ToastUtil.showToast(mThis, msg);
+        }
+    }
 
     class LoadContactsTask extends AsyncTask<List<Integer>, Void, List<CompanyContactListEntity>> {
         private boolean haveDep;
@@ -636,7 +694,8 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
             switch (requestCode) {
                 case REQUEST_SEARCH:
 
-                    CompanyContactListEntity c2 = (CompanyContactListEntity) intent.getSerializableExtra("data");
+                  CompanyContactListEntity c2 = (CompanyContactListEntity) intent.getSerializableExtra("data");
+                    if (null!=c2){
                         if (c2.select) {
                         } else {
                             c2.select = true;
@@ -645,18 +704,19 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                             }
                         }
                         addAdapter.notifyDataSetChanged();
-                    for (int i = 0; i < list.size(); i++) {
-                        BaseSearch search = list.get(i);
-                        if (search instanceof CompanyContactListEntity) {
-                            CompanyContactListEntity entity = (CompanyContactListEntity) list.get(i);
-                            if (entity.userId.equals(c2.userId)) {
-                                list.set(i, c2);
+                        for (int i = 0; i < list.size(); i++) {
+                            BaseSearch search = list.get(i);
+                            if (search instanceof CompanyContactListEntity) {
+                                CompanyContactListEntity entity = (CompanyContactListEntity) list.get(i);
+                                if (entity.userId.equals(c2.userId)) {
+                                    list.set(i, c2);
+                                }
                             }
                         }
                     }
-
 //            list.set(position, c2);
                         adapter.notifyDataSetChanged();
+                    addAdapter.notifyDataSetChanged();
                         btn_add.setText("开始(" + listsHorizon.size() + ")");
                     break;
                 default:

@@ -7,10 +7,12 @@ import android.content.Intent;
 import com.dachen.dgroupdoctorcompany.activity.LoginActivity;
 import com.dachen.dgroupdoctorcompany.activity.MainActivity;
 import com.dachen.dgroupdoctorcompany.activity.RegisterStep2Activity;
+import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.base.UserLoginc;
 import com.dachen.dgroupdoctorcompany.entity.Company;
 import com.dachen.dgroupdoctorcompany.entity.LoginGetUserInfo;
+import com.dachen.dgroupdoctorcompany.entity.LoginRegisterResult;
 import com.dachen.medicine.common.utils.MActivityManager;
 import com.dachen.medicine.common.utils.ToastUtils;
 import com.dachen.medicine.entity.Result;
@@ -24,15 +26,15 @@ import java.util.ArrayList;
  */
 public class UserUtils {
     public static void logingetUserType(final Activity context) {
-        String s = "org/drugCompanyEmployee/getLoginInfo";
-        new HttpManager().post(context, s, LoginGetUserInfo.class,
+        String s = Constants.DRUG+"/drugCompanyEmployee/getLoginInfo";
+        new HttpManager().post(context, s, LoginRegisterResult.class,
                 Params.getUserInfo(context), new HttpManager.OnHttpListener<Result>() {
                     @Override
                     public void onSuccess(Result entity) {
 
                         if (entity.resultCode==1){
-                            if (entity instanceof LoginGetUserInfo){
-                                LoginGetUserInfo info = (LoginGetUserInfo) entity;
+                            if (entity instanceof LoginRegisterResult){
+                                LoginRegisterResult info = (LoginRegisterResult) entity;
 
                                 UserLoginc.setUserInfos(info, context);
                                     Intent intent = new Intent(context, MainActivity.class);
