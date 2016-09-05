@@ -2,38 +2,39 @@ package com.dachen.dgroupdoctorcompany.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.activity.LitterAppActivity;
-import com.dachen.dgroupdoctorcompany.activity.MeetingListActivity;
 import com.dachen.dgroupdoctorcompany.activity.MenuWithFABActivity;
 import com.dachen.dgroupdoctorcompany.activity.RecordActivity;
 import com.dachen.dgroupdoctorcompany.activity.VisitListActivity;
-import com.dachen.dgroupdoctorcompany.activity.WebActivityForCompany;
 import com.dachen.dgroupdoctorcompany.adapter.AppcenterAdapter;
+import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.db.dbdao.DepAdminsListDao;
-import com.dachen.dgroupdoctorcompany.entity.H5Url;
-import com.dachen.dgroupdoctorcompany.utils.UserInfo;
+import com.dachen.dgroupdoctorcompany.entity.MyAppBean;
 import com.dachen.dgroupdoctorcompany.views.GuiderDialog;
-import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.entity.Result;
+import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
+import com.dachen.medicine.net.Params;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 
 /**
  * Created by Burt on 2016/2/18.
  */
-public class CompanyCenterFragment extends BaseFragment implements OnHttpListener, View.OnClickListener {
+public class CompanyCenterFragment extends BaseFragment implements OnHttpListener, View.OnClickListener, AdapterView
+        .OnItemClickListener {
     private View mRootView;
 
     TextView tv_login_title;
@@ -44,6 +45,7 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
     DepAdminsListDao dao;
     private ListView mLvAppCenter;
     private AppcenterAdapter mAdapter;
+    private List<MyAppBean.DataBean.PageDataBean> mPageData = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -55,54 +57,53 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
         dao = new DepAdminsListDao(mActivity);
         tv_login_title = (TextView) mRootView.findViewById(R.id.tv_title);
         tv_login_title.setText("企业中心");
-        mRootView.findViewById(R.id.rl_back).setVisibility(View.INVISIBLE);
-        mRootView.findViewById(R.id.rl_companycontact).setOnClickListener(this);
-        mRootView.findViewById(R.id.rl_conferencemangerment).setOnClickListener(this);
-        rl_singrecord = (RelativeLayout) mRootView.findViewById(R.id.rl_singrecord);
-        rl_singrecord.setOnClickListener(this);
-         rl_companycontact = (RelativeLayout) mRootView.findViewById(R.id.rl_companycontact);
-         rl_litterApp = (RelativeLayout) mRootView.findViewById(R.id.rl_litterapp);
-        rl_litterApp.setOnClickListener(this);
-        if (UserInfo.getInstance(mActivity).isMediePresent()){
-            rl_companycontact.setVisibility(View.VISIBLE);
-        }else {
-            rl_companycontact.setVisibility(View.GONE);
-        }
-        rl_singrecord.setVisibility(View.VISIBLE);
-        if (dao.queryByUserId()==null||dao.queryByUserId().size()==0){
-            rl_singrecord.setVisibility(View.GONE);
-        }
-        rl_companycontact.setVisibility(View.GONE);
-        rl_sign_in = (RelativeLayout) mRootView.findViewById(R.id.rl_sign_in);
-        rl_sign_in.setOnClickListener(this);
-        String context_token = SharedPreferenceUtil.getString(getActivity(), "context_token", "");
-        String userId = SharedPreferenceUtil.getString(getActivity(), "id", "");
-        String drugCompanyId = SharedPreferenceUtil.getString(getActivity(), "enterpriseId", "");
-        Log.d("zxy :", "69 : CompanyCenterFragment : onCreateView : context = " + context_token + ", userId" + userId
-                + ", drugCompanyId" +drugCompanyId );
-       // mLvAppCenter = (ListView) mRootView.findViewById(R.id.lv_appcenter);
-       // mAdapter = new AppcenterAdapter(mActivity);
-       // mLvAppCenter.setAdapter(mAdapter);
+        mLvAppCenter = (ListView) mRootView.findViewById(R.id.lv_appcenter);
+        mLvAppCenter.setOnItemClickListener(this);
+        mAdapter = new AppcenterAdapter(mActivity,mPageData);
+        mLvAppCenter.setAdapter(mAdapter);
+        initData();
+   /*     Intent signIntent = new Intent(mActivity,MenuWithFABActivity.class);
+        startActivity(signIntent);*/
         return mRootView;
+    }
+
+    private void initData() {
+        new HttpManager<MyAppBean>().post(mActivity, Constants.GET_APPCENTER, MyAppBean.class,
+                Params.getAppCenterParams(mActivity), new OnHttpListener<Result>() {
+
+            @Override
+            public void onSuccess(Result response) {
+                if (response instanceof MyAppBean ) {
+                    MyAppBean bean = (MyAppBean) response;
+                    mPageData = bean.data.pageData;
+                    mAdapter.addData(mPageData);
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onSuccess(ArrayList<Result> response) {
+            }
+
+            @Override
+            public void onFailure(Exception e, String errorMsg, int s) {
+            }
+        },false,1);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        // TODO Auto-generated method stub
         super.onActivityCreated(savedInstanceState);
         // setUpViews();
-
     }
 
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+/*        switch (v.getId()){
             case R.id.rl_conferencemangerment:
-                //ToastUtils.showToast(mActivity,"会议管理");
-                //Intent intent = new Intent(mActivity, MeetingManagementActivity.class);
                 showLoadingDialog();
-                Intent intent = new Intent(mActivity, MeetingListActivity.class);
+                Intent intent = new Intent(mActivity, MeetingListActivity.class);//会议
                 startActivity(intent);
                 break;
             case R.id.rl_companycontact:
@@ -115,8 +116,8 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
                 showLoadingDialog();
                 GuiderDialog dialog = new GuiderDialog(mActivity);
                 dialog.show();
-                /*Intent signIntent = new Intent(mActivity,SignInActivity.class);
-                startActivity(signIntent);*/
+                *//*Intent signIntent = new Intent(mActivity,SignInActivity.class);
+                startActivity(signIntent);*//*
                 Intent signIntent = new Intent(mActivity,MenuWithFABActivity.class);
                 startActivity(signIntent);
                 break;
@@ -129,7 +130,7 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
                 Intent litterAppIntent = new Intent(mActivity,LitterAppActivity.class);
                 startActivity(litterAppIntent);
                 break;
-        }
+        }*/
     }
 
     @Override
@@ -139,28 +140,33 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
     }
 
     @Override
-    public void onSuccess(Result response) {
-        if (null != response) {
-            if (response instanceof H5Url) {
-                H5Url h5Url = (H5Url) response;
-                String url = h5Url.resultMsg;
-                Intent intentContact = new Intent(mActivity, WebActivityForCompany.class);
-                intentContact.putExtra("url", url);
-                startActivity(intentContact);
-            }
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        String protocol = mAdapter.getItem(position).protocol;
+        switch (protocol){
+            case "local://statistics"://业务统计
+                showLoadingDialog();
+               /* Intent signIntent = new Intent(mActivity,MenuWithFABActivity.class);
+                startActivity(signIntent);*/
+                break;
+            case "local://visit"://客户拜访
+                Intent visitIntent = new Intent(mActivity,VisitListActivity.class);
+                startActivity(visitIntent);
+                break;
+            case "local://signed"://签到
+                showLoadingDialog();
+                GuiderDialog dialog = new GuiderDialog(mActivity);
+                dialog.show();
+                Intent signIntent = new Intent(mActivity,MenuWithFABActivity.class);
+                startActivity(signIntent);
+                break;
+            case "1004":
+                Intent singRecordIntent = new Intent(mActivity,RecordActivity.class);
+                startActivity(singRecordIntent);
+                break;
+            case "1005":
+                Intent litterAppIntent = new Intent(mActivity,LitterAppActivity.class);
+                startActivity(litterAppIntent);
+                break;
         }
     }
-
-    @Override
-    public void onSuccess(ArrayList response) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void onFailure(Exception e, String errorMsg, int s) {
-        // TODO Auto-generated method stub
-
-    }
-
 }

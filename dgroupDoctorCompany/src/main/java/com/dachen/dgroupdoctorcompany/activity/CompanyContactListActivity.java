@@ -82,6 +82,7 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
     private GuiderHListView mCp_listguilde;
     boolean isEmpty = false;
     public String departName="";
+    public String baseDepartName="";
     String parentId;
     View layoutView;
     Activity context;
@@ -105,7 +106,8 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
         GetAllDoctor.getInstance().getPeople(CompanyContactListActivity.this);
         empteyll = (RelativeLayout) findViewById(R.id.empteyll);
         empteyll.setVisibility(View.GONE);
-        setTitle("选择部门");
+        setBaseDepartName("企业通讯录");
+        setTitle(baseDepartName);
         manager = false;
         //有管理权限的管理者跳转过来，管理人员
       /* RelativeLayout rl = (RelativeLayout) this.findViewById(R.id.ll_sub);
@@ -135,7 +137,7 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
             idDep = "0";
             companyid = "0";
         }
-        setDepartmen("企业通讯录",idDep);
+        setDepartmen(baseDepartName,idDep);
         mCp_listguilde.addTask(depName,idDep);
         mCp_listguilde.setAdapter();
        // listGuideMap.put(currentPosition++, idDep);
@@ -231,7 +233,7 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
     }
     public void getDepment(BaseSearch contact ,boolean clickRadio){
         CompanyDepment.Data.Depaments  c1 = (CompanyDepment.Data.Depaments) (contact);
-       // setTitles(c1.name);
+        setTitle(c1.name);
         Log.d("zxy :", "233 : CompanyContactListActivity : getDepment :  "+c1.name);
         mCp_listguilde.addTask(c1.name,c1.id);
         mCp_listguilde.notifyDataSetChanged();
@@ -336,7 +338,7 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
             finish();
             return;
         }if (position == 1) {  //公司页面
-          //  setTitle("企业通讯录");
+            setTitle(baseDepartName);
             idDep =  mCp_listguilde.reMoveTask();
         }else{//返回
             idDep =  mCp_listguilde.reMoveTask();
@@ -345,7 +347,7 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
         mCp_listguilde.notifyDataSetChanged();
         String title = mCp_listguilde.getLastDerpartName(position);
         Log.d("zxy :", "349 : CompanyContactListActivity : backtofront : title = "+title);
-       // setTitle(title);
+        setTitle(title);
         getOrganization(idDep);
     }
 
@@ -394,7 +396,7 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
                     }
 
                 }else if (getContent()==editColleageDep){
-                   // setTitle(departName);
+                    setTitle(departName);
                 } else {
                     mParentId = "";
                     adapter.setSize(0);
@@ -403,7 +405,7 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
                 if (firstLevelId.equals(idDep) || idDep.equals("0")) {
                     //tv_des.setText("");
                     //tv_des.setVisibility(View.VISIBLE);
-                    //setTitle("企业通讯录");
+                    setTitle(baseDepartName);
                 } else {
                     tv_des.setText("关闭");
                     tv_des.setVisibility(View.VISIBLE);
@@ -508,16 +510,6 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
         return departments;
     }
 
-    public void setTitles(String name) {
-        List<CompanyContactListEntity> entities
-                = companyContactDao.queryByParentId(pareid);
- /*   if (entities.size()>0){
-        setTitle(entities.get(0).department);
-    }*/
-        //setTitle(name);
-
-    }
-
     @Override
     public void onSuccess(ArrayList response) {
 
@@ -589,8 +581,8 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
             return;
         }
         idDep = mCp_listguilde.addBackTask(position);
-        //String derpartName = mCp_listguilde.getLastDerpartName(position);
-        //setTitle(derpartName);
+        String derpartName = mCp_listguilde.getLastDerpartName(position);
+        setTitle(derpartName);
         mCp_listguilde.notifyDataSetChanged();
         getOrganization(idDep);
 
@@ -622,5 +614,9 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
     protected void onDestroy() {
         mCp_listguilde.clearData();
         super.onDestroy();
+    }
+
+    public void setBaseDepartName(String baseDepartName) {
+        this.baseDepartName = baseDepartName;
     }
 }

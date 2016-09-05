@@ -14,7 +14,6 @@ import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.Params;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
@@ -76,19 +75,21 @@ public class WebQRLoginActivity extends BaseActivity {
     }
 
     private void LoginWeb() {
-        Gson gson = new Gson();
-   //     QRWebLogin qrWebLogin = gson.fromJson(mScanResult, QRWebLogin.class);
         new HttpManager<Result>().post(this, Constants.QR_WEB_LONIN_CONFIRM, Result.class, Params
                 .getQRWebLoginParams(getApplicationContext(), mScanResult), new HttpManager.OnHttpListener<Result>() {
             @Override
             public void onSuccess(Result response) {
+                Log.d("zxy :", "85 : WebQRLoginActivity : onSuccess : key = "+mScanResult);
                 Log.d("zxy :", "85 : WebQRLoginActivity : onSuccess : response = "+response.resultCode);
                 if (response.resultCode == 1) {
-                    ToastUtil.showToast(getApplicationContext(),"登入成功");
+                    ToastUtil.showToast(getApplicationContext(),"登录成功");
                 }else if(response.resultCode == 0){
-                    ToastUtil.showToast(getApplicationContext(),"Key不存在于Redis中！");
+                    Log.d("zxy :", "85 : WebQRLoginActivity : onSuccess : key = "+mScanResult);
+                    //ToastUtil.showToast(getApplicationContext(),"Key不存在于Redis中！");
+                    //ToastUtil.showToast(getApplicationContext(),"登录失败");
                 }else {
-                    ToastUtil.showToast(getApplicationContext(),"UnknowCode : "+response.resultCode);
+                    Log.d("zxy :", "91 : WebQRLoginActivity : onSuccess : response.resultCode = "+response.resultCode);
+                   // ToastUtil.showToast(getApplicationContext(),"UnknowCode : "+response.resultCode);
                 }
                 finish();
             }

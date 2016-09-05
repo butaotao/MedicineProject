@@ -4,7 +4,6 @@ package com.dachen.dgroupdoctorcompany.adapter;
  * Created by Burt on 2016/2/23.
  */
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 
 import com.dachen.dgroupdoctorcompany.R;
@@ -41,7 +40,6 @@ public abstract class BaseAdapter<T> extends android.widget.BaseAdapter {
     }
 
     public Context getContext() {
-        Log.d("zxy :", "43 : BaseAdapter : getContext : getView");
         return this.mContext;
     }
 

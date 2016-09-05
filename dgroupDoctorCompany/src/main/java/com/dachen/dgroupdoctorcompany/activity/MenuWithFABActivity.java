@@ -119,7 +119,6 @@ public class MenuWithFABActivity extends SignInActivity implements View.OnClickL
                 this, false, 4);
     }
     public void start(){
-        Log.d("zxy :", "142 : MenuWithFABActivity : start : start");
         Intent intent2 = new Intent(this,SelectAddressActivity.class);
         intent2.putExtra("mode",AddSignInActivity.MODE_VISIT);
         intent2.putExtra("type","signle");

@@ -5,23 +5,17 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
-import android.widget.Button;
 import android.widget.RelativeLayout;
 
 import com.dachen.dgroupdoctorcompany.R;
-import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
 import com.dachen.dgroupdoctorcompany.entity.BaseSearch;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.entity.CompanyDepment;
 import com.dachen.dgroupdoctorcompany.fragment.AddressList;
-import com.dachen.dgroupdoctorcompany.utils.DataUtils.CompanyContactDataUtils;
 import com.dachen.dgroupdoctorcompany.utils.UserInfo;
-import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 
 import java.util.List;
-
-import butterknife.OnClick;
 
 /**
  * Created by Burt on 2016/8/17.
@@ -56,6 +50,9 @@ public class ManagerColleagueActivity extends CompanyContactListActivity impleme
         List<CompanyContactListEntity> lists = companyContactDao.queryAll();
         idDep = AddressList.deptId;
         companyId = UserInfo.getInstance(this).getCompanyId();
+        String depName = getIntent().getStringExtra("depName");
+        setBaseDepartName(depName);
+        setTitle(baseDepartName);
     }
 
     @Override

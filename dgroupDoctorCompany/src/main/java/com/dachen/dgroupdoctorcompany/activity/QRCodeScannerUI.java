@@ -169,7 +169,7 @@ public class QRCodeScannerUI extends Activity implements
             Intent data = new Intent().putExtra("qrString", scanResult);
             setResult(RESULT_OK, data);
             finish();
-        } else if(scanResult.startsWith("login://")){//web端登入
+        } else if(scanResult.startsWith("login://")){  //web端登入
             String[] strings = scanResult.split("\\?");
             for (int i = 0; i < strings.length; i++) {
                 Log.d("zxy :", "175 : QRCodeScannerUI : executeTask : strings"+i+" = "+strings[i]);
@@ -192,11 +192,12 @@ public class QRCodeScannerUI extends Activity implements
                                 startActivity(intent);
                             finish();
                         }else if(result.resultCode  == 1050001){
-                            ToastUtil.showToast(getApplicationContext(),"已经登入,无需重新登入");
+                            ToastUtil.showToast(getApplicationContext(),"已经登录,无需重新登录");
                             finish();
                         }else{
-                            ToastUtil.showToast(getApplicationContext(),"UnknowCode : "+result.resultCode);
+                            //ToastUtil.showToast(getApplicationContext(),"UnknowCode : "+result.resultCode);
                             Log.d("zxy :", "198 : QRCodeScannerUI : onSuccess : result.resultCode = "+result.resultCode);
+                            finish();
                         }
                     }
                 }
@@ -210,7 +211,7 @@ public class QRCodeScannerUI extends Activity implements
                 }
             }, false, 1);
         }else {
-            ToastUtil.showToast(getApplicationContext(),scanResult);
+            Log.d("zxy :", "214 : QRCodeScannerUI : executeTask : scanResult = "+scanResult);
             finish();
         }
 

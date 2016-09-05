@@ -248,7 +248,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
             tv_time_location.setText(strTime+" "+mStrFloor);
             del_desp.setVisibility(View.VISIBLE);
         } else {
-            Log.d("zxy :", "249 : SelfVisitActivity : initData : else");
             Date date = new Date();
             String strDate = TimeFormatUtils.china_format_date(date);
             String strWeek = TimeFormatUtils.week_format_date(date);
@@ -715,7 +714,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
         if (MODE_FROM_SIGN == mMode) {
             Intent intent = new Intent(this, MenuWithFABActivity.class);
             startActivity(intent);
-
         }
         finish();
     }

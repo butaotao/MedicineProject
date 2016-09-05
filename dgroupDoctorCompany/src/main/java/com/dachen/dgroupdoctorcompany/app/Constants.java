@@ -201,7 +201,10 @@ public class Constants {
 
     //获取版本号
     public static String GET_VERSION = "appService/getVersion";
-
+    //Web 端查询 手机端有没有确认
     public static final String  QR_WEB_LONIN_VERIFY = DRUG+"auth/verify";
-    public static final String  QR_WEB_LONIN_CONFIRM =DRUG+"auth/confirm ";
+    //手机端确认登陆
+    public static final String  QR_WEB_LONIN_CONFIRM =DRUG+"auth/confirm";
+    //获取应用中心app
+    public static final String  GET_APPCENTER =DRUG+"lightApp/myApp";
 }
