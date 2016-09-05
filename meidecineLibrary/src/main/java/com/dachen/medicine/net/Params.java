@@ -485,7 +485,13 @@ public class Params {
 		if(!TextUtils.isEmpty(id)){
 			params.put("id", id);
 		}
-		Log.d("zxy", "461 : Params : getVisitDetail : id = "+id+", access_token = " +SharedPreferenceUtil.getString(context, "session", ""));
+		return params;
+
+	}
+	public static Map<String,String>getServerTime(Context context) {
+		Map<String, String> params = getMapInstance();
+		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
+		Log.d("zxy :", "494 : Params : getServerTime : access_token = "+SharedPreferenceUtil.getString(context, "session", ""));
 		return params;
 	}
 
@@ -515,6 +521,8 @@ public class Params {
 		Log.d("zxy :", "514 : Params : getAppCenterParams : userId = "+SharedPreferenceUtil.getString(context, "id", ""));
 		params.put("pageIndex","0");
 		params.put("pageSize","1000");
+		params.put("from","2");
+
         return params;
 	}
 }

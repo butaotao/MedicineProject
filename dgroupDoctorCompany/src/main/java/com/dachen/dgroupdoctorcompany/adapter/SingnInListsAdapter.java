@@ -2,7 +2,6 @@ package com.dachen.dgroupdoctorcompany.adapter;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,7 +49,6 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
 
     @Override
     public int getCount() {
-        Log.d("zxy :", "52 : SingnInListsAdapter : getCount : getCount"+mDataLists.size());
         return mDataLists.size();
     }
 
@@ -66,7 +64,6 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Log.d("zxy :", "69 : SingnInListsAdapter : getView : SingnInListsAdapter");
         ChildHolder childHolder;
         //   if(null == convertView){
         childHolder  = new ChildHolder();

@@ -2,6 +2,7 @@ package com.dachen.dgroupdoctorcompany.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.activity.LitterAppActivity;
+import com.dachen.dgroupdoctorcompany.activity.MeetingListActivity;
 import com.dachen.dgroupdoctorcompany.activity.MenuWithFABActivity;
 import com.dachen.dgroupdoctorcompany.activity.RecordActivity;
 import com.dachen.dgroupdoctorcompany.activity.VisitListActivity;
@@ -19,7 +21,6 @@ import com.dachen.dgroupdoctorcompany.adapter.AppcenterAdapter;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.db.dbdao.DepAdminsListDao;
 import com.dachen.dgroupdoctorcompany.entity.MyAppBean;
-import com.dachen.dgroupdoctorcompany.views.GuiderDialog;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
@@ -62,8 +63,6 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
         mAdapter = new AppcenterAdapter(mActivity,mPageData);
         mLvAppCenter.setAdapter(mAdapter);
         initData();
-   /*     Intent signIntent = new Intent(mActivity,MenuWithFABActivity.class);
-        startActivity(signIntent);*/
         return mRootView;
     }
 
@@ -76,6 +75,7 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
                 if (response instanceof MyAppBean ) {
                     MyAppBean bean = (MyAppBean) response;
                     mPageData = bean.data.pageData;
+                    Log.d("zxy :", "79 : CompanyCenterFragment : onSuccess : "+mPageData.size()+", "+mPageData.toString());
                     mAdapter.addData(mPageData);
                     mAdapter.notifyDataSetChanged();
                 }
@@ -143,10 +143,10 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         String protocol = mAdapter.getItem(position).protocol;
         switch (protocol){
-            case "local://statistics"://业务统计
+            case "local://meeting"://会议直播
                 showLoadingDialog();
-               /* Intent signIntent = new Intent(mActivity,MenuWithFABActivity.class);
-                startActivity(signIntent);*/
+                Intent intent = new Intent(mActivity, MeetingListActivity.class);//会议
+                startActivity(intent);
                 break;
             case "local://visit"://客户拜访
                 Intent visitIntent = new Intent(mActivity,VisitListActivity.class);
@@ -154,16 +154,16 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
                 break;
             case "local://signed"://签到
                 showLoadingDialog();
-                GuiderDialog dialog = new GuiderDialog(mActivity);
-                dialog.show();
+                /*GuiderDialog dialog = new GuiderDialog(mActivity);
+                dialog.show();*/
                 Intent signIntent = new Intent(mActivity,MenuWithFABActivity.class);
                 startActivity(signIntent);
                 break;
-            case "1004":
+            case "local://statistics"://业务统计
                 Intent singRecordIntent = new Intent(mActivity,RecordActivity.class);
                 startActivity(singRecordIntent);
                 break;
-            case "1005":
+            case "lightapp://":
                 Intent litterAppIntent = new Intent(mActivity,LitterAppActivity.class);
                 startActivity(litterAppIntent);
                 break;

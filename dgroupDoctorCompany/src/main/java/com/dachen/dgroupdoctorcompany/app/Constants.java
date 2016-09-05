@@ -207,4 +207,5 @@ public class Constants {
     public static final String  QR_WEB_LONIN_CONFIRM =DRUG+"auth/confirm";
     //获取应用中心app
     public static final String  GET_APPCENTER =DRUG+"lightApp/myApp";
+    public static final String  GET_SERVERTIME =DRUG+"auth/getSysTime";
 }
