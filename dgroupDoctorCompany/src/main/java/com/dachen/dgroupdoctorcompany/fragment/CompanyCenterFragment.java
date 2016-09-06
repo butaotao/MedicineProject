@@ -63,7 +63,7 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
         tv_back.setVisibility(View.GONE);
         mRootView.findViewById(R.id.iv_back).setVisibility(View.GONE);
         mLvAppCenter = (PullToRefreshListView) mRootView.findViewById(R.id.lv_appcenter);
-        mLvAppCenter.setEmptyView(View.inflate(mActivity,R.layout.view_appcenter_empty,null));
+       // mLvAppCenter.setEmptyView(View.inflate(mActivity,R.layout.view_appcenter_empty,null));
         mLvAppCenter.setOnItemClickListener(this);
         mAdapter = new AppcenterAdapter(mActivity,mPageData);
         mLvAppCenter.setAdapter(mAdapter);
@@ -109,37 +109,6 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
 
     @Override
     public void onClick(View v) {
-/*        switch (v.getId()){
-            case R.id.rl_conferencemangerment:
-                showLoadingDialog();
-                Intent intent = new Intent(mActivity, MeetingListActivity.class);//会议
-                startActivity(intent);
-                break;
-            case R.id.rl_companycontact:
-//                new HttpManager().get(mActivity, Constants.GET_VISIT_URL, H5Url.class, Params
-//                        .getInfoParams(mActivity),this,false, 1);
-                Intent visitIntent = new Intent(mActivity,VisitListActivity.class);
-                startActivity(visitIntent);
-                break;
-            case R.id.rl_sign_in:
-                showLoadingDialog();
-                GuiderDialog dialog = new GuiderDialog(mActivity);
-                dialog.show();
-                *//*Intent signIntent = new Intent(mActivity,SignInActivity.class);
-                startActivity(signIntent);*//*
-                Intent signIntent = new Intent(mActivity,MenuWithFABActivity.class);
-                startActivity(signIntent);
-                break;
-            case R.id.rl_singrecord:
-
-                Intent singRecordIntent = new Intent(mActivity,RecordActivity.class);
-                startActivity(singRecordIntent);
-                break;
-            case R.id.rl_litterapp:
-                Intent litterAppIntent = new Intent(mActivity,LitterAppActivity.class);
-                startActivity(litterAppIntent);
-                break;
-        }*/
     }
 
     @Override
@@ -150,7 +119,7 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        String protocol = mAdapter.getItem(position).protocol;
+        String protocol = mAdapter.getItem(position-1).protocol;
         switch (protocol){
             case "local://meeting"://会议直播
                 showLoadingDialog();
@@ -163,8 +132,6 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
                 break;
             case "local://signed"://签到
                 showLoadingDialog();
-                /*GuiderDialog dialog = new GuiderDialog(mActivity);
-                dialog.show();*/
                 Intent signIntent = new Intent(mActivity,MenuWithFABActivity.class);
                 startActivity(signIntent);
                 break;

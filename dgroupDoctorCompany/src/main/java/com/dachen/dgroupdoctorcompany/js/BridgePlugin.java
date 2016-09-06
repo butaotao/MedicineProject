@@ -140,6 +140,7 @@ public class BridgePlugin extends CordovaPlugin {
 
         if (this.cordova != null) {
             Intent intent = new Intent(mCordova.getActivity(), QRCodeScannerUI.class);
+            intent.putExtra("litterApp","litterApp");
             this.cordova.startActivityForResult((CordovaPlugin) this, intent, REQUEST_CODE_QR);
         }
     }

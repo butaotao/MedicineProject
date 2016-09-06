@@ -70,6 +70,9 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
             }
         }
     };
+    private boolean updataCheck =  false;
+    private boolean otherPage = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +100,7 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
         companyContactDao = new CompanyContactDao(this);
         entity = (CompanyContactListEntity) getIntent().getSerializableExtra("user");
         entity = companyContactDao.queryByUserid(entity.userId+"");
+        Log.d("zxy :", "95 : OrgActivity : initData : entity = "+entity.id);
         mOrgSelectAdapter = new MyAdapter(OrgActivity.this,mDepamentsList,entity);
         listview.setAdapter(mOrgSelectAdapter);
         String companyName = SharedPreferenceUtil.getString(CompanyApplication.getInstance(), "enterpriseName", "");
@@ -122,8 +126,10 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
                             OrgEntity.Data data = mDepamentsList.get(i);
                             if(i == position){
                                 data.isCheck = isCheck;
+                                updataCheck = true;
                             }else{
                                 data.isCheck = false;
+                                updataCheck = false;
                             }
                         }
                         mOrgSelectAdapter.update(mDepamentsList);
@@ -131,20 +137,12 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
                     }else{
                         mOrgListGuilde.setOldPosition();
                         mOrgListGuilde.addTask(depaments.name,depaments.name);
-                      //  setTitle(depaments.name);
                         mOrgListGuilde.notifyDataSetChanged();
                         mDepamentsList = depaments.subList;
                         mOrgSelectAdapter.update(mDepamentsList);
                         mDepamentsStack.add(copyToNewList(mDepamentsList));
                         mStackCount++;
-                        /*Intent intent = new Intent(OrgActivity.this,OrgActivity.class);
-                        intent.putExtra("title",depaments.name);
-                        intent.setExtrasClassLoader(OrgEntity.Data.class.getClassLoader());
-                        intent.putParcelableArrayListExtra("list",depaments.subList);
-
-                        count++;
-                        intent.putExtra("count",count);
-                        startActivity(intent);*/
+                       otherPage = true;
                     }
                 }
             }
@@ -251,11 +249,14 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
             }
             for(int i=0;i<mDepamentsList.size();i++){
                 OrgEntity.Data data = mDepamentsList.get(i);
-                if(data.id == item.id){
-                    data.isCheck = isCheck;
-                }else{
-                    data.isCheck = false;
-                }
+                Log.d("zxy :", "249 : MyAdapter : onCheckBoxCheck :  "+updataCheck +", "+otherPage);
+
+                    if(data.id == item.id){
+                        data.isCheck = isCheck;
+                    }else{
+                        data.isCheck = false;
+                    }
+
             }
             mOrgSelectAdapter.update(mDepamentsList);
         }
@@ -297,6 +298,13 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
        // setTitle(title);
         mStackCount--;
        // Log.d("zxy", "backtofront: 4  mStackCount = "+mStackCount);
+        for(int i=0;i<mDepamentsList.size();i++){
+            if (updataCheck && otherPage) {//其他数据是否checked
+                mDepamentsList.get(i).isCheck = false;
+                updataCheck = false;
+                otherPage = false;
+            }
+        }
         mOrgSelectAdapter.update(mDepamentsList);
     }
 

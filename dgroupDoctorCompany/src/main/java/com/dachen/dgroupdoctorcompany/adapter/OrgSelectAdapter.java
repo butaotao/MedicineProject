@@ -21,6 +21,7 @@ import java.util.List;
 public abstract class OrgSelectAdapter extends android.widget.BaseAdapter {
     private Context mContext;
     private List<OrgEntity.Data>mDepamentsList = new ArrayList<>();
+   public static OrgEntity.Data  checkedDepaments;
     int actor;
     CompanyContactListEntity entity;
     public OrgSelectAdapter(Context context,List<OrgEntity.Data>data,CompanyContactListEntity entity){
@@ -66,6 +67,7 @@ public abstract class OrgSelectAdapter extends android.widget.BaseAdapter {
         }
 
         final OrgEntity.Data depaments = mDepamentsList.get(position);
+        checkedDepaments = depaments;
         if(null!=depaments){
             String name = depaments.name;
             viewHolder.mTvOrgName.setText(name);
@@ -75,8 +77,7 @@ public abstract class OrgSelectAdapter extends android.widget.BaseAdapter {
             }else{
                 viewHolder.mIvFlag.setVisibility(View.VISIBLE);
             }
-
-            if(entity.id.equals( depaments.id)){
+            if(entity.id.equals(depaments.id)){
                 viewHolder.mCheckBox.setChecked(true);
                 viewHolder.mCheckBox.setBackgroundResource(R.drawable.icon_pay_disable);
                 viewHolder.mCheckBox.setClickable(false);
@@ -92,7 +93,7 @@ public abstract class OrgSelectAdapter extends android.widget.BaseAdapter {
                 viewHolder.mCheckBox.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onCheckBoxCheck(depaments);
+                        onCheckBoxCheck(checkedDepaments);
                     }
                 });
 
@@ -100,6 +101,10 @@ public abstract class OrgSelectAdapter extends android.widget.BaseAdapter {
         }
 
         return convertView;
+    }
+
+    public void setCheckedDepaments(OrgEntity.Data checkedDepaments) {
+        this.checkedDepaments = checkedDepaments;
     }
 
     private class ViewHolder{

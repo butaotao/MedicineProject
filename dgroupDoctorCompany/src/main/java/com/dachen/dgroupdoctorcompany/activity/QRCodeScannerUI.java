@@ -58,6 +58,7 @@ public class QRCodeScannerUI extends Activity implements
     private Button mUiQrcodeScannerBack;
     private TextView mUiQrcodeScannerTitle;
     private ImageButton mUiQrcodeScannerChooseFromPhoto;
+    private String mLitterApp;
 
     private void assignViews() {
         mUiQrcodeScannerBack = (Button) findViewById(R.id.ui_qrcode_scanner_back);
@@ -71,11 +72,10 @@ public class QRCodeScannerUI extends Activity implements
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
-        mScannerView = new ZXingScannerView(this);
+        //mScannerView = new ZXingScannerView(this);
         setContentView(R.layout.ui_qrcode_scanner);
         context = this;
         assignViews();
-
         init();
         initListener();
     }
@@ -89,6 +89,7 @@ public class QRCodeScannerUI extends Activity implements
         List<BarcodeFormat> formats = new ArrayList<BarcodeFormat>();
         formats.add(BarcodeFormat.QR_CODE);
         mScannerView.setFormats(formats);
+        mLitterApp = getIntent().getStringExtra("litterApp");
     }
 
     void onClick_ui_qrcode_scanner_back() {
@@ -150,7 +151,7 @@ public class QRCodeScannerUI extends Activity implements
      * 访问网络
      */
     protected void executeTask(final String scanResult) {
-        if (scanResult.startsWith("http://")) {//轻应用二维码
+        if (scanResult.startsWith("http://" )&& "litterApp".equals(mLitterApp)) { //轻应用二维码
             Intent data = new Intent().putExtra("qrString", scanResult);
             setResult(RESULT_OK, data);
             finish();
@@ -163,7 +164,6 @@ public class QRCodeScannerUI extends Activity implements
             Log.d("zxy :", "178 : QRCodeScannerUI : executeTask : strings1[1] = "+strings1[1]);
             new HttpManager().post(this, Constants.QR_WEB_LONIN_VERIFY, QRLogin.class, Params.getQRWebKeyParams
                     (strings1[1]), new HttpManager.OnHttpListener<com.dachen.medicine.entity.Result>() {
-
                 @Override
                 public void onSuccess(com.dachen.medicine.entity.Result response) {
                     Log.d("zxy :", "186 : QRCodeScannerUI : onSuccess : result");
@@ -196,6 +196,7 @@ public class QRCodeScannerUI extends Activity implements
                 }
             }, false, 1);
         }else {
+
             Log.d("zxy :", "214 : QRCodeScannerUI : executeTask : scanResult = "+scanResult);
             finish();
         }
