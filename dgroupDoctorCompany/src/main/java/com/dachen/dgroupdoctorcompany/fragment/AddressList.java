@@ -115,6 +115,7 @@ public class AddressList extends BaseFragment implements View.OnClickListener{
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				if (CompareDatalogic.isInitContact()) {
+					showLoadingDialog();
 					DepAdminsList dept = (DepAdminsList) depManagerAdapter.getItem(position);
 					deptId = dept.orgId;
 					/*Intent intent = new Intent(mActivity, EidtColleagueActivity.class);

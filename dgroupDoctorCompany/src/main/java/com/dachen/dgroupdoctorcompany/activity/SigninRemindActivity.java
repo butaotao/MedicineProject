@@ -39,16 +39,20 @@ public class SigninRemindActivity extends BaseActivity implements OnClickListene
     SignInRemindAdapter adapter;
     RelativeLayout rl_empty;
     LinearLayout ll_list;
+    RelativeLayout rl_title;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signin_remind);
-
+        changerTitleBar();
     }
 
     private void initViews() {
         tv_week = getViewById(R.id.tv_week);
         tv_time = getViewById(R.id.tv_time);
+        rl_title = (RelativeLayout) findViewById(R.id.rl_title);//color_3cbaff
+        rl_title.setBackgroundColor(getResources().getColor(R.color.color_3cbaff));
+
         remind_list = getViewById(R.id.remind_list);
         btn_add = getViewById(R.id.btn_add);
         ll_list = (LinearLayout) findViewById(R.id.ll_list);
@@ -59,7 +63,7 @@ public class SigninRemindActivity extends BaseActivity implements OnClickListene
         c.setTime(new Date(curTime));
         int dayInWeek = c.get(Calendar.DAY_OF_WEEK);
         tv_week.setText("星期" + TimeUtils.getWeekStr(dayInWeek));
-        String time = com.dachen.medicine.common.utils.TimeUtils.getTimeDay3(curTime);
+        String time = com.dachen.medicine.common.utils.TimeUtils.getTimeDay(curTime);
         tv_time.setText(time);
         List<Reminder> lists = new ArrayList<>();
         RemindDao dao = new RemindDao(this);

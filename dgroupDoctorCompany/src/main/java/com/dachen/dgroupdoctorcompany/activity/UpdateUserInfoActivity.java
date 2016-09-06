@@ -11,9 +11,11 @@ import com.dachen.common.utils.ToastUtil;
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
+import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.utils.GetAllDoctor;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
+import com.dachen.medicine.common.utils.StringUtils;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.Params;
@@ -38,6 +40,7 @@ public class UpdateUserInfoActivity extends BaseActivity implements HttpManager.
     private String mStrGroupName="";
     private String id;
     public CompanyContactListEntity entity;
+    String url = "";
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -77,6 +80,7 @@ public class UpdateUserInfoActivity extends BaseActivity implements HttpManager.
             id = SharedPreferenceUtil.getString(this, "id", "");
             mEtUserName.setHint("输入姓名(必填)");
             mEtUserName.setText(name);
+            url = Constants.UPDATE_USER_NAME;
         }else if(MODE_UPDATE_JOB_TITLE == mMode){
             setTitle("我的职位");
             id = SharedPreferenceUtil.getString(this, "id", "");
@@ -84,15 +88,17 @@ public class UpdateUserInfoActivity extends BaseActivity implements HttpManager.
             mStrOrgId = this.getIntent().getStringExtra("part");
             mEtUserName.setHint("输入职位名称(选填)");
             mEtUserName.setText(mStrJobTitle);
+            url =Constants.UPDATE_USER_NAME;
         }else if (MODE_UPDATE_NAME_MANAGER == mMode){
             setTitle("修改姓名");
-
-            mEtUserName.setHint("输入姓名(必填)");
+            url =Constants.UPDATE_NAME_MANAGER;
+                    mEtUserName.setHint("输入姓名(必填)");
             mEtUserName.setText(name);
             id = getIntent().getStringExtra("id");
         }else if (MODE_UPDATE_JOB_TITLE_MANAGER == mMode){
             setTitle("修改职位");
-            id = getIntent().getStringExtra("id");
+            url =Constants.UPDATE_JOB_TITLE;
+                    id = getIntent().getStringExtra("id");
             mStrJobTitle = this.getIntent().getStringExtra("job_title");
             mStrOrgId = this.getIntent().getStringExtra("part");
             mEtUserName.setHint("输入职位名称(选填)");
@@ -126,7 +132,7 @@ public class UpdateUserInfoActivity extends BaseActivity implements HttpManager.
             ToastUtil.showToast(UpdateUserInfoActivity.this,"请输入姓名");
             return;
         }
-        if (mStrUserName.contains(" ")){
+        if (!StringUtils.isNoral(mStrUserName)){
             ToastUtil.showToast(UpdateUserInfoActivity.this,"姓名只允许包含汉字、英文字母、数字、下划线和点号");
             return;
 
@@ -142,7 +148,7 @@ public class UpdateUserInfoActivity extends BaseActivity implements HttpManager.
             employeeId =  SharedPreferenceUtil.getString(this, "employeeId", "");
         }
         showLoadingDialog();
-        new HttpManager().post(this, Constants.UPDATE_USER_NAME,Result.class, Params
+        new HttpManager().post(this, url,Result.class, Params
                 .updateUserName(UpdateUserInfoActivity.this,mStrUserName,id,employeeId),this,false,1);
     }
 
@@ -157,10 +163,12 @@ public class UpdateUserInfoActivity extends BaseActivity implements HttpManager.
             employeeId = entity.employeeId;
         }else {
             employeeId  =  SharedPreferenceUtil.getString(this, "employeeId", "");
-        }
-
+        }//UPDATE_JOB_TITLE
         showLoadingDialog();
-        new HttpManager().post(this, Constants.UPDATE_USER_NAME,Result.class, Params
+        CompanyContactDao dao = new CompanyContactDao(this);
+        CompanyContactListEntity entity = dao.queryByUserid(id);
+        mStrOrgId = entity.id;
+        new HttpManager().post(this, url,Result.class, Params
                 .updateJobTitle(UpdateUserInfoActivity.this,mStrOrgId,mStrJobTitle,id,employeeId),this,false,1);
     }
 

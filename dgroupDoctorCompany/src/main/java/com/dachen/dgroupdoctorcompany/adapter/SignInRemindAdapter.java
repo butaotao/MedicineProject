@@ -98,11 +98,11 @@ public class SignInRemindAdapter extends BaseAdapter{
 					info.isOpen = 1;
 					holder.rl_item.setBackgroundColor(context.getResources().getColor(R.color.white));
 					ToastUtil.showToast(context,"开启提醒");
-					if (info.times==0){
+
 						info.updateTime = System.currentTimeMillis();
 						AlarmBusiness.cancelAlarm(context, info);
 						AlarmBusiness.setAlarm(context,info);
-					}
+
 					//holder.open.setChecked(false);
 				}
 				listSelected.set(arg0, info);

@@ -16,6 +16,7 @@ import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.db.dbentity.Reminder;
 import com.dachen.dgroupdoctorcompany.receiver.LocationReceiver;
+import com.dachen.dgroupdoctorcompany.utils.GaoDeMapUtils;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -40,6 +41,7 @@ public class AlarmDialogFullScreenActivity extends BaseActivity   {
     long longitude;
     String address;
     long nowtime;
+    GaoDeMapUtils mGaoDeMapUtils;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
@@ -59,6 +61,10 @@ public class AlarmDialogFullScreenActivity extends BaseActivity   {
         setFinishOnTouchOutside(false);
 
         initData(getIntent());
+        long nowtime = getIntent().getLongExtra("nowtime", 0);
+        mGaoDeMapUtils = new GaoDeMapUtils( this);
+        mGaoDeMapUtils.setNowtime(nowtime);
+        mGaoDeMapUtils.startLocation();
         receiver = new LocationReceiver(){
             @Override
             public void onReceive(Context context, Intent intent) {

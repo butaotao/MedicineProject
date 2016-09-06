@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.dachen.common.adapter.ViewHolder;
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.imsdk.db.po.ChatGroupPo;
+import com.dachen.medicine.net.CustomImagerLoader;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.List;
@@ -57,7 +58,7 @@ public class CompanyChatGroupAdapter extends android.widget.BaseAdapter {
        // TextView tvTime=holder.getView(R.id.session_message_time); // 时间
 
         ChatGroupPo group=mGroupList.get(position);
-        ImageLoader.getInstance().displayImage(group.gpic,ivHead);
+        CustomImagerLoader.getInstance().loadImage(ivHead,group.gpic,R.drawable.ic_default_head,R.drawable.ic_default_head);
 
         if(group.unreadCount==0){
             tvUnread.setVisibility(View.INVISIBLE);

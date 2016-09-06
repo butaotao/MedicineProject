@@ -36,9 +36,11 @@ public class CustomButtonFragment  extends Fragment {
     MenuWithFABActivity activity;
     public FloatingActionMenu circleMenu;
     TextView tv_alertnotsign;
-    public void setActivity(MenuWithFABActivity activity) {
+    long time;
+    public void setActivity(MenuWithFABActivity activity,long time) {
             this.activity = activity;
-        sixTime = com.dachen.medicine.common.utils.TimeUtils.getTime(6, 0);
+        sixTime = com.dachen.medicine.common.utils.TimeUtils.getTime(time,6, 0);
+        this.time = time;
     }
     public CustomButtonFragment() {
         this.activity = activity;
@@ -78,23 +80,26 @@ public class CustomButtonFragment  extends Fragment {
             ImageView fabIconStar = new ImageView(activity);
             final FloatingActionButton.LayoutParams starParams = new FloatingActionButton.LayoutParams(blueSubActionButtonSize, blueSubActionButtonSize);
             final FloatingActionButton.LayoutParams smallParams = new FloatingActionButton.LayoutParams(subsize, subsize);
+            int redActionButtonContentMarginBottom =
+                    getResources().getDimensionPixelSize(R.dimen.red_action_button_content_marginBottom);
             smallParams.setMargins(redActionButtonMargin,
                     redActionButtonMargin,
                     redActionButtonMargin,
-                    redActionButtonMargin);
+                    redActionButtonContentMarginBottom+5);
             starParams.setMargins(redActionButtonMargin,
                     redActionButtonMargin,
                     redActionButtonMargin,
-                    redActionButtonMargin);
+                    redActionButtonContentMarginBottom);
             fabIconStar.setLayoutParams(starParams);
             int redActionButtonContentMargin = getResources().getDimensionPixelSize(R.dimen.red_action_button_content_margin);
             int redActionButtonContentSize = getResources().getDimensionPixelSize(R.dimen.red_action_button_content_size);
+
             FloatingActionButton.LayoutParams fabIconStarParams =
                     new FloatingActionButton.LayoutParams(redActionButtonContentSize, redActionButtonContentSize);
             fabIconStarParams.setMargins(redActionButtonContentMargin,
                     redActionButtonContentMargin,
                     redActionButtonContentMargin,
-                    redActionButtonContentMargin);
+                    redActionButtonContentMarginBottom);
 
             leftCenterButton = new FloatingActionButton.Builder(activity)
                     .setContentView(fabIconStar, fabIconStarParams)
@@ -123,9 +128,9 @@ public class CustomButtonFragment  extends Fragment {
                     //activity.timeStamp; 1472594400000  1472594400000
                     long nowTime = activity.timeStamp;
 
-                    long twentyTime = com.dachen.medicine.common.utils.TimeUtils.getTime(0, 0);
-                    long yesdayworktime = activity.ytdayWorkTime+2;
-                    long yesdayworkofftime = activity.ytdayOffTime+3;
+                    long twentyTime = com.dachen.medicine.common.utils.TimeUtils.getTime(time,0, 0);
+                    long yesdayworktime = activity.ytdayWorkTime;
+                    long yesdayworkofftime = activity.ytdayOffTime;
                     boolean haveworksign = haveSignWork();
                     if (sixTime <= nowTime)
                               {

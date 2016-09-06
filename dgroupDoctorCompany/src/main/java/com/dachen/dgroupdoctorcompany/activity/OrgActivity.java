@@ -124,21 +124,12 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
                         setDepartmen(depaments.name,orgId);
                     }else{
                         mOrgListGuilde.setOldPosition();
-                        mOrgListGuilde.addTask(depaments.name,depaments.name);
-                      //  setTitle(depaments.name);
+                        mOrgListGuilde.addTask(depaments.name, depaments.name);
                         mOrgListGuilde.notifyDataSetChanged();
                         mDepamentsList = depaments.subList;
                         mOrgSelectAdapter.update(mDepamentsList);
                         mDepamentsStack.add(copyToNewList(mDepamentsList));
                         mStackCount++;
-                        /*Intent intent = new Intent(OrgActivity.this,OrgActivity.class);
-                        intent.putExtra("title",depaments.name);
-                        intent.setExtrasClassLoader(OrgEntity.Data.class.getClassLoader());
-                        intent.putParcelableArrayListExtra("list",depaments.subList);
-
-                        count++;
-                        intent.putExtra("count",count);
-                        startActivity(intent);*/
                     }
                 }
             }
@@ -167,13 +158,10 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
         }
     }
     private void updateOrg(String id){
-        if(TextUtils.isEmpty(orgId)){
-            ToastUtil.showToast(OrgActivity.this,"请先选择要修改的部门");
-            return;
-        }
+
         showLoadingDialog();
         new HttpManager().post(this, Constants.UPDATE_ORG, Result.class, Params
-                .updateOrg(OrgActivity.this, orgId, id,entity.employeeId), this, false, 1);
+                .updateOrg(OrgActivity.this, orgId, id, entity.employeeId), this, false, 1);
     }
 
     private void getOrganization(){
@@ -197,15 +185,18 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
                  closeLoadingDialog();
                 OrgEntity orgEntity =(OrgEntity)(response);
                  mDepamentsList.clear();
-                 OrgEntity.Data data = new OrgEntity.Data(orgEntity.data.get(0).creatorDate,orgEntity.data.get(0).desc,orgEntity.data.get(0).enterpriseId,
-                         orgEntity.data.get(0).id,orgEntity.data.get(0).name+"(根目录)",orgEntity.data.get(0).parentId,new ArrayList<OrgEntity.Data>(),
-                         orgEntity.data.get(0).updator,orgEntity.data.get(0).updatorDate,orgEntity.data.get(0).creator,false);
-                 mDepamentsList.add(0, data);
-                 mDepamentsList.addAll(orgEntity.data.get(0).subList);
-                 mOrgSelectAdapter.update(mDepamentsList);
+                 if (null!=orgEntity&&orgEntity.data!=null&&orgEntity.data.size()>0){
+                     OrgEntity.Data data = new OrgEntity.Data(orgEntity.data.get(0).creatorDate,orgEntity.data.get(0).desc,orgEntity.data.get(0).enterpriseId,
+                             orgEntity.data.get(0).id,orgEntity.data.get(0).name+"(根目录)",orgEntity.data.get(0).parentId,new ArrayList<OrgEntity.Data>(),
+                             orgEntity.data.get(0).updator,orgEntity.data.get(0).updatorDate,orgEntity.data.get(0).creator,false);
+                     mDepamentsList.add(0, data);
+                     mDepamentsList.addAll(orgEntity.data.get(0).subList);
+                     mOrgSelectAdapter.update(mDepamentsList);
 
-                 mDepamentsStack.add(copyToNewList(mDepamentsList));
-                 mStackCount++;
+                     mDepamentsStack.add(copyToNewList(mDepamentsList));
+                     mStackCount++;
+                 }
+
                 Log.d("zxy", "onSuccess: mStackCount = "+mStackCount);
             }else{
                  GetAllDoctor.getInstance().getPeople(OrgActivity.this, handler);
@@ -328,6 +319,10 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
         }
     }
     public void showDialog(){
+        if(TextUtils.isEmpty(orgId)){
+            ToastUtil.showToast(OrgActivity.this,"请先选择要修改的部门");
+            return;
+        }
         //确定移动到所选部门吗？“，
         final CustomDialog dialog = new CustomDialog(this);
         dialog.showDialog("", "确定移动到所选部门吗?",R.string.cancel,R.string.sure, new View.OnClickListener() {

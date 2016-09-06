@@ -41,7 +41,7 @@ public class Constants {
      * 我 登出
      */
 
-    public static String LOGOUT = DRUG+"user/logout";
+    public static String LOGOUT = DRUG+"auth/logout";
     // 登录接口
     public static final String LOGIN = DRUG + "auth/login";
     public static final String LOGINVERIFY = "login";
@@ -110,7 +110,7 @@ public class Constants {
     public static String SAVE_FILE = "vpanfile/saveFile";
     public static String IS_IN_MY_FILE_LIST = "vpanfile/isInMyFileList";
     public static String ARCHIVE_LIST = "vpanfile/queryFile";
-    public static String GET_INFO = DRUG+"companyUser/getMajorUserByUserId";
+    public static String GET_INFO = DRUG+"auth/getUserInfo";
     public static String GET_VISIT_URL = DRUG+"h5VistUrl/getUrlForH5";
     //直播会议 - 创建会议
     public static String MEETING_CREATE = "meeting/create";
@@ -143,8 +143,9 @@ public class Constants {
     public static String GET_VISIT_LIST_TODAY = "signed/getTodaySignedList";
     //修改用户名称
     public static String UPDATE_USER_NAME = DRUG+"auth/updateOneselfInfo";
-    //修改用户职位
-    public static String UPDATE_JOB_TITLE = DRUG+"drugCompany/dept/updateUserTitle";
+    //修改用户职位companyUser/updateMajorUser
+    public static String UPDATE_JOB_TITLE = DRUG+"companyUser/updateMajorUser";
+    public static String UPDATE_NAME_MANAGER =DRUG+"companyUser/updateUserName";
     //删除拜访
     public static String DELETE_VISIT = "visit/deleteVisit";
     //获取用户组织结构

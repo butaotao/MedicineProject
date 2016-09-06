@@ -101,13 +101,18 @@ public class SingnTodayAdapter extends android.widget.BaseAdapter{
                 childHolder.tvName.setBackgroundResource(R.drawable.btn_leftcorgreen_all);
             }
             childHolder.tvName.setText(des);
+
+           // childHolder.rl_des.setVisibility(View.GONE);
         }else {
             childHolder.tvName.setBackgroundResource(R.drawable.btn_leftcorgreen_all);
             childHolder.tvName.setText("其\n他");
         }
        if (!TextUtils.isEmpty(listVisitVo.remark)){
             childHolder.tvdes.setText(listVisitVo.remark);
-        }
+            childHolder.rl_des.setVisibility(View.VISIBLE);
+        }else {
+           childHolder.rl_des.setVisibility(View.GONE);
+       }
         if (0!=listVisitVo.longTime){
             String destime = "上午";
             if (TimeUtils.isnoon(listVisitVo.longTime)){
@@ -128,6 +133,13 @@ public class SingnTodayAdapter extends android.widget.BaseAdapter{
         childHolder.rl_click.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (context instanceof MenuWithFABActivity){
+                    MenuWithFABActivity activity = (MenuWithFABActivity) context;
+                    if (null!=activity.fragment&&null!=activity.fragment.circleMenu){
+                        activity.fragment.circleMenu.close(true);
+                    }
+                }
+
                 Intent intent = new Intent(context, SiginDetailActivity.class);
                 intent.putExtra("day", "");
                 intent.putExtra("hour","");

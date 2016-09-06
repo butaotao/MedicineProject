@@ -4,7 +4,7 @@
     android:id="@+id/container"
     android:fitsSystemWindows="true"
     android:layout_height="match_parent"
-    android:background="@color/content_background">
+    android:background="@color/background">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -70,8 +70,30 @@
         android:scrollbars="none"
         android:paddingLeft="4dp"
         android:paddingRight="4dp"
-        android:divider="@color/content_color"
+        android:divider="@color/background"
         android:layout_height="match_parent">
     </com.handmark.pulltorefresh.library.PullToRefreshListView>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="4">
+
+
+        </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="@drawable/signtoday_background"
+                android:layout_weight="1">
+
+
+            </LinearLayout>
+        </LinearLayout>
     </RelativeLayout>
 </FrameLayout>

@@ -267,4 +267,21 @@ public class StringUtils {
 		}
 		return false;
 	}
+	public static boolean isNoral(String s){
+		String reg = "[\\u4e00-\\u9fa5]+";//
+		String hao= "+_";
+		if (!android.text.TextUtils.isEmpty(s)&&s.contains(s)){
+			for (int i=0;i<s.length();i++){
+				String ss = (s.charAt(i)+"");
+				if ((ss).matches(reg)||hao.contains(ss)||StringUtils.isNumeric(ss)||isEnglish(ss)){
+					continue;
+				}else {
+					return false;
+				}
+
+			}
+			return  true;
+		}
+		return false;
+	}
 }

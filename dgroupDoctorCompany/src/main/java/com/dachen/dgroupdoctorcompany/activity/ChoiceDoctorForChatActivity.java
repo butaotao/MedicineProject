@@ -297,8 +297,8 @@ public class ChoiceDoctorForChatActivity extends BaseActivity {
             } else {
                 Represent2DoctorChatActivity.openUI(mThis, data.gname, data.gid, userId);
                // ImUtils.closeChat(groupIds);
-
-                CallIntent.startMainActivity(ChoiceDoctorForChatActivity.this);
+                finish();
+             //   CallIntent.startMainActivity(ChoiceDoctorForChatActivity.this);
             }
         }
 

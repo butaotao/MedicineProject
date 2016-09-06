@@ -280,7 +280,7 @@ public class CompanyContactDao {
         return new ArrayList<>();
     }
     public QueryBuilder<CompanyContactListEntity, Integer> getbuider(int pageNo){
-        if (null==builder){
+        if (null!=builder){
             builder = articleDao.queryBuilder();
             builder.orderBy("pinYinOrderType", true);
             builder.orderBy("name", true);
@@ -290,7 +290,7 @@ public class CompanyContactDao {
         return builder;
     }
     public List<CompanyContactListEntity> querySearchPage(String name, int pageNo,boolean limit) {
-        QueryBuilder<CompanyContactListEntity, Integer> builder = getbuider(pageNo);
+        QueryBuilder<CompanyContactListEntity, Integer> builder = articleDao.queryBuilder();
         String loginid = SharedPreferenceUtil.getString(context, "id", "");
         boolean ispinyin = false;
         try {
@@ -305,35 +305,66 @@ public class CompanyContactDao {
             boolean isEnglish = StringUtils.isEnglish(name);
             if (isNunicodeDigits){
                 name = "%" + name + "%";
+                where.reset();
                 if (!name.equals("%" +"1"+ "%")){
-                /*    builder.orderBy("pinYinOrderType", true);
-                    builder.orderBy("name", true);*/
-                    where.and(where.eq("userloginid", loginid), where.like("telephone", name)) ;
+                    builder.orderBy("pinYinOrderType", true);
+                    builder.orderBy("simpinyin", true);
+                    builder.orderBy("name", true);
+                  //  builder.groupBy("pinYinOrderType");
+                 where.and(where.eq("userloginid", loginid), where.like("telephone", name)) ;
                     if (null != where.query()) {
                         entities.addAll(builder.distinct().query());
                     }
                     for (int i = 0; i < entities.size(); i++) {
                         phones.add(entities.get(i).userId);
                     }
-                    where.reset();
-                   /* builder.orderBy("pinYinOrderType", true);
-                    builder.orderBy("name", true);*/
 
-                    where.and(where.and(where.eq("userloginid", loginid), where.like("name", name)),
-                            where.notIn("userId", phones));
-                    if (null != where.query()) {
-                        entities.addAll(builder.distinct().query());
+
+                    if (entities.size()<50&&entities.size()!=0){
+                        where.reset();
+                        builder.reset();
+                        if (limit){
+                            builder.limit(50l).offset((pageNo - 1) * (50l-entities.size()));
+                        }
+                        builder.orderBy("pinYinOrderType", true);
+                        builder.orderBy("simpinyin", true);
+                        where.and(where.and(where.eq("userloginid", loginid), where.like("name", name)),
+                                where.notIn("userId", phones));
                     }
-                    int size = entities.size();
-                }else {
-                   // builder.reset();
+                    if (entities.size()==0){
+                        where.reset();
+                        builder.reset();
+                        if (limit){
+                            builder.limit(50l).offset((pageNo - 1) * 50l);
+                        }
+                        builder.orderBy("pinYinOrderType", true);
+                        builder.orderBy("simpinyin", true);
+                        builder.orderBy("name", true);
+                        where.and(where.and(where.eq("userloginid", loginid), where.like("name", name)),
+                                where.notIn("userId", phones));
+                        if (null != where.query()) {
+                            entities.addAll(builder.distinct().query());
+                        }
+                        int size = entities.size();
+                    }
+
+                  /*  where.or(
+                            where.and(where.eq("userloginid", loginid), where.like("telephone", name)),
+                            where.and(where.eq("userloginid", loginid), where.like("name", name)));*/
+
+
+                } else {
+                    // builder.reset();
                     builder.orderBy("pinYinOrderType", true);
-                    builder.orderBy("name", true);
+                    builder.orderBy("simpinyin", true);
 
                     where.and(where.eq("userloginid", loginid), where.like("name", name));
                     if (null != where.query()) {
                         entities.addAll(builder.distinct().query());
                     }
+
+
+
                     int size = entities.size();
                 }
             }else {
@@ -341,7 +372,7 @@ public class CompanyContactDao {
                     name = "%" + name + "%";
                     where.reset();
                     builder.orderBy("pinYinOrderType", true);
-                    builder.orderBy("name", true);
+                    builder.orderBy("simpinyin", true);
                     where.and(where.eq("userloginid", loginid), where.like("name", name));
                     if (null != where.query()) {
                         entities.addAll(builder.distinct().query());
