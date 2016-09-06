@@ -22,12 +22,15 @@ import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.entity.CheckPhoneOnSys;
+import com.dachen.dgroupdoctorcompany.entity.SmsSend;
 import com.dachen.dgroupdoctorcompany.entity.Void;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.common.utils.ToastUtils;
 import com.dachen.medicine.config.UserInfo;
+import com.dachen.medicine.entity.ResetPassword;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
+import com.dachen.medicine.net.Params;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,6 +84,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener,Ht
 	Button btn_back;
 	EditText phone_numer_edit;
 	EditText auth_code_edit;
+	public String smsId = "";
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -214,7 +218,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener,Ht
 		HashMap<String,String> maps = new HashMap<>();
 		maps.put("access_token", UserInfo.getInstance(this).getSesstion());
 		maps.put("newPhone", phoneNumber);
-		new HttpManager().post(this, Constants.DRUG +"drugCompanyEmployee/checkNewPhoneIfOnSystem", CheckPhoneOnSys.class,
+		new HttpManager().post(this, Constants.DRUG +"auth/checkRegisterTelephone", CheckPhoneOnSys.class,
 				maps, new HttpManager.OnHttpListener<Result>() {
 					@Override
 					public void onSuccess(Result result) {
@@ -286,13 +290,16 @@ public class RegisterActivity extends BaseActivity implements OnClickListener,Ht
 		params.put("telephone", phoneNumber);
 		params.put("templateId", templateId);// 短信模板。
 		HashMap<String, String> interfaces = new HashMap<String, String>();
-		interfaces.put("interface1", Constants.SEND_AUTH_CODE);
+		interfaces.put("interface1", Constants.PRE_RESET_PASSWD);
+
 		new HttpManager().post(this, interfaces,
-				Void.class, params, new HttpManager.OnHttpListener<Result>() {
+				SmsSend.class, params, new HttpManager.OnHttpListener<Result>() {
 					@Override
 					public void onSuccess(Result result) {
 						closeLoadingDialog();
-						if (result != null && result.getResultCode() == 1) {// 发送成功
+						SmsSend send = (SmsSend)result;
+						if (result != null && result.getResultCode() == 1&&send.data!=null) {// 发送成功
+							smsId =send.data.smsid;
 							ToastUtils.showToast(RegisterActivity.this, "验证码已发送，请注意查收");
 							//语音验证码不可点击，直到120秒后
 							get_call_code.setTextColor(getResources().getColor(R.color.gray_time_text));
@@ -300,6 +307,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener,Ht
 						} else {
 							mReckonHandler.removeCallbacksAndMessages(null);
 							mReckonHandler.sendEmptyMessage(0x2);
+							smsId = "";
 							ToastUtils.showToast(RegisterActivity.this, result.getResultMsg());
 						}
 						clicked = false;
@@ -317,8 +325,9 @@ public class RegisterActivity extends BaseActivity implements OnClickListener,Ht
 						mReckonHandler.removeCallbacksAndMessages(null);
 						mReckonHandler.sendEmptyMessage(0x2);
 						clicked = false;
+						smsId = "";
 					}
-				}, 3);
+				}, false,1);
 	}
 
 	/**
@@ -430,19 +439,20 @@ public class RegisterActivity extends BaseActivity implements OnClickListener,Ht
 
 
 
-		changePhoneNum(phoneNumber, this, authCode);
+		changePhoneNum(phoneNumber, this, authCode,smsId);
 	}
-	public  void changePhoneNum(String phoneNum, final Activity context,String authCode ) {
+	public  void changePhoneNum(String phoneNum, final Activity context,String authCode,String smsid ) {
 		//drugCompanyEmployee/modifyUserPhone
 		showLoadingDialog();
 		HashMap<String,String> maps = new HashMap<>();
 		maps.put("access_token", UserInfo.getInstance(context).getSesstion());
 		maps.put("newPhone", phoneNum);
 		maps.put("drugCompanyId", SharedPreferenceUtil.getString(context, "enterpriseId", ""));
-		maps.put("authCode", authCode);
+		maps.put("ranCode", authCode);
+		maps.put("smsid",smsid);
 		final String templateId = "25118";
 		maps.put("templateId", templateId);
-		new HttpManager().post(context, Constants.DRUG + "drugCompanyEmployee/modifyUserPhone", Result.class,
+		new HttpManager().post(context, Constants.DRUG + "auth/modifyOneselfTelephone", Result.class,
 				maps, new HttpManager.OnHttpListener<Result>() {
 					@Override
 					public void onSuccess(Result response) {

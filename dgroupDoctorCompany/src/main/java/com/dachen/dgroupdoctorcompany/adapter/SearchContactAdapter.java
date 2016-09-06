@@ -87,7 +87,10 @@ public class SearchContactAdapter extends BaseCustomAdapter<BaseSearch>{
                 boolean show = true;
                 Spanned spanned = HtmlTextViewEdit.showkeywordContent(people.name,activity.searchText,context);
                 if (activity!=null/*&&activity.showColleague*/){
-                    if (people.name.toLowerCase().contains(activity.searchText.toLowerCase())){
+                    boolean isNum = StringUtils.isNumeric(activity.searchText.toLowerCase());
+                    if (people.name.toLowerCase().contains(activity.searchText.toLowerCase())&&!(
+                            isNum&&people.telephone.contains(activity.searchText)
+                            )){
                         holder.tv_name_leader.setText(spanned);
                         show = false;
                     }else {

@@ -60,7 +60,8 @@ public class SinUtils {
                                         mapLable2Id.put(strLable, strLableId);
                                     }
                                     if (type==-1){
-                                        sign(activity, address, coordinate, mapLable2Id.get(defaltsignLable),defaltsignLable, finish);
+                                        sign(activity, address, coordinate, mapLable2Id.get(defaltsignLable),
+                                                defaltsignLable, finish);
                                     }else {
                                         if (activity instanceof MenuWithFABActivity){
                                             MenuWithFABActivity activity1 = (MenuWithFABActivity)activity;
@@ -106,7 +107,8 @@ public class SinUtils {
                                 activity1.closeLoadingDialog();
                             }
                             if (finish==1){
-
+                                MenuWithFABActivity activity2 = (MenuWithFABActivity)activity;
+                                activity2.onResume();
                             }else if(finish==2){
                                 if (activity instanceof MenuWithFABActivity){
                                     /*MenuWithFABActivity activity2 = (MenuWithFABActivity)activity;

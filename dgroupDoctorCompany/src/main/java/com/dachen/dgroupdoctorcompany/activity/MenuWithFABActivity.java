@@ -49,7 +49,8 @@ public class MenuWithFABActivity extends SignInActivity implements View.OnClickL
     public long ytdayOffTime;
     public long ytdayWorkTime;
     public long timeStamp;
-    CustomButtonFragment fragment;
+    public CustomButtonFragment fragment;
+    int refresh = 0;
     //adapter_menusign
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -77,7 +78,7 @@ public class MenuWithFABActivity extends SignInActivity implements View.OnClickL
         refreshScrollView.setMode(PullToRefreshBase.Mode.BOTH);
         refreshScrollView.setFocusable(false);
         fragment = new CustomButtonFragment();
-        fragment.setActivity(this);
+        fragment.setActivity(this,System.currentTimeMillis());
         IntentFilter filter = new IntentFilter();
         filter.addAction("action.to.signlisttoday");
         registerReceiver(hasMessageReceiver, filter);
@@ -101,11 +102,11 @@ public class MenuWithFABActivity extends SignInActivity implements View.OnClickL
         }
         mAdapter = new SingnTodayAdapter(this);
         refreshScrollView.setAdapter(mAdapter);
-
+        refresh = 0;
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         getListData();
 
@@ -143,11 +144,13 @@ public class MenuWithFABActivity extends SignInActivity implements View.OnClickL
                     SignTodayInList.Data data = signInList.data;
 
                     if(null != data ){
+
                         ytdayOffTime = data.ytdayOffTime;
                         ytdayWorkTime = data.ytdayWorkTime;
                         timeStamp = data.timeStamp;
                         tv_week.setText(TimeUtils.getWeek(timeStamp));
-                        tv_time.setText(TimeUtils.getTimeDay( timeStamp));
+                        tv_time.setText(TimeUtils.getTimeDay(timeStamp));
+                        fragment.setActivity(this,timeStamp);
                         int beforeSize = mDataLists.size();
                         if(null != data.signedList && data.signedList.size()>0){
                             if (pageIndex==0){
@@ -169,6 +172,10 @@ public class MenuWithFABActivity extends SignInActivity implements View.OnClickL
                             mAdapter.addData(mDataLists,false);
                         }
                         mAdapter.notifyDataSetChanged();
+                        /*if (refresh!=0){
+                            refreshScrollView.scrollTo(0, refreshScrollView.getBottom());
+                        }*/
+                        refresh ++;
                         if(beforeSize>0){
                             int afterSize = mDataLists.size();
                             if(beforeSize == afterSize){

@@ -24,6 +24,7 @@ import com.dachen.dgroupdoctorcompany.db.dbentity.Reminder;
 import com.dachen.dgroupdoctorcompany.db.dbentity.WeekSinger;
 import com.dachen.dgroupdoctorcompany.service.GaoDeService;
 import com.dachen.dgroupdoctorcompany.service.PlayMusicService;
+import com.dachen.dgroupdoctorcompany.utils.DataUtils.AlarmBusiness;
 import com.dachen.medicine.common.utils.Alarm;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.common.utils.ToastUtils;
@@ -116,23 +117,22 @@ public class AlarmReceivers extends BroadcastReceiver {
                 !SharedPreferenceUtil.getString(context,"id","").equals(alarm2.userloginid)){
             return;
         }
-
-
-            if (!TextUtils.isEmpty(reminder.weekday) &&reminder.weekday.contains(""+dayInWeek)){
+            if (!TextUtils.isEmpty(reminder.weekday) &&reminder.weekday.contains(""+dayInWeek)
+                    &&AlarmBusiness.getNextAlarmTimeInMillis3(alarm2)){
                 show = true;
             }
 
         if (show==false){
-            if (reminder.times==0){
+            if (reminder.times==0&& AlarmBusiness.getNextAlarmTimeInMillis2(alarm2)){
                 show = true;
                 reminder.isOpen = 0;
                 dao.addRemind(reminder);
             }
         }
         if (show){
-            Intent intent = new Intent(context,GaoDeService.class);
+            /* Intent intent = new Intent(context,GaoDeService.class);
             intent.putExtra("nowtime",time);
-            context.startService(intent);
+            context.startService(intent);*/
             showNotification(context, reminder,time);
         }
     }

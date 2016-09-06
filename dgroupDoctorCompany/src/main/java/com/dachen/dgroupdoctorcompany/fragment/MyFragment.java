@@ -39,6 +39,7 @@ import com.dachen.dgroupdoctorcompany.activity.MyQRActivity;
 import com.dachen.dgroupdoctorcompany.activity.SettingActivity;
 import com.dachen.dgroupdoctorcompany.app.CompanyApplication;
 import com.dachen.dgroupdoctorcompany.app.Constants;
+import com.dachen.dgroupdoctorcompany.base.UserLoginc;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.entity.Group;
 import com.dachen.dgroupdoctorcompany.entity.LoginRegisterResult;
@@ -195,7 +196,8 @@ public class MyFragment extends BaseFragment implements OnClickListener,ActionSh
 	}
 	private void getInfo(){
 		//获取个人信息
-		new HttpManager().get(mActivity, Constants.GET_INFO, com.dachen.dgroupdoctorcompany.entity.UserInfo.class,
+		new HttpManager().get(mActivity, Constants.GET_INFO,
+				LoginRegisterResult.class,
 				Params.getInfoParams(mActivity), this, false, 1);
 	}
 	@Override
@@ -354,29 +356,30 @@ public class MyFragment extends BaseFragment implements OnClickListener,ActionSh
 	public void onSuccess(Result response) {
 		// TODO Auto-generated method stub
 		if(null != response){
-			if(response instanceof com.dachen.dgroupdoctorcompany.entity.UserInfo){
+			if(response instanceof LoginRegisterResult){
 				String userID = SharedPreferenceUtil.getString(CompanyApplication.context, "id", "");
-				com.dachen.dgroupdoctorcompany.entity.UserInfo userInfo = (com.dachen.dgroupdoctorcompany.entity.UserInfo) response;
-				if (null!=userInfo&&null!=((com.dachen.dgroupdoctorcompany.entity.UserInfo) response).data){
+				LoginRegisterResult userInfo = (LoginRegisterResult) response;
+				if (null!=userInfo&&null!=((LoginRegisterResult) response).data){
 					Message msg = Message.obtain();
 					msg.obj = userInfo;
-					if (userInfo.data==null){
+					if (userInfo.data==null||null==userInfo.data.majorUser){
 						return;
 					}
 					CompanyContactListEntity entity = new CompanyContactListEntity();
 					entity.userId = userInfo.data.userId+"";
-					entity.id = userInfo.data.id;
-					entity.department = userInfo.data.department;
-					entity.headPicFileName = userInfo.data.headPicFileName;
-					entity.position = userInfo.data.position;
-					entity.status = userInfo.data.status;
-					entity.telephone = userInfo.data.telephone;
-					entity.userStatus = userInfo.data.status;
+					entity.id = userInfo.data.majorUser.id;
+					entity.department = userInfo.data.majorUser.orgName;
+
+					entity.headPicFileName = userInfo.data.majorUser.headPic;
+					entity.position = userInfo.data.majorUser.title;
+					entity.telephone = userInfo.data.majorUser.telephone;
 					entity.userloginid = userID;
-					entity.name = userInfo.data.name;
-					SharedPreferenceUtil.putString(mActivity,"username",userInfo.data.name);
-					SharedPreferenceUtil.putString(mActivity, "telephone", userInfo.data.telephone);
-					SharedPreferenceUtil.putString(mActivity, SharedPreferenceUtil.getString(mActivity, "id", "") + "head_url",userInfo.data.headPicFileName);
+					entity.name = userInfo.data.majorUser.name;
+					LoginRegisterResult logins = (LoginRegisterResult) response;
+					UserLoginc.setUserInfo(logins, mActivity);
+					SharedPreferenceUtil.putString(mActivity,"username",entity.name);
+					SharedPreferenceUtil.putString(mActivity, "telephone", entity.telephone);
+					SharedPreferenceUtil.putString(mActivity, SharedPreferenceUtil.getString(mActivity, "id", "") + "head_url",entity.headPicFileName);
 					setUserInfo();
 					getAvatarImage();
 				}

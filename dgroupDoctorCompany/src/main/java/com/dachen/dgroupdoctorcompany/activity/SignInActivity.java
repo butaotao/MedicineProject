@@ -79,8 +79,10 @@ public class SignInActivity extends BaseActivity implements HttpManager.OnHttpLi
         lengh = -1;
         initViews();
         initData();
-        Intent intent = new Intent(this,GaoDeService.class);
-        startService(intent);
+        long nowtime = getIntent().getLongExtra("nowtime",0);
+        mGaoDeMapUtils = new GaoDeMapUtils( this);
+        mGaoDeMapUtils.setNowtime(nowtime);
+        mGaoDeMapUtils.startLocation();
         //接受广播
         IntentFilter filter = new IntentFilter();
         filter.addAction("action.to.signlist");

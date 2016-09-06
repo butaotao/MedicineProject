@@ -314,7 +314,7 @@ public class Params {
 
 	public static Map<String, String> getLoginoutParams(Context context, String serial) {
 		Map<String, String> params = getMapInstance();
-		params.put("userKey", ""); // 没有用userKey校验 ，但是这个参数还要传，现在 还没去掉
+		params.put("access_context",SharedPreferenceUtil.getString(context, "context_token", "") ); // 没有用userKey校验 ，但是这个参数还要传，现在 还没去掉
 		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
 		params.put("serial", serial);
 		return params;

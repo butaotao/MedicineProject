@@ -57,11 +57,22 @@ public class TimeUtils {
 
 		return calendar.getTimeInMillis();
 	}
+	public static long getTime(long time,int hour, int minute) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(time);
+		calendar.set(Calendar.HOUR_OF_DAY, hour);
+		calendar.set(Calendar.MINUTE, minute);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+
+
+		return calendar.getTimeInMillis();
+	}
 	/**
 	 * 获得下一次铃响时间
 	 *
-	 * @param hour
-	 * @param minute
+	 * @param
+	 * @param
 	 * @param repeatPeriod
 	 * @return
 	 */

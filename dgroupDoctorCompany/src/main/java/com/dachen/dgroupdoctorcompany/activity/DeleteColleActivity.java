@@ -118,48 +118,61 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
     }
 
     public void showBtn(){
+        boolean showManager = showControlManager();
         String userid = SharedPreferenceUtil.getString(this,"id","");
-        if (userid.equals(entity.userId)||showControlManager()){
+        if (userid.equals(entity.userId) ){
             btn_delete.setBackgroundColor(getResources().getColor(R.color.red_88f95442));
             btn_delete.setFocusable(false);
             btn_delete.setClickable(false);
-
             btn_setmanager.setBackgroundColor(getResources().getColor(R.color.color_9ddcff));
-            if (!showControlManager()){
-                btn_setrepresent.setBackgroundColor(getResources().getColor(R.color.color_8839cf78));
-                btn_setrepresent.setFocusable(false);
-                btn_setrepresent.setClickable(false);
+            if (entity.ispresent ==2){
+                btn_setrepresent.setText("设置为医药代表");
+            }else {
+                btn_setrepresent.setText("取消医药代表");
             }
-
             btn_setmanager.setFocusable(false);
             btn_setmanager.setClickable(false);
-        }else {
+            rl_editname.setOnClickListener(null);
+            rl_editdept.setOnClickListener(null);
+            rl_position.setOnClickListener(null);
+        }else if(!userid.equals(entity.userId)){
             btn_delete.setBackgroundColor(getResources().getColor(R.color.red_f95442));
             btn_delete.setFocusable(true);
             btn_delete.setClickable(true);
 
             if (entity.ispresent ==2){
-               /* btn_setmanager.setBackgroundColor(getResources().getColor(R.color.color_9ddcff));
-                btn_setmanager.setFocusable(false);
-                btn_setmanager.setClickable(false);*/
                 btn_setrepresent.setText("设置为医药代表");
             }else {
                 btn_setrepresent.setText("取消医药代表");
-               /* btn_setmanager.setBackgroundColor(getResources().getColor(R.color.color_39cf78));
-                btn_setmanager.setFocusable(true);
-                btn_setmanager.setClickable(true);*/
             }
-            if (entity.deptManager==2){
-                btn_setmanager.setText("设置为部门主管");
-               /* btn_setrepresent.setBackgroundColor(getResources().getColor(R.color.color_8839cf78));
-                btn_setrepresent.setFocusable(false);
-                btn_setrepresent.setClickable(false);*/
-            }else {
-                btn_setmanager.setText("取消部门主管角色");
-                /*btn_setrepresent.setBackgroundColor(getResources().getColor(R.color.color_39cf78));
-                btn_setrepresent.setFocusable(true);
-                btn_setrepresent.setClickable(true);*/
-            }
+
+                if (entity.deptManager==2){
+                    btn_setmanager.setText("设置为部门主管");
+                }else if(!showManager){
+                    btn_setmanager.setText("取消部门主管");
+                }else if(showManager&&entity.deptManager==1){
+                    btn_setmanager.setText("取消部门主管");
+                    btn_setmanager.setBackgroundColor(getResources().getColor(R.color.color_9ddcff));
+                    btn_setmanager.setFocusable(false);
+                    btn_setmanager.setClickable(false);
+                }
+
+        }
+        if (showManager&&!userid.equals(entity.userId)){
+            btn_delete.setBackgroundColor(getResources().getColor(R.color.red_88f95442));
+            btn_delete.setFocusable(false);
+            btn_delete.setClickable(false);
+
+            btn_setrepresent.setBackgroundColor(getResources().getColor(R.color.color_8839cf78));
+            btn_setrepresent.setFocusable(false);
+            btn_setrepresent.setClickable(false);
+
+            btn_delete.setBackgroundColor(getResources().getColor(R.color.red_88f95442));
+            btn_delete.setFocusable(false);
+            btn_delete.setClickable(false);
+            rl_editname.setOnClickListener(null);
+            rl_editdept.setOnClickListener(null);
+            rl_position.setOnClickListener(null);
         }
 
     }
