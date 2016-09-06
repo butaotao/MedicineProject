@@ -11,7 +11,6 @@ import android.widget.TextView;
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.entity.OrgEntity;
-import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,8 +76,7 @@ public abstract class OrgSelectAdapter extends android.widget.BaseAdapter {
                 viewHolder.mIvFlag.setVisibility(View.VISIBLE);
             }
 
-
-            if(entity.id .equals( depaments.id)){
+            if(entity.id.equals( depaments.id)){
                 viewHolder.mCheckBox.setChecked(true);
                 viewHolder.mCheckBox.setBackgroundResource(R.drawable.icon_pay_disable);
                 viewHolder.mCheckBox.setClickable(false);

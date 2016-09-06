@@ -89,7 +89,6 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
         mTvSave.setOnClickListener(this);
     }
 
-
     private void initData(){
         entity = (CompanyContactListEntity) getIntent().getSerializableExtra("user");
         mOrgSelectAdapter = new MyAdapter(OrgActivity.this,mDepamentsList,entity);
@@ -157,7 +156,6 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
 
             mDepamentsStack.add(copyToNewList(mDepamentsList));
             mStackCount++;
-            Log.d("zxy", "initData: mStackCount = "+mStackCount);
         }
 
     }
@@ -211,12 +209,10 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
                 Log.d("zxy", "onSuccess: mStackCount = "+mStackCount);
             }else{
                  GetAllDoctor.getInstance().getPeople(OrgActivity.this, handler);
-
              }
         }else {
             closeLoadingDialog();
         }
-
     }
 
     @Override
@@ -233,7 +229,6 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
         public MyAdapter(Context context, List<OrgEntity.Data> data,CompanyContactListEntity entity) {
             super(context, data,entity);
         }
-
         @Override
         protected void onCheckBoxCheck(OrgEntity.Data item) {
             boolean isCheck = item.isCheck;
@@ -276,7 +271,6 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
             finish();
             return;
         }if (mDepamentsStack.size() == 2) {  //公司页面
-           // setTitle("选择部门");
             mOrgListGuilde.reMoveTask();
             mDepamentsList = mDepamentsStack.get(mStackCount - 2);
             mDepamentsStack.remove(mStackCount-1);
@@ -300,7 +294,6 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
         arrayList.addAll(list);
         return arrayList;
     }
-
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

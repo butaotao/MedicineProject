@@ -24,17 +24,26 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <ListView
+            android:visibility="gone"
             android:id="@+id/lv_appcenter"
             android:divider="@null"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
         </ListView>
-        <ImageView
+
+      <!--  <ImageView
             android:visibility="gone"
+            android:layout_gravity="center"
             android:src="@drawable/icon_no_sign"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>-->
+        <TextView
+            android:layout_gravity="center"
+            android:drawableTop="@drawable/icon_no_sign"
+            android:text="企业中西还未添加应用，请联系管理员添加"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
     </FrameLayout>
 
 <!--    <android.support.v7.widget.RecyclerView
@@ -43,285 +52,5 @@
         android:layout_height="match_parent">
 
     </android.support.v7.widget.RecyclerView>-->
-
-<!--    <RelativeLayout
-        android:id="@+id/rl_sign_in"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:background="@color/white"
-        android:orientation="vertical">
-
-        <ImageView
-            android:id="@+id/iv_sign_in"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dip"
-            android:background="@drawable/icon_sign_in" />
-
-        <TextView
-            android:id="@+id/tv_ac_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/tv_ac_des"
-            android:layout_alignStart="@+id/tv_ac_des"
-            android:layout_alignTop="@+id/iv_sign_in"
-            android:text="签到"
-            android:textColor="@color/color_333333"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/tv_ac_des"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tv_ac_name"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="5dp"
-            android:layout_toRightOf="@id/iv_sign_in"
-            android:text="随时记录，实时定位"
-            android:textColor="@color/color_aaaaaa"
-            android:textSize="14sp" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_gravity="center_vertical"
-            android:layout_marginRight="15dp"
-            android:src="@drawable/ic_right_arrow" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1px"
-            android:layout_alignParentBottom="true"
-            android:layout_marginLeft="10dip"
-            android:background="@color/color_grayline1dp" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/rl_singrecord"
-        android:layout_width="match_parent"
-
-        android:layout_height="70dp"
-        android:layout_below="@id/rl_companycontact"
-        android:background="@color/white"
-        android:orientation="vertical">
-
-        <ImageView
-            android:id="@+id/iv_singrecord"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dip"
-            android:background="@drawable/singrecord" />
-
-        <TextView
-            android:id="@+id/tv_singrecord"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/textView10"
-            android:layout_alignStart="@+id/textView10"
-            android:layout_alignTop="@+id/iv_singrecord"
-            android:text="签到统计"
-            android:textColor="@color/color_333333"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/textView10"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tv_singrecord"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="5dp"
-            android:layout_toRightOf="@id/iv_singrecord"
-            android:text="职员的签到记录"
-            android:textColor="@color/color_aaaaaa"
-            android:textSize="14sp" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_gravity="center_vertical"
-            android:layout_marginRight="15dp"
-            android:src="@drawable/ic_right_arrow" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1px"
-            android:layout_alignParentBottom="true"
-            android:layout_marginLeft="10dip"
-            android:background="@color/color_grayline1dp" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/rl_conferencemangerment"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_below="@id/rl_singrecord"
-        android:background="@color/white"
-        android:orientation="vertical">
-
-        <ImageView
-            android:id="@+id/iv_conferencemangerment"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dip"
-            android:background="@drawable/meeting" />
-
-        <TextView
-            android:id="@+id/tv_conferencemangerment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/textView6"
-            android:layout_alignStart="@+id/textView6"
-            android:layout_alignTop="@+id/iv_conferencemangerment"
-            android:text="会议直播"
-            android:textColor="@color/color_333333"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/textView6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tv_conferencemangerment"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="5dp"
-            android:layout_toRightOf="@id/iv_conferencemangerment"
-            android:text="发布会议, 参与会议"
-            android:textColor="@color/color_aaaaaa"
-            android:textSize="14sp" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_gravity="center_vertical"
-            android:layout_marginRight="15dp"
-            android:src="@drawable/ic_right_arrow" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1px"
-            android:layout_alignParentBottom="true"
-            android:layout_marginLeft="10dip"
-            android:background="@color/color_grayline1dp" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/rl_companycontact"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:background="@color/white"
-        android:orientation="vertical">
-
-        <ImageView
-            android:id="@+id/iv_contactdoctor"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dip"
-            android:background="@drawable/baifang" />
-
-        <TextView
-            android:id="@+id/tv_customervisit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/textView"
-            android:layout_alignStart="@+id/textView"
-            android:layout_alignTop="@+id/iv_contactdoctor"
-            android:text="客户拜访"
-            android:textColor="@color/color_333333"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_customervisit"
-            android:layout_marginLeft="11dp"
-            android:layout_marginStart="11dp"
-            android:layout_marginTop="5dp"
-            android:layout_toEndOf="@+id/iv_contactdoctor"
-            android:layout_toRightOf="@+id/iv_contactdoctor"
-            android:text="实时记录，维护客情"
-            android:textColor="@color/color_aaaaaa"
-            android:textSize="14sp" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_gravity="center_vertical"
-            android:layout_marginRight="15dp"
-            android:src="@drawable/ic_right_arrow" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1px"
-            android:layout_alignParentBottom="true"
-            android:background="@color/color_grayline1dp" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/rl_litterapp"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:background="@color/white"
-        android:orientation="vertical">
-
-        <ImageView
-            android:id="@+id/iv_litterapp"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dip"
-            android:background="@drawable/baifang" />
-
-        <TextView
-            android:id="@+id/tv_litterapp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/textView_litterapp"
-            android:layout_alignStart="@+id/textView_litterapp"
-            android:layout_alignTop="@+id/iv_litterapp"
-            android:text="轻应用"
-            android:textColor="@color/color_333333"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/textView_litterapp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_litterapp"
-            android:layout_marginLeft="11dp"
-            android:layout_marginStart="11dp"
-            android:layout_marginTop="5dp"
-            android:layout_toEndOf="@+id/iv_litterapp"
-            android:layout_toRightOf="@+id/iv_litterapp"
-            android:text="轻应用框架"
-            android:textColor="@color/color_aaaaaa"
-            android:textSize="14sp" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_gravity="center_vertical"
-            android:layout_marginRight="15dp"
-            android:src="@drawable/ic_right_arrow" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1px"
-            android:layout_alignParentBottom="true"
-            android:background="@color/color_grayline1dp" />
-    </RelativeLayout>-->
 
 </LinearLayout>
