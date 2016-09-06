@@ -84,11 +84,9 @@ public class WebQRLoginActivity extends BaseActivity {
                 if (response.resultCode == 1) {
                     ToastUtil.showToast(getApplicationContext(),"登录成功");
                 }else if(response.resultCode == 0){
-                    Log.d("zxy :", "85 : WebQRLoginActivity : onSuccess : key = "+mScanResult);
                     //ToastUtil.showToast(getApplicationContext(),"Key不存在于Redis中！");
                     //ToastUtil.showToast(getApplicationContext(),"登录失败");
                 }else {
-                    Log.d("zxy :", "91 : WebQRLoginActivity : onSuccess : response.resultCode = "+response.resultCode);
                    // ToastUtil.showToast(getApplicationContext(),"UnknowCode : "+response.resultCode);
                 }
                 finish();

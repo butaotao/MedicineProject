@@ -47,6 +47,7 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
     private ListView mLvAppCenter;
     private AppcenterAdapter mAdapter;
     private List<MyAppBean.DataBean.PageDataBean> mPageData = new ArrayList<>();
+    private TextView tv_back;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -57,7 +58,10 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
         ButterKnife.bind(mActivity);
         dao = new DepAdminsListDao(mActivity);
         tv_login_title = (TextView) mRootView.findViewById(R.id.tv_title);
+        tv_back = (TextView) mRootView.findViewById(R.id.tv_back);
         tv_login_title.setText("企业中心");
+        tv_back.setVisibility(View.GONE);
+        mRootView.findViewById(R.id.iv_back).setVisibility(View.GONE);
         mLvAppCenter = (ListView) mRootView.findViewById(R.id.lv_appcenter);
         mLvAppCenter.setOnItemClickListener(this);
         mAdapter = new AppcenterAdapter(mActivity,mPageData);
@@ -163,7 +167,7 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
                 Intent singRecordIntent = new Intent(mActivity,RecordActivity.class);
                 startActivity(singRecordIntent);
                 break;
-            case "lightapp://":
+            case "lightapp://"://轻应用
                 Intent litterAppIntent = new Intent(mActivity,LitterAppActivity.class);
                 startActivity(litterAppIntent);
                 break;

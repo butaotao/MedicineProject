@@ -515,13 +515,13 @@ public class Params {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("access_context", SharedPreferenceUtil.getString(context, "context_token", ""));
 		params.put("drugCompanyId",SharedPreferenceUtil.getString(context, "enterpriseId", ""));
+		params.put("userId", SharedPreferenceUtil.getString(context, "id", ""));
 		Log.d("zxy :", "512 : Params : getAppCenterParams : drugCompanyId = "+SharedPreferenceUtil.getString(context, "enterpriseId", ""));
 		Log.d("zxy :", "513 : Params : getAppCenterParams : access_context = "+SharedPreferenceUtil.getString(context, "context_token", ""));
-		params.put("userId", SharedPreferenceUtil.getString(context, "id", ""));
 		Log.d("zxy :", "514 : Params : getAppCenterParams : userId = "+SharedPreferenceUtil.getString(context, "id", ""));
 		params.put("pageIndex","0");
 		params.put("pageSize","1000");
-		params.put("from","2");
+		params.put("from","2");//2代表android端
 
         return params;
 	}

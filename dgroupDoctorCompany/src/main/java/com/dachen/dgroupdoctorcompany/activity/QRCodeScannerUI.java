@@ -64,6 +64,8 @@ public class QRCodeScannerUI extends Activity implements
         mUiQrcodeScannerTitle = (TextView) findViewById(R.id.ui_qrcode_scanner_title);
         mUiQrcodeScannerChooseFromPhoto = (ImageButton) findViewById(R.id.ui_qrcode_scanner_choose_from_photo);
         mScannerView = (ZXingScannerView) findViewById(R.id.ui_qrcode_scanner_ZXingScannerView);
+        mUiQrcodeScannerTitle.setText("扫描二维码");
+        mUiQrcodeScannerChooseFromPhoto.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -123,23 +125,6 @@ public class QRCodeScannerUI extends Activity implements
         if (rawResult != null) {
             Log.d("zxy :", "QRCodeScannerUI : "+"handleResult: "+rawResult.toString());
             handleResult(rawResult.getText());
-            //获取联网获取二维码字符
-            /*new HttpManager<QRBean>().post(this, "drugorg/auth/key", QRBean.class, Params.getQRWebKeyParams
-                    ("key"),new HttpManager.OnHttpListener<com.dachen.medicine.entity.Result>() {
-                @Override
-                public void onSuccess(com.dachen.medicine.entity.Result response) {
-                    Gson gson = new Gson();
-                    QRBean response1 = (QRBean) response;
-                    QRBean bean = gson.fromJson(response1.data, QRBean.class);
-                    handleResult(bean.key);
-                }
-                @Override
-                public void onSuccess(ArrayList<com.dachen.medicine.entity.Result> response) {
-                }
-                @Override
-                public void onFailure(Exception e, String errorMsg, int s) {
-                }
-            },false,1);*/
         }
     }
 
@@ -174,8 +159,8 @@ public class QRCodeScannerUI extends Activity implements
             for (int i = 0; i < strings.length; i++) {
                 Log.d("zxy :", "175 : QRCodeScannerUI : executeTask : strings"+i+" = "+strings[i]);
             }
-            String[] strings1 = strings[0].split("//");
-
+            final String[] strings1 = strings[0].split("//");
+            Log.d("zxy :", "178 : QRCodeScannerUI : executeTask : strings1[1] = "+strings1[1]);
             new HttpManager().post(this, Constants.QR_WEB_LONIN_VERIFY, QRLogin.class, Params.getQRWebKeyParams
                     (strings1[1]), new HttpManager.OnHttpListener<com.dachen.medicine.entity.Result>() {
 
@@ -188,11 +173,11 @@ public class QRCodeScannerUI extends Activity implements
                         Log.d("zxy :", "189 : QRCodeScannerUI : onSuccess : result = "+result.resultCode);
                         if (result.resultCode == 1050002) {
                                 Intent intent = new Intent(QRCodeScannerUI.this, WebQRLoginActivity.class);
-                                intent.putExtra("scanResult", scanResult);
+                                intent.putExtra("scanResult", strings1[1]);
                                 startActivity(intent);
                             finish();
                         }else if(result.resultCode  == 1050001){
-                            ToastUtil.showToast(getApplicationContext(),"已经登录,无需重新登录");
+                            ToastUtil.showToast(getApplicationContext(),"登录授权已经过期，请刷新二维码后重新扫描");
                             finish();
                         }else{
                             //ToastUtil.showToast(getApplicationContext(),"UnknowCode : "+result.resultCode);

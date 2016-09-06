@@ -116,6 +116,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
     private boolean isOrigin = false;
     private TextView del_desp;
     private LinearLayout ll_visit;
+    private long presentTime;
     private long serviceTime;
     private String remark;
 
@@ -191,14 +192,15 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
 
     private void initData() {
         Log.d("zxy :", "191 : SelfVisitActivity : initData : ");
-        serviceTime= getIntent().getLongExtra("time",0);
+        presentTime = getIntent().getLongExtra("time",0);
+        serviceTime = this.getIntent().getLongExtra("time",0);
         TelephonyManager TelephonyMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         deviceId = TelephonyMgr.getDeviceId();
         orginId = GetUserDepId.getUserDepId(this);
         new HttpManager().post(this, Constants.GET_SERVERTIME, ServerTimeBean.class,
                 Params.getServerTime(SelfVisitActivity.this),
                 this, false, 1);
-        if (MODE_FROM_VIST_LIST_ITEM == mMode || MODE_FROM_SIGN_LIST==mMode) {
+        if (MODE_FROM_VIST_LIST_ITEM == mMode || MODE_FROM_SIGN_LIST==mMode) {//拜访列表,签到列表
             Log.d("zxy :", "197 : SelfVisitActivity : initData : if");
 //            mStrAddress = this.getIntent().getStringExtra("addressname");
 //            mStrFloor = this.getIntent().getStringExtra("address");
@@ -211,8 +213,8 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
 //            mStrDoctorName = this.getIntent().getStringExtra("doctorName");
 //            mStrDoctorName = this.getIntent().getStringExtra("doctorId");
 //            tvSelected.setText(mStrDoctorName);
-//            long serviceTime = this.getIntent().getLongExtra("serviceTime", 0);
-//            Date date = new Date(serviceTime);
+//            long presentTime = this.getIntent().getLongExtra("presentTime", 0);
+//            Date date = new Date(presentTime);
 //            String strDate = TimeFormatUtils.china_format_date(date);
 //            String strWeek = TimeFormatUtils.week_format_date(date);
 //            strTime = TimeFormatUtils.time_format_date(date);
@@ -231,7 +233,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                     Params.getVisitDetail(SelfVisitActivity.this, mId),
                     this, false, 4);
 
-        }else if(MODE_FROM_SIGN==mMode){
+        }else if(MODE_FROM_SIGN==mMode){//签到过来
             Log.d("zxy :", "230 : SelfVisitActivity : initData : else if");
             mStrAddress = this.getIntent().getStringExtra("addressname");
             mStrFloor = this.getIntent().getStringExtra("address");
@@ -240,7 +242,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
             city = this.getIntent().getStringExtra("city");
             coordinate = String.valueOf(latitude) + "," + String.valueOf(longitude);
             tv_address.setText(mStrAddress);
-            Date date = new Date(serviceTime);
+            Date date = new Date(presentTime);
             String strDate = TimeFormatUtils.china_format_date(date);
             String strWeek = TimeFormatUtils.week_format_date(date);
             Log.d("zxy :", "239 : SelfVisitActivity : initData : strDate = "+strDate+", strWeek = "+strWeek);
@@ -249,8 +251,8 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
             strTime = TimeFormatUtils.time_format_date(date);
             tv_time_location.setText(strTime+" "+mStrFloor);
             del_desp.setVisibility(View.VISIBLE);
-        } else {
-            Date date = new Date(serviceTime);
+        } else {//??
+            Date date = new Date(presentTime);
             String strDate = TimeFormatUtils.china_format_date(date);
             String strWeek = TimeFormatUtils.week_format_date(date);
             Log.d("zxy :", "249 : SelfVisitActivity : initData : strDate = "+strDate+", strWeek = "+strWeek);
@@ -316,7 +318,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                 intent.putExtra("where", "AddSignInActivity");
                 startActivityForResult(intent, REQUEST_SELECT_DOCTOR);
                 break;
-            case R.id.location_ray:
+            case R.id.location_ray://地址选择
                 Intent intentAddress = new Intent(this, SelectAddressActivity.class);
                 intentAddress.putExtra("select_mode", SelectAddressActivity.MODE_SELECT_ADDRESS);
                 intentAddress.putExtra("poi", SelectAddressActivity.POI);
@@ -326,13 +328,13 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                 intentAddress.putExtra("city", city);
                 startActivityForResult(intentAddress, REQUEST_SELECT_ADDRESS);
                 break;
-            case R.id.variety_ray:
+            case R.id.variety_ray://药品选择
                 Intent media_intent = new Intent(this, ChoiceMedieaActivity.class);
                 media_intent.putExtra("mode", ChoiceMedieaActivity.MODE_SINGLE_VISIT);
                 media_intent.putExtra("mediea", mStrMedia);
                 startActivityForResult(media_intent, REQUEST_SELECT_MEDIA);
                 break;
-            case R.id.ll_visit:
+            case R.id.ll_visit://拜访人员选择??
                  if(MODE_FROM_VIST_LIST_ITEM == mMode|| MODE_FROM_SIGN_LIST == mMode){
                      intent = new Intent(this,MapDetailActivity.class);
                      if(!TextUtils.isEmpty(coordinate)&&coordinate.contains(",")){
@@ -372,7 +374,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
-                case REQUEST_PICK:
+                case REQUEST_PICK://图片返回
                     String[] all_path = intent.getStringArrayExtra(GalleryAction.INTENT_ALL_PATH);
                     if (all_path == null || all_path.length == 0)
                         return;
@@ -380,14 +382,14 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                     for (String path : all_path)
                         uploadImage(path);
                     break;
-                case REQUEST_SELECT_DOCTOR:
+                case REQUEST_SELECT_DOCTOR: //拜访医生返回
                     mStrDoctorID = intent.getStringExtra("doctorid");
                     mStrDoctorName = intent.getStringExtra("doctorname");
                     if (!TextUtils.isEmpty(mStrDoctorName)) {
                         tvSelected.setText(mStrDoctorName);
                     }
                     break;
-                case REQUEST_SELECT_ADDRESS:
+                case REQUEST_SELECT_ADDRESS: //地址返回
                     isSelectAddress = true;
                     mStrFloor = intent.getStringExtra("floor");
                     mStrAddress = intent.getStringExtra("address");
@@ -397,7 +399,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                     tv_time_location.setText(strTime + " " + mStrFloor);
                     tv_address.setText(mStrAddress);
                     break;
-                case REQUEST_SELECT_MEDIA:
+                case REQUEST_SELECT_MEDIA: //药品返回
                     mStrMedia = intent.getStringExtra("mediea");
                     String medieaName = intent.getStringExtra("medieaName");
                     tv_variety.setText(medieaName);
@@ -430,10 +432,11 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
     public void onSuccess(Result response) {
         closeLoadingDialog();
         if (null != response) {
-            if (response instanceof VisitMemberResponse) {
+            if (response instanceof VisitMemberResponse) {//列表请求成功
                 if (response.getResultCode() == 1) {
                     VisitMember member = ((VisitMemberResponse) response).getData().getVisit();
                     mStrAddress = member.getAddress();
+                    long time = member.getTime();
                     address = member.getAddressName();
                     mStrFloor = member.getAddressName();
                     if (member.getDoctorName() != null) {
@@ -466,7 +469,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                     }
 
                     tv_address.setText(mStrAddress);
-                    Date date = new Date(this.serviceTime);//得到传过来的时间格式化
+                    Date date = new Date(serviceTime);//得到传过来的时间格式化
                     String strDate = TimeFormatUtils.china_format_date(date);
                     String strWeek = TimeFormatUtils.week_format_date(date);
                     strTime = TimeFormatUtils.time_format_date(date);
@@ -527,7 +530,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
             }else if (response instanceof ServerTimeBean) {
                 ServerTimeBean time = (ServerTimeBean) response;
                 if (time.data>0) {
-                    this.serviceTime = time.data;
+                    this.presentTime = time.data;
                 }
             } else if (response instanceof Result) {
                 if (response.getResultCode() == 1) {
@@ -557,6 +560,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
      * @param etRemarkEnable
      */
     private void setRemarkEnable(boolean etRemarkEnable) {
+        Log.d("zxy :", "567 : SelfVisitActivity : setRemarkEnable : 是否可以编辑 = "+etRemarkEnable);
         if (etRemarkEnable) {
             tv_title_save.setVisibility(View.VISIBLE);
             etRemark.setText(remark);

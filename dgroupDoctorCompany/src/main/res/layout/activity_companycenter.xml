@@ -20,13 +20,23 @@
         android:layout_width="match_parent"
         android:layout_height="1px"
         android:background="@color/color_grayline1dp" />
-    <ListView
-        android:id="@+id/lv_appcenter"
-        android:divider="@null"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
+        <ListView
+            android:id="@+id/lv_appcenter"
+            android:divider="@null"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    </ListView>
+        </ListView>
+        <ImageView
+            android:visibility="gone"
+            android:src="@drawable/icon_no_sign"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </FrameLayout>
+
 <!--    <android.support.v7.widget.RecyclerView
         android:id="@+id/lv_appcenter"
         android:layout_width="wrap_content"
