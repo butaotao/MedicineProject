@@ -196,8 +196,12 @@ public class QRCodeScannerUI extends Activity implements
                 }
             }, false, 1);
         }else {
-
             Log.d("zxy :", "214 : QRCodeScannerUI : executeTask : scanResult = "+scanResult);
+            Intent intent= new Intent();
+            intent.setAction("android.intent.action.VIEW");
+            Uri content_url = Uri.parse(scanResult);
+            intent.setData(content_url);
+            startActivity(intent);
             finish();
         }
 
@@ -284,7 +288,6 @@ public class QRCodeScannerUI extends Activity implements
                         // 有file://
                         Log.e(TAG, "uri getPath:" + uri.getPath()); // 没有file://
                     }
-
                     // 解码配置 - 配置需要解码的图片格式为二维码，字符集编码为UTF-8
                     Map<DecodeHintType, Object> hints = new EnumMap<DecodeHintType, Object>(
                             DecodeHintType.class);

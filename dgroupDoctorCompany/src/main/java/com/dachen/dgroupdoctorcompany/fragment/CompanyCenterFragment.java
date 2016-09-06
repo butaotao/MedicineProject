@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.dachen.dgroupdoctorcompany.R;
@@ -34,15 +33,11 @@ import butterknife.ButterKnife;
 /**
  * Created by Burt on 2016/2/18.
  */
-public class CompanyCenterFragment extends BaseFragment implements OnHttpListener, View.OnClickListener, AdapterView
+public class CompanyCenterFragment extends BaseFragment implements OnHttpListener, AdapterView
         .OnItemClickListener {
     private View mRootView;
 
     TextView tv_login_title;
-    RelativeLayout rl_companycontact;
-    RelativeLayout rl_litterApp;
-    RelativeLayout rl_sign_in;
-    RelativeLayout rl_singrecord;
     DepAdminsListDao dao;
     private PullToRefreshListView mLvAppCenter;
     private AppcenterAdapter mAdapter;
@@ -63,7 +58,7 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
         tv_back.setVisibility(View.GONE);
         mRootView.findViewById(R.id.iv_back).setVisibility(View.GONE);
         mLvAppCenter = (PullToRefreshListView) mRootView.findViewById(R.id.lv_appcenter);
-       // mLvAppCenter.setEmptyView(View.inflate(mActivity,R.layout.view_appcenter_empty,null));
+        mLvAppCenter.setEmptyView(View.inflate(mActivity,R.layout.view_appcenter_empty,null));
         mLvAppCenter.setOnItemClickListener(this);
         mAdapter = new AppcenterAdapter(mActivity,mPageData);
         mLvAppCenter.setAdapter(mAdapter);
@@ -105,12 +100,6 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
         super.onActivityCreated(savedInstanceState);
         // setUpViews();
     }
-
-
-    @Override
-    public void onClick(View v) {
-    }
-
     @Override
     public void onStop() {
         super.onStop();

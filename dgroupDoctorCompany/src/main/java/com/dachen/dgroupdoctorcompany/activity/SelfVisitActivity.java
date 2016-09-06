@@ -242,14 +242,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
             city = this.getIntent().getStringExtra("city");
             coordinate = String.valueOf(latitude) + "," + String.valueOf(longitude);
             tv_address.setText(mStrAddress);
-            Date date = new Date(presentTime);
-            String strDate = TimeFormatUtils.china_format_date(date);
-            String strWeek = TimeFormatUtils.week_format_date(date);
-            Log.d("zxy :", "239 : SelfVisitActivity : initData : strDate = "+strDate+", strWeek = "+strWeek);
-            tvWeek.setText(strWeek);
-            tvDate.setText(strDate);
-            strTime = TimeFormatUtils.time_format_date(date);
-            tv_time_location.setText(strTime+" "+mStrFloor);
             del_desp.setVisibility(View.VISIBLE);
         } else {//??
             Date date = new Date(presentTime);
@@ -531,6 +523,14 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                 ServerTimeBean time = (ServerTimeBean) response;
                 if (time.data>0) {
                     this.presentTime = time.data;
+                    Date date = new Date(presentTime);
+                    String strDate = TimeFormatUtils.china_format_date(date);
+                    String strWeek = TimeFormatUtils.week_format_date(date);
+                    Log.d("zxy :", "239 : SelfVisitActivity : initData : strDate = "+strDate+", strWeek = "+strWeek);
+                    tvWeek.setText(strWeek);
+                    tvDate.setText(strDate);
+                    strTime = TimeFormatUtils.time_format_date(date);
+                    tv_time_location.setText(strTime+" "+mStrFloor);
                 }
             } else if (response instanceof Result) {
                 if (response.getResultCode() == 1) {

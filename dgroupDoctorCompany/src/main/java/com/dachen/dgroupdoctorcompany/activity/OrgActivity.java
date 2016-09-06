@@ -127,6 +127,7 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
                             if(i == position){
                                 data.isCheck = isCheck;
                                 updataCheck = true;
+                                Log.d("zxy :", "130 : OrgActivity : onItemClick : updataCheck = "+updataCheck);
                             }else{
                                 data.isCheck = false;
                                 updataCheck = false;
@@ -256,7 +257,6 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
                     }else{
                         data.isCheck = false;
                     }
-
             }
             mOrgSelectAdapter.update(mDepamentsList);
         }
@@ -300,6 +300,7 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
        // Log.d("zxy", "backtofront: 4  mStackCount = "+mStackCount);
         for(int i=0;i<mDepamentsList.size();i++){
             if (updataCheck && otherPage) {//其他数据是否checked
+                Log.d("zxy :", "303 : OrgActivity : backtofront : ");
                 mDepamentsList.get(i).isCheck = false;
                 updataCheck = false;
                 otherPage = false;

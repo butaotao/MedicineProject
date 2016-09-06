@@ -86,25 +86,7 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
     private void initData(){
         setTitle("签到记录");
         mAdapter = new SingnInListsAdapter(SignListActivity.this);
-       // mLvSign = mVSignin.getRefreshableView();
-       // mLvSign.setAdapter(mAdapter);
         mVSignin.setAdapter(mAdapter);
-        /*mVSignin.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(SignListActivity.this,MapDetailActivity.class);
-                if(!TextUtils.isEmpty(coordinate)&&coordinate.contains(",")){
-                    String[] array = coordinate.split(",");
-                    String latitude = array[0];
-                    String longitude = array[1];
-                    intent.putExtra("latitude", Double.valueOf(latitude));
-                    intent.putExtra("longitude", Double.valueOf(longitude));
-                } if (!TextUtils.isEmpty(address)){
-                    intent.putExtra("address",address);
-                }
-                startActivity(intent);
-            }
-        });*/
         mVSignin.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<ListView>() {
             @Override
             public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
