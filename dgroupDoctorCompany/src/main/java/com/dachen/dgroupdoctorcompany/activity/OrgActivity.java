@@ -17,6 +17,7 @@ import com.dachen.dgroupdoctorcompany.adapter.OrgSelectAdapter;
 import com.dachen.dgroupdoctorcompany.app.CompanyApplication;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
+import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.entity.CompanyDepment;
 import com.dachen.dgroupdoctorcompany.entity.OrgEntity;
@@ -41,6 +42,7 @@ import java.util.Stack;
 public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListener, AdapterView.OnItemClickListener {
     private ListView listview;
     private TextView mTvSave;
+    CompanyContactDao companyContactDao;
     CompanyContactListEntity entity;
     Stack<CompanyDepment.Data.Depaments> departmentId = new Stack<>();
     ArrayList<ArrayList<OrgEntity.Data>> mDepamentsStack  =  new ArrayList<>();
@@ -71,6 +73,7 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         layoutView = View.inflate(this,R.layout.activity_org,null);
         userId = UserInfo.getInstance(this).getId();
         setContentView(layoutView);
@@ -91,7 +94,9 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
 
 
     private void initData(){
+        companyContactDao = new CompanyContactDao(this);
         entity = (CompanyContactListEntity) getIntent().getSerializableExtra("user");
+        entity = companyContactDao.queryByUserid(entity.userId+"");
         mOrgSelectAdapter = new MyAdapter(OrgActivity.this,mDepamentsList,entity);
         listview.setAdapter(mOrgSelectAdapter);
         String companyName = SharedPreferenceUtil.getString(CompanyApplication.getInstance(), "enterpriseName", "");

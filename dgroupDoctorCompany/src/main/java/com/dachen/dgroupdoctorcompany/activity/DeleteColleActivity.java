@@ -130,6 +130,7 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
             }else {
                 btn_setrepresent.setText("取消医药代表");
             }
+            btn_setmanager.setText("取消部门主管");
             btn_setmanager.setFocusable(false);
             btn_setmanager.setClickable(false);
             rl_editname.setOnClickListener(null);
