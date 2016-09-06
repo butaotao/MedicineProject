@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -25,6 +24,7 @@ import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
 import com.dachen.medicine.net.Params;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,7 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
     RelativeLayout rl_sign_in;
     RelativeLayout rl_singrecord;
     DepAdminsListDao dao;
-    private ListView mLvAppCenter;
+    private PullToRefreshListView mLvAppCenter;
     private AppcenterAdapter mAdapter;
     private List<MyAppBean.DataBean.PageDataBean> mPageData = new ArrayList<>();
     private TextView tv_back;
@@ -62,7 +62,8 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
         tv_login_title.setText("企业中心");
         tv_back.setVisibility(View.GONE);
         mRootView.findViewById(R.id.iv_back).setVisibility(View.GONE);
-        mLvAppCenter = (ListView) mRootView.findViewById(R.id.lv_appcenter);
+        mLvAppCenter = (PullToRefreshListView) mRootView.findViewById(R.id.lv_appcenter);
+        mLvAppCenter.setEmptyView(View.inflate(mActivity,R.layout.view_appcenter_empty,null));
         mLvAppCenter.setOnItemClickListener(this);
         mAdapter = new AppcenterAdapter(mActivity,mPageData);
         mLvAppCenter.setAdapter(mAdapter);
@@ -78,10 +79,14 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
             public void onSuccess(Result response) {
                 if (response instanceof MyAppBean ) {
                     MyAppBean bean = (MyAppBean) response;
+
                     mPageData = bean.data.pageData;
                     Log.d("zxy :", "79 : CompanyCenterFragment : onSuccess : "+mPageData.size()+", "+mPageData.toString());
-                    mAdapter.addData(mPageData);
-                    mAdapter.notifyDataSetChanged();
+                    if (mPageData.size()>0) {
+                        mAdapter.addData(mPageData);
+                        mAdapter.notifyDataSetChanged();
+
+                    }
                 }
             }
 

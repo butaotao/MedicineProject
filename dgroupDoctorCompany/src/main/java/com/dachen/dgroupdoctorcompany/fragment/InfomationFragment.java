@@ -45,7 +45,6 @@ public class InfomationFragment extends BaseFragment implements OnChildClickList
     private ImageButton mQRLogin;
     private PopupWindow popWindow;
     private View cover;
-    //private NetworkErrorView mNetworkErrorView;
     private LocalBroadcastManager mBroadcastManager;
     private BroadcastReceiver mMItemViewListClickReceiver;
 
@@ -56,12 +55,6 @@ public class InfomationFragment extends BaseFragment implements OnChildClickList
         ButterKnife.bind(mActivity);
         tv_login_title = (TextView) mRootView.findViewById(R.id.tv_title);
         lv = (SessionListViewV2) mRootView.findViewById(R.id.list_view);
-       /* if (mNetworkErrorView == null) {
-            mNetworkErrorView = new NetworkErrorView(mActivity);
-            LinearLayout ll = new LinearLayout(mActivity);
-            ll.addView(mNetworkErrorView);
-            lv.addHeaderView(ll);
-        }*/
         lv.setUI(mActivity);
         lv.setEmptyView(mRootView.findViewById(R.id.empty_view));
         tv_login_title.setText("消息");
