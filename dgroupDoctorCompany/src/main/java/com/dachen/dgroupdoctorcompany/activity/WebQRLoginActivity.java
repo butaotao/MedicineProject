@@ -83,11 +83,9 @@ public class WebQRLoginActivity extends BaseActivity {
                 Log.d("zxy :", "85 : WebQRLoginActivity : onSuccess : response = "+response.resultCode);
                 if (response.resultCode == 1) {
                     ToastUtil.showToast(getApplicationContext(),"登录成功");
-                }else if(response.resultCode == 0){
+                }else/*(response.resultCode == 0)*/{
                     //ToastUtil.showToast(getApplicationContext(),"Key不存在于Redis中！");
-                    //ToastUtil.showToast(getApplicationContext(),"登录失败");
-                }else {
-                   // ToastUtil.showToast(getApplicationContext(),"UnknowCode : "+response.resultCode);
+                    ToastUtil.showToast(getApplicationContext(),"登录授权已经过期，请刷新二维码后重新扫描");
                 }
                 finish();
             }

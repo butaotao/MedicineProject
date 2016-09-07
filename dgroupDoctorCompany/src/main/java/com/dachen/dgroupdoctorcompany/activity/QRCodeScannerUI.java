@@ -176,12 +176,8 @@ public class QRCodeScannerUI extends Activity implements
                                 intent.putExtra("scanResult", strings1[1]);
                                 startActivity(intent);
                             finish();
-                        }else if(result.resultCode  == 1050001){
+                        }else /*if(result.resultCode  == 1050001)*/{
                             ToastUtil.showToast(getApplicationContext(),"登录授权已经过期，请刷新二维码后重新扫描");
-                            finish();
-                        }else{
-                            //ToastUtil.showToast(getApplicationContext(),"UnknowCode : "+result.resultCode);
-                            Log.d("zxy :", "198 : QRCodeScannerUI : onSuccess : result.resultCode = "+result.resultCode);
                             finish();
                         }
                     }
@@ -326,7 +322,7 @@ public class QRCodeScannerUI extends Activity implements
                         e.printStackTrace();
                         if (file != null && file.exists()) {
                             Log.w(TAG, "可能不是二维码图片.");
-                            // ToastUtil.showToast(context, "您选择的不是二维码图片");
+                             ToastUtil.showToast(context, "没有找到相关二维码信息");
                         }
                     }
 

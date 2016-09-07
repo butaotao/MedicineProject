@@ -526,7 +526,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                     Date date = new Date(presentTime);
                     String strDate = TimeFormatUtils.china_format_date(date);
                     String strWeek = TimeFormatUtils.week_format_date(date);
-                    Log.d("zxy :", "239 : SelfVisitActivity : initData : strDate = "+strDate+", strWeek = "+strWeek);
                     tvWeek.setText(strWeek);
                     tvDate.setText(strDate);
                     strTime = TimeFormatUtils.time_format_date(date);

@@ -25,6 +25,7 @@ import java.util.List;
 public class SingnInListsAdapter extends android.widget.BaseAdapter {
     private List<SignInLists.DataBean.PageDataBean> mDataLists = new ArrayList<>();
     private Context mContext;
+    private String backDate;
 
     public SingnInListsAdapter(Context context) {
        // super(context);
@@ -75,6 +76,7 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
         childHolder.tvRemark = (TextView) convertView.findViewById(R.id.tvRemark);
         childHolder.tvAddress = (TextView) convertView.findViewById(R.id.tvAddress);
         childHolder.tvLable = (TextView) convertView.findViewById(R.id.tvLable);
+        childHolder.tvSinginDate = (TextView) convertView.findViewById(R.id.tv_singin_date);
         convertView.setTag(childHolder);
        /* }else {
             childHolder  = (ChildHolder) convertView.getTag();
@@ -144,10 +146,20 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
 //                }
 //                childHolder.tvRemark.setText(remark);
             Date date = new Date(time);
-
+            String strDate = TimeFormatUtils.china_format_date(date);//格式化日期X月X日
+            if (position == 0) {//第一条目显示日期
+                childHolder.tvSinginDate.setVisibility(View.VISIBLE);
+                childHolder.tvSinginDate.setText(strDate);
+                backDate = strDate;
+            }else {//如果后面的时间和前面的时间不一样者显示日期,否则不显示
+                if (!backDate.equals(strDate)) {
+                    childHolder.tvSinginDate.setVisibility(View.VISIBLE);
+                    childHolder.tvSinginDate.setText(strDate);
+                    backDate = strDate;
+                }
+            }
             String strTime= TimeFormatUtils.time_format_date(date);
             childHolder.tvTime.setText(strTime);
-
         }
         return convertView;
     }
@@ -160,5 +172,6 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
         public TextView    tvRemark;
         public TextView    tvAddress;
         public TextView    tvLable;
+        public TextView    tvSinginDate;
     }
 }

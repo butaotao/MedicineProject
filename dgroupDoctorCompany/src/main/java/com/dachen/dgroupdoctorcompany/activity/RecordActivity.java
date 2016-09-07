@@ -1,6 +1,5 @@
 package com.dachen.dgroupdoctorcompany.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -29,11 +28,11 @@ public class RecordActivity extends BaseActivity   implements View.OnClickListen
         setContentView(R.layout.activity_record);
         findViewById(R.id.rl_visitrecord).setOnClickListener(this);
         findViewById(R.id.rl_singrecord).setOnClickListener(this);
-        setTitle("签到统计类型");
+        setTitle("业务统计");
     }
 
     @Override
-    public void onClick(View v) {
+  public void onClick(View v) {
         super.onClick(v);
         Intent intent;
         switch (v.getId()){

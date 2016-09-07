@@ -31,7 +31,6 @@ import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
@@ -61,7 +60,6 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
     private OnItemLongClickListener mOnItemLongClicked;
     private boolean mDataChanged = false;
 
-/*-----------------------------------------zxy start-----------------------------------------*/
     public HorizontalListView(Context context, AttributeSet attrs) {
         super(context, attrs);
         initView();
@@ -141,17 +139,8 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
    @Override
     public void setSelection(int position) {
-        Log.d("zxy", "setSelection: ");
        mDataObserver.onChanged();
     }
-
-    public void setLastPosition() {
-        Log.d("zxy", "setLastPosition: ");
-        mDataObserver.onChanged();
-        requestLayout();
-    }
-
-
 
     private void addAndMeasureChild(final View child, int viewPos) {
         LayoutParams params = child.getLayoutParams();

@@ -91,14 +91,14 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
             @Override
             public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
                 pageIndex = 0;
-                mDataLists.clear();
+                //mDataLists.clear();//在这里清空后刷新后无数据会导致闪退 zxy
                 getListData();
             }
 
             @Override
             public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
                 pageIndex++;
-                mDataLists.clear();
+                //mDataLists.clear();//在这里清空后刷新后无数据会导致闪退 zxy
                 getListData();
             }
         });
@@ -175,32 +175,22 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
             if(null != data ){
                 int beforeSize = mDataLists.size();
                 if(null != data.pageData && data.pageData.size()>0){
+                    mDataLists.clear();
                     mDataLists.addAll(data.pageData);
-//                    findViewById(R.id.empty_view).setVisibility(View.GONE);
-                }else{
-//                    if(pageIndex == 0){
-//                        findViewById(R.id.empty_view).setVisibility(View.VISIBLE);
-//                    }
+                    if(pageIndex==0){
+                        mAdapter.addData(mDataLists,true);
+                    }else{
+                        mAdapter.addData(mDataLists,false);
+                    }
+                    mAdapter.notifyDataSetChanged();
                 }
-                if(pageIndex==0){
-                    mAdapter.addData(mDataLists,true);
-                }else{
-                    mAdapter.addData(mDataLists,false);
-                }
-                mAdapter.notifyDataSetChanged();
                 if(beforeSize>0){
                     int afterSize = mDataLists.size();
                     if(beforeSize == afterSize){
                         ToastUtil.showToast(this,"已经全部加载");
                     }
                 }
-            //    setExpandableListView();
-            }else{
-//                if(pageIndex == 0){
-//                    findViewById(R.id.empty_view).setVisibility(View.VISIBLE);
-//                }
             }
-
         }else{
             ToastUtil.showErrorNet(SignListActivity.this);
         }
@@ -324,7 +314,8 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        SignInLists.DataBean.PageDataBean dataBean = mDataLists.get(position-1);// position 从1开始???醉了!!!
+        SignInLists.DataBean.PageDataBean dataBean  =
+                (SignInLists.DataBean.PageDataBean) mAdapter.getItem(position-1);// position 从1开始???醉了!!!
         String type = dataBean.tag.get(0);
         if("拜访".equals(type)||"协同拜访".equals(type)){
             Intent intent = null;

@@ -33,13 +33,16 @@ public class GuiderHListView extends HorizontalListView {
     @Override
     public void setSelection(int position) {
         int positionX = position * this.getWidth();
+      Log.d("zxy :", "36 : GuiderHListView : setSelection : positionX"+positionX);
         int maxWidth = this.getChildCount() * this.getWidth();
+        Log.d("zxy :", "38 : GuiderHListView : setSelection : maxWidth"+maxWidth+",ChildCount() = "+this.getChildCount()+", getWidth() = "+this.getWidth());
         if (positionX <= 0) {
             positionX = 0;
         }
         if (positionX > maxWidth) {
             positionX = maxWidth;
         }
+        Log.d("zxy :", "43 : GuiderHListView : setSelection : positionX = "+positionX);
         scrollTo(positionX);
     }
     private void initView(Context context) {

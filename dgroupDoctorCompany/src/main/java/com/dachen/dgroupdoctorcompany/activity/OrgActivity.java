@@ -50,6 +50,8 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
     private ArrayList<OrgEntity.Data> mDepamentsList = new ArrayList<>();
     private OrgSelectAdapter mOrgSelectAdapter;
     private String orgId;
+    private String currentId;
+    private String backId;
     private int count=0;//打开了多少次当前页面
     View layoutView;
     public String userId = "";
@@ -72,6 +74,7 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
     };
     private boolean updataCheck =  false;
     private boolean otherPage = false;
+    private TextView mTvDes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,15 +95,16 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
         mOrgListGuilde.setOnItemClickListener(this);
         listview = (ListView) findViewById(R.id.lvOrg);
         mTvSave = (TextView) findViewById(R.id.tvSave);
+        mTvDes = (TextView) findViewById(R.id.tv_des);
+        mTvDes.setVisibility(View.VISIBLE);
         mTvSave.setOnClickListener(this);
+        mTvDes.setOnClickListener(this);
     }
-
 
     private void initData(){
         companyContactDao = new CompanyContactDao(this);
         entity = (CompanyContactListEntity) getIntent().getSerializableExtra("user");
         entity = companyContactDao.queryByUserid(entity.userId+"");
-        Log.d("zxy :", "95 : OrgActivity : initData : entity = "+entity.id);
         mOrgSelectAdapter = new MyAdapter(OrgActivity.this,mDepamentsList,entity);
         listview.setAdapter(mOrgSelectAdapter);
         String companyName = SharedPreferenceUtil.getString(CompanyApplication.getInstance(), "enterpriseName", "");
@@ -126,11 +130,8 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
                             OrgEntity.Data data = mDepamentsList.get(i);
                             if(i == position){
                                 data.isCheck = isCheck;
-                                updataCheck = true;
-                                Log.d("zxy :", "130 : OrgActivity : onItemClick : updataCheck = "+updataCheck);
                             }else{
                                 data.isCheck = false;
-                                updataCheck = false;
                             }
                         }
                         mOrgSelectAdapter.update(mDepamentsList);
@@ -140,6 +141,7 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
                         mOrgListGuilde.addTask(depaments.name,depaments.name);
                         mOrgListGuilde.notifyDataSetChanged();
                         mDepamentsList = depaments.subList;
+                        backId();
                         mOrgSelectAdapter.update(mDepamentsList);
                         mDepamentsStack.add(copyToNewList(mDepamentsList));
                         mStackCount++;
@@ -250,8 +252,6 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
             }
             for(int i=0;i<mDepamentsList.size();i++){
                 OrgEntity.Data data = mDepamentsList.get(i);
-                Log.d("zxy :", "249 : MyAdapter : onCheckBoxCheck :  "+updataCheck +", "+otherPage);
-
                     if(data.id == item.id){
                         data.isCheck = isCheck;
                     }else{
@@ -298,15 +298,19 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
        // setTitle(title);
         mStackCount--;
        // Log.d("zxy", "backtofront: 4  mStackCount = "+mStackCount);
+        backId();
+        mOrgSelectAdapter.update(mDepamentsList);
+    }
+    //点击导航,返回时重置checked
+    private void backId() {
         for(int i=0;i<mDepamentsList.size();i++){
-            if (updataCheck && otherPage) {//其他数据是否checked
+            if (mDepamentsList.get(i).id.equals(orgId)) {//其他数据是否checked
                 Log.d("zxy :", "303 : OrgActivity : backtofront : ");
+                mDepamentsList.get(i).isCheck = true;
+            }else {
                 mDepamentsList.get(i).isCheck = false;
-                updataCheck = false;
-                otherPage = false;
             }
         }
-        mOrgSelectAdapter.update(mDepamentsList);
     }
 
     public ArrayList<OrgEntity.Data> copyToNewList(ArrayList<OrgEntity.Data> list){
@@ -323,6 +327,7 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
         }
 
         mDepamentsList = mDepamentsStack.get(position);
+        backId();
         mOrgSelectAdapter.update(mDepamentsList);
 
         mDepamentsStack.add(copyToNewList(mDepamentsList));
@@ -345,6 +350,9 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
                 break;
             case R.id.tvSave:
                 showDialog();
+                break;
+            case R.id.tv_des://关闭按钮
+                finish();
                 break;
         }
     }

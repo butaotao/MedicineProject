@@ -4,6 +4,7 @@ package com.dachen.dgroupdoctorcompany.activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -251,8 +252,6 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                         mListGuider.addTask(c1.name,c1.id);
                         mListGuider.setOldPosition();
                         mListGuider.notifyDataSetChanged();
-                        //String title = mListGuider.getListGuide().get(mListGuider.getListGuide().size()-1);
-                        //setTitle(title);
                         idDep = c1.id;
                         getOrganization();
                     }
@@ -283,14 +282,12 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                 mPullToRefreshScrollView.onRefreshComplete();
             }
         });
-        /*-----------------------------------------zxy start-----------------------------------------*/
         mListGuider = (GuiderHListView) findViewById(R.id.org_listguilde);
         mListGuider.setOnItemClickListener(this);
         String companyName = SharedPreferenceUtil.getString(CompanyApplication.getInstance(), "enterpriseName", "");
         mListGuider.addTask(companyName,idDep);
         mListGuider.setAdapter();
         mListGuider.notifyDataSetChanged();
-        /*-----------------------------------------zxy end -----------------------------------------*/
 
         getOrganization();
     }
@@ -325,34 +322,12 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                         departments.set(i, entity);
                         break;
                     }
-
                 }
             }
         return departments;
-
     }
 
     void backtofront() {
-       /* if (list != null && list.size() > 0 && list.get(0) instanceof CompanyDepment.Data.Depaments) {
-            CompanyDepment.Data.Depaments entity = (CompanyDepment.Data.Depaments) list.get(0);
-            // idDep = entity.parentId;
-            if (null != listsTitle.get(entity.parentId) && null != listsTitle.get(entity.parentId).parentId) {
-                idDep = listsTitle.get(entity.parentId).parentId;
-            } else {
-                idDep = null;
-                setTitle("选择联系人");
-            }
-
-            // setTitle(entity.name);
-        } else {
-            idDep = pareid;
-            setTitle("选择联系人");
-        }
-        if (idDep == null) {
-            idDep = "0";
-            finish();
-            return;
-        }*/
         int position = mListGuider.getCurrentPosition()-1;//当前任务栈id数
         if (position == 0) {   //只剩联系人了,直接返回,  清空数据释放缓存
             finish();
@@ -524,9 +499,7 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
         maps.put("orgId", idDep);
         maps.put("hideUnassign","1");
         //"org/enterprise/dept/getDepartmentsByParentIdAndEId"
-        new HttpManager().get(this, Constants.DEPSTRUCT, CompanyDepment.class,
-                maps, this,
-                false, 1);
+        new HttpManager().get(this, Constants.DEPSTRUCT, CompanyDepment.class, maps, this, false, 1);
     }
 
     @Override
@@ -550,20 +523,14 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                             setTitle("选择联系人");
                         }
                     }
-
                     adapter.setSize(companyDepment.data.departments.size());
                     adapter.notifyDataSetChanged();
-
                 } else {
                     haveDep = false;
                     adapter.setSize(0);
                     closeLoadingDialog();
                 }
-
                 if (null != companyDepment.data && null != companyDepment.data.users && companyDepment.data.users.size() > 0) {
-
-
-
                     if (companyDepment.data.users.size() > mPageSize) {
                         mPullIndex = 0;
                         mUserIdList = companyDepment.data.users;
@@ -589,12 +556,12 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
 
     @Override
     public void onSuccess(ArrayList response) {
-
+    Log.d("zxy :", "560 : SelectPeopleActivity : onSuccess : ");
     }
 
     @Override
     public void onFailure(Exception e, String errorMsg, int s) {
-
+Log.d("zxy :", "566 : SelectPeopleActivity : onFailure : ");
     }
 
     public void back() {
