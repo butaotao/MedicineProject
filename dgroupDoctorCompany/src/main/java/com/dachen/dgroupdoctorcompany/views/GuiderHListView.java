@@ -33,16 +33,13 @@ public class GuiderHListView extends HorizontalListView {
     @Override
     public void setSelection(int position) {
         int positionX = position * this.getWidth();
-      Log.d("zxy :", "36 : GuiderHListView : setSelection : positionX"+positionX);
         int maxWidth = this.getChildCount() * this.getWidth();
-        Log.d("zxy :", "38 : GuiderHListView : setSelection : maxWidth"+maxWidth+",ChildCount() = "+this.getChildCount()+", getWidth() = "+this.getWidth());
         if (positionX <= 0) {
             positionX = 0;
         }
         if (positionX > maxWidth) {
             positionX = maxWidth;
         }
-        Log.d("zxy :", "43 : GuiderHListView : setSelection : positionX = "+positionX);
         scrollTo(positionX);
     }
     private void initView(Context context) {
@@ -96,6 +93,15 @@ public class GuiderHListView extends HorizontalListView {
         notifyDataSetChanged();
         return idDep;
     }
+
+    /**
+     * 得到倒数第二个的任务id
+     * @return id
+     */
+    public String reMoveTaskId(){
+        int position = currentPosition-2;//当前任务栈id数
+        return listGuideMap.get(position);
+    }
     int oldPosition;
 
     /**
@@ -103,21 +109,26 @@ public class GuiderHListView extends HorizontalListView {
      * @param position
      */
     public String addBackTask(int position){
-Log.d("zxy :", "103 : GuiderHListView : addBackTask : oldPosition = "+oldPosition+", position = "+position);
         int forCount = oldPosition - position;
-       // Log.d("zxy", "onItemClick: oldPosition = "+oldPosition+", position = "+position);
         for (int i = 0; i < forCount; i++) {
-         //   Log.d("zxy", "onItemClick: remove");
                 mListGuide.remove(oldPosition -i);
         }
         departList.put(currentPosition,copyToNewList(mListGuide));
-
         listGuideMap.put(currentPosition, listGuideMap.get(position));
         String idDep = listGuideMap.get(position);
-        Log.d("zxy", "onItemClick: currentPosition = "+currentPosition+", idDep = "+listGuideMap.get(position)+", mListGuide"+mListGuide);
         oldPosition = position;
         currentPosition++;
         return idDep;
+    }
+
+    /**
+     * 得到返回的id
+     * @param position position
+     * @return id
+     *
+     */
+    public String addBackTaskId(int position){
+        return listGuideMap.get(position);
     }
 
     public void setOldPosition(){

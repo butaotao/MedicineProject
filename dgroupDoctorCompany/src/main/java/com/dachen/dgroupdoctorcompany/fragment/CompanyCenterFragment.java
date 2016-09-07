@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.dachen.dgroupdoctorcompany.R;
@@ -23,6 +24,7 @@ import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
 import com.dachen.medicine.net.Params;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
 import java.util.ArrayList;
@@ -34,7 +36,7 @@ import butterknife.ButterKnife;
  * Created by Burt on 2016/2/18.
  */
 public class CompanyCenterFragment extends BaseFragment implements OnHttpListener, AdapterView
-        .OnItemClickListener {
+        .OnItemClickListener,PullToRefreshBase.OnRefreshListener2<ListView> {
     private View mRootView;
 
     TextView tv_login_title;
@@ -60,6 +62,7 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
         mLvAppCenter = (PullToRefreshListView) mRootView.findViewById(R.id.lv_appcenter);
         mLvAppCenter.setEmptyView(View.inflate(mActivity,R.layout.view_appcenter_empty,null));
         mLvAppCenter.setOnItemClickListener(this);
+        mLvAppCenter.setOnRefreshListener(this);
         mAdapter = new AppcenterAdapter(mActivity,mPageData);
         mLvAppCenter.setAdapter(mAdapter);
         initData();
@@ -68,31 +71,7 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
 
     private void initData() {
         new HttpManager<MyAppBean>().post(mActivity, Constants.GET_APPCENTER, MyAppBean.class,
-                Params.getAppCenterParams(mActivity), new OnHttpListener<Result>() {
-
-            @Override
-            public void onSuccess(Result response) {
-                if (response instanceof MyAppBean ) {
-                    MyAppBean bean = (MyAppBean) response;
-
-                    mPageData = bean.data.pageData;
-                    Log.d("zxy :", "79 : CompanyCenterFragment : onSuccess : "+mPageData.size()+", "+mPageData.toString());
-                    if (mPageData.size()>0) {
-                        mAdapter.addData(mPageData);
-                        mAdapter.notifyDataSetChanged();
-
-                    }
-                }
-            }
-
-            @Override
-            public void onSuccess(ArrayList<Result> response) {
-            }
-
-            @Override
-            public void onFailure(Exception e, String errorMsg, int s) {
-            }
-        },false,1);
+                Params.getAppCenterParams(mActivity), this,false,1);
     }
 
     @Override
@@ -133,5 +112,29 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
                 startActivity(litterAppIntent);
                 break;
         }
+    }
+
+    @Override
+    public void onSuccess(Result response) {
+        if (response instanceof MyAppBean ) {
+            MyAppBean bean = (MyAppBean) response;
+            mPageData.clear();
+            mPageData = bean.data.pageData;
+            if (mPageData.size()>0&&mPageData!=null) {
+                Log.d("zxy :", "79 : CompanyCenterFragment : onSuccess : "+mPageData.size()+", "+mPageData.toString());
+                mAdapter.addData(mPageData);
+                mAdapter.notifyDataSetChanged();
+            }
+        }
+    }
+
+    @Override
+    public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
+        initData();
+    }
+
+    @Override
+    public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
+
     }
 }

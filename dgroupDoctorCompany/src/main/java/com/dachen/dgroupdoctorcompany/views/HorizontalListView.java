@@ -31,6 +31,7 @@ import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
@@ -290,6 +291,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
     }
 
     public synchronized void scrollTo(int x) {
+        Log.d("zxy :", "293 : HorizontalListView : scrollTo :  from "+mNextX +", to "+(x - mNextX));
         mScroller.startScroll(mNextX, 0, x - mNextX, 0);
         requestLayout();
     }

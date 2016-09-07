@@ -90,10 +90,11 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
     RadioButton btn_radio_addall;
     boolean selectall;
     SessionGroup groupTool;
-    String pareid;
+    private String pareid;
     ArrayList<CompanyContactListEntity> groupUsers;
     private String groupId;
-    public String partname;
+    private String partName;
+    private String partId;
     Button btn_add;
     private boolean inWork;
 
@@ -110,6 +111,11 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
     private String groupIds;
     private GuiderHListView mListGuider;
     private TextView mTvDes;
+    private  final  int LISTVIEWITEMCLICK = 1;
+    private  final  int GUIDERITEMCLICK = 2;
+    private  final  int BACKCLICK = 3;
+    private int from;
+    private int currentPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -246,13 +252,14 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                     btn_add.setText("开始(" + listsHorizon.size() + ")");
                 } else if (contact instanceof CompanyDepment.Data.Depaments) {
                     c1 = (CompanyDepment.Data.Depaments) (contact);
-                    //   listsTitle.put(c1.id, c1.parentId);
                     listsTitle.put(c1.id, c1);
                     if (c1 != null) {
-                        mListGuider.addTask(c1.name,c1.id);
-                        mListGuider.setOldPosition();
-                        mListGuider.notifyDataSetChanged();
+                        partName= c1.name;
                         idDep = c1.id;
+                        from = LISTVIEWITEMCLICK;
+                        /*mListGuider.addTask(partName,idDep);//数据请求成功后加载
+                        mListGuider.setOldPosition();
+                        mListGuider.notifyDataSetChanged();*/
                         getOrganization();
                     }
                 }
@@ -288,7 +295,6 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
         mListGuider.addTask(companyName,idDep);
         mListGuider.setAdapter();
         mListGuider.notifyDataSetChanged();
-
         getOrganization();
     }
 
@@ -305,10 +311,11 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
         if (position == mListGuider.getListGuide().size() - 1) {
             return;
         }
-        idDep = mListGuider.addBackTask(position);
-        mListGuider.notifyDataSetChanged();
-        //String title = mListGuider.getListGuide().get(mListGuider.getListGuide().size()-1);
-       // setTitle(title);
+       /* mListGuider.setOldPosition();
+        mListGuider.notifyDataSetChanged();*/
+        from = GUIDERITEMCLICK;
+        currentPosition = position;
+        idDep = mListGuider.addBackTaskId(position);
         getOrganization();
     }
 
@@ -328,20 +335,16 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
     }
 
     void backtofront() {
+        from = BACKCLICK;
         int position = mListGuider.getCurrentPosition()-1;//当前任务栈id数
         if (position == 0) {   //只剩联系人了,直接返回,  清空数据释放缓存
             finish();
             return;
-        }if (position == 1) {  //公司页面
-            //setTitle("企业通讯录");
-            idDep = mListGuider.reMoveTask();
         }else{//返回
-            idDep = mListGuider.reMoveTask();
+            idDep = mListGuider.reMoveTaskId();
         }
-        //String derpartName = mListGuider.getLastDerpartName(position);
-        //setTitle(derpartName);
-        mListGuider.setOldPosition();
-        mListGuider.notifyDataSetChanged();
+        /*mListGuider.setOldPosition();
+        mListGuider.notifyDataSetChanged();*/
         getOrganization();
     }
 
@@ -404,9 +407,7 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
 
     @Override
     public void onClick(View v) {
-       /* if (v.getId()!=R.id.rl_back){
-            super.onClick(v);
-        }*/
+
         switch (v.getId()) {
             case R.id.btn_add:
                 if (inWork) return;
@@ -508,6 +509,21 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
         boolean haveDep = false;
         if (response != null && response.resultCode == 1) {
             if (response instanceof CompanyDepment) {
+                switch (from) {
+                    case LISTVIEWITEMCLICK://ListView点击请求数据成功
+                        mListGuider.addTask(partName,idDep);
+                    break;
+                    case GUIDERITEMCLICK:   //导航listView
+                        mListGuider.addBackTask(currentPosition);
+                    break;
+                    case BACKCLICK:         //返回
+                        mListGuider.reMoveTask();
+                    break;
+                }
+                //onWindowFocusChanged(true);
+                //mListGuider.setSelection(mListGuider.getCurrentPosition());//跳转到最后一条
+                mListGuider.setOldPosition();
+                mListGuider.notifyDataSetChanged();
                 CompanyDepment companyDepment = (CompanyDepment) (response);
                 if (null != companyDepment.data && null != companyDepment.data.departments && companyDepment.data.departments.size() > 0) {
                     list.clear();
