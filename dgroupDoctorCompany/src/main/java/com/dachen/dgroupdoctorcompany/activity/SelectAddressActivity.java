@@ -249,7 +249,7 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
                                String deviceId = TelephonyMgr.getDeviceId();
                                new HttpManager().post(SelectAddressActivity.this, Constants.CREATE_OR_UPDATA_SIGIN_IN, Result.class,
                                        Params.getWorkingParams(SelectAddressActivity.this, deviceId, "", "",
-                                               coordinate, address, tabid, orgId),
+                                               coordinate, name, tabid, orgId),
                                        SelectAddressActivity.this, false, 4);
                            }else {
                                Intent intent = new Intent(SelectAddressActivity.this, AddSignInActivity.class);

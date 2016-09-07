@@ -31,6 +31,7 @@ public class CompanyContactDao {
     private SQLiteHelper helper;
     Context context;
     QueryBuilder<CompanyContactListEntity, Integer> builder;
+    public int page = 1;
     public CompanyContactDao(Context context) {
         this.context = context;
         try {
@@ -289,7 +290,55 @@ public class CompanyContactDao {
 
         return builder;
     }
-    public List<CompanyContactListEntity> querySearchPage(String name, int pageNo,boolean limit) {
+
+    public List<CompanyContactListEntity> querySearchPagePhone(String name, int pageNo,boolean limit,
+                                                               List<CompanyContactListEntity> entitiess,List<String> phones) {
+        CompanyContactDao articleDaos = new CompanyContactDao(context);
+        QueryBuilder<CompanyContactListEntity, Integer> builder = articleDao.queryBuilder();
+        String loginid = SharedPreferenceUtil.getString(context, "id", "");
+        boolean ispinyin = false;
+        try {
+
+            List<CompanyContactListEntity> entities = entitiess;
+            List<CompanyContactListEntity> entitie = new ArrayList<>();
+            Where<CompanyContactListEntity, Integer> where = builder.where();
+            boolean isNunicodeDigits = StringUtils.isNumeric(name);
+                    boolean check = false;
+                    if (entities.size() < 50 && entities.size() != 0) {
+                        page = pageNo;
+                        check = true;
+                        if (limit) {
+                            builder.limit(50l).offset(0l);
+                        }
+                        builder.orderBy("pinYinOrderType", true);
+                        builder.orderBy("simpinyin", true);
+                        builder.orderBy("name", true);
+                        where.and(where.and(where.eq("userloginid", loginid), where.like("name", name)),
+                                where.notIn("userId", phones));
+
+                    } else if (entities.size() == 0) {
+                        check = true;
+                        if (limit) {
+                            builder.limit(50l).offset((pageNo - page) * 50l);
+                        }
+                        builder.orderBy("pinYinOrderType", true);
+                        builder.orderBy("simpinyin", true);
+                        builder.orderBy("name", true);
+                        where.and(where.and(where.eq("userloginid", loginid), where.like("name", name)),
+                                where.notIn("userId", phones));
+
+                    }
+                    if (check&&null != where.query()) {
+                        entitie.addAll(builder.distinct().query());
+                    }
+                return entitie;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+    public List<CompanyContactListEntity> querySearchPage(String name, int pageNo,List<CompanyContactListEntity> company,boolean limit) {
         QueryBuilder<CompanyContactListEntity, Integer> builder = articleDao.queryBuilder();
         String loginid = SharedPreferenceUtil.getString(context, "id", "");
         boolean ispinyin = false;
@@ -303,6 +352,9 @@ public class CompanyContactDao {
             boolean isNunicodeDigits= StringUtils.isNumeric(name);
             boolean containsChinese = StringUtils.containsChinese(name);
             boolean isEnglish = StringUtils.isEnglish(name);
+            if (pageNo==1){
+                page = 1;
+            }
             if (isNunicodeDigits){
                 name = "%" + name + "%";
                 where.reset();
@@ -311,46 +363,28 @@ public class CompanyContactDao {
                     builder.orderBy("simpinyin", true);
                     builder.orderBy("name", true);
                   //  builder.groupBy("pinYinOrderType");
-                 where.and(where.eq("userloginid", loginid), where.like("telephone", name)) ;
+                    if (null!=company&&company.size()>0){
+                        for (int i = 0; i < company.size(); i++) {
+                            phones.add(company.get(i).userId);
+                        }
+                    }
+                    where.and(where.and(where.eq("userloginid", loginid), where.like("telephone", name)),
+                            where.notIn("userId", phones));
                     if (null != where.query()) {
                         entities.addAll(builder.distinct().query());
                     }
-                    for (int i = 0; i < entities.size(); i++) {
-                        phones.add(entities.get(i).userId);
+
+                    if (null!=entities&&entities.size()>0){
+                        for (int i = 0; i < entities.size(); i++) {
+                            phones.add(entities.get(i).userId);
+                        }
                     }
 
+                    builder.reset();
+                    where.reset();
+                        entities.addAll(querySearchPagePhone(name,pageNo,limit,entities,phones));
 
-                    if (entities.size()<50&&entities.size()!=0){
-                        where.reset();
-                        builder.reset();
-                        if (limit){
-                            builder.limit(50l).offset((pageNo - 1) * (50l-entities.size()));
-                        }
-                        builder.orderBy("pinYinOrderType", true);
-                        builder.orderBy("simpinyin", true);
-                        where.and(where.and(where.eq("userloginid", loginid), where.like("name", name)),
-                                where.notIn("userId", phones));
-                    }
-                    if (entities.size()==0){
-                        where.reset();
-                        builder.reset();
-                        if (limit){
-                            builder.limit(50l).offset((pageNo - 1) * 50l);
-                        }
-                        builder.orderBy("pinYinOrderType", true);
-                        builder.orderBy("simpinyin", true);
-                        builder.orderBy("name", true);
-                        where.and(where.and(where.eq("userloginid", loginid), where.like("name", name)),
-                                where.notIn("userId", phones));
-                        if (null != where.query()) {
-                            entities.addAll(builder.distinct().query());
-                        }
-                        int size = entities.size();
-                    }
-
-                  /*  where.or(
-                            where.and(where.eq("userloginid", loginid), where.like("telephone", name)),
-                            where.and(where.eq("userloginid", loginid), where.like("name", name)));*/
+                    int size = entities.size();
 
 
                 } else {

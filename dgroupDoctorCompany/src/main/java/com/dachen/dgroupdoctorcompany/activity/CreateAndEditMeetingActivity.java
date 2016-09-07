@@ -402,7 +402,10 @@ public class CreateAndEditMeetingActivity extends BaseActivity {
             }
 
         } else {
-            ToastUtil.showToast(mThis, "发布失败");
+            if (null!=result&&!TextUtils.isEmpty(result.getResultMsg())){
+                ToastUtil.showToast(mThis, result.getResultMsg());
+            }
+
         }
 
 

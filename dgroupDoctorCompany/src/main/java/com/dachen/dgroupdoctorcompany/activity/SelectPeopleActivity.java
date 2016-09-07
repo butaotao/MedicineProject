@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -336,6 +337,7 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
 
     void backtofront() {
         from = BACKCLICK;
+
         int position = mListGuider.getCurrentPosition()-1;//当前任务栈id数
         if (position == 0) {   //只剩联系人了,直接返回,  清空数据释放缓存
             finish();
@@ -348,6 +350,41 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
         getOrganization();
     }
 
+    public ArrayList<CompanyDepment.Data.Depaments> checkUndefine(ArrayList<CompanyDepment.Data.Depaments> departments) {
+        for (CompanyDepment.Data.Depaments depament : departments) {
+            if (!TextUtils.isEmpty(depament.name) && depament.name.equals("未分配")) {
+                List<CompanyContactListEntity> entities = companyContactDao.queryByDepID(depament.id);
+                if (entities == null || entities.size() == 0) {
+                    list.remove(depament);
+                }else {
+                    int p = -1;
+                    for (int i =0;i<departments.size();i++){
+                        if (!TextUtils.isEmpty( departments.get(i).type)&&
+                                departments.get(i).type.equals("3")){
+                            p = i;
+                            break;
+                        }
+                    }
+                    if (p!=-1){
+                        CompanyDepment.Data.Depaments depamen1 = departments.get(p);
+                        CompanyDepment.Data.Depaments depamen2 = departments.get(departments.size()-1);
+                        CompanyDepment d= new CompanyDepment();
+                        CompanyDepment.Data data = d.new Data();
+
+                        CompanyDepment.Data.Depaments depaments3 = data.new Depaments();
+                        depaments3 = depamen1;
+                        departments.set(p,depamen2);
+                        departments.set(departments.size()-1, depaments3);
+                        list.clear();
+                        list.addAll(departments);
+                    }
+                }
+                break;
+            }
+
+        }
+        return departments;
+    }
     void selectall() {
         boolean ispeople = false;
         if (list != null && list.size() > 0) {
@@ -530,6 +567,7 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                     haveDep = true;
                     list.addAll(companyDepment.data.departments);
                     pareid = companyDepment.data.departments.get(0).parentId;
+                    checkUndefine(companyDepment.data.departments);
                     if (list != null && list.size() > 0 && list.get(0) instanceof CompanyDepment.Data.Depaments) {
                         CompanyDepment.Data.Depaments entity = (CompanyDepment.Data.Depaments) list.get(0);
                         if (null != listsTitle && listsTitle.size() > 0 && null != entity && entity.parentId != null && null != listsTitle.get(entity.parentId)

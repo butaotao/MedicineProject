@@ -167,7 +167,13 @@ public class AddressList extends BaseFragment implements View.OnClickListener{
 			public void onReceive(Context context, Intent intent) {
 				super.onReceive(context, intent);
 				lists.clear();
-				lists.addAll(depDao.queryManager());
+				if (depDao.queryManager()==null||depDao.queryManager().size()==0){
+					listviewmanagerdepartment.setVisibility(View.GONE);
+				}else {
+					listviewmanagerdepartment.setVisibility(View.VISIBLE);
+					lists.addAll(depDao.queryManager());
+				}
+
 				depManagerAdapter.notifyDataSetChanged();
 			}
 		};;

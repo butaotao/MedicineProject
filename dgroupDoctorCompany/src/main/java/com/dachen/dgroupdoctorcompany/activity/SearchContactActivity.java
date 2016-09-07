@@ -459,7 +459,7 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
             if (showColleague||showAll){
                 List<CompanyContactListEntity> tempCompany;
 
-                    tempCompany = dao.querySearchPage(keyword, pageNo,true);
+                    tempCompany = dao.querySearchPage(keyword, pageNo,company,true);
 
             if(pageNo == 1){
                 company = tempCompany;

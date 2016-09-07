@@ -202,6 +202,16 @@ public class Params {
 		params.put("employeeId",employeeId);
 		return params;
 	}
+	public static Map<String,String>updateOrgOnself(Context context,String newOrgId,String userid,String employeeId){
+		Map<String, String> params = getMapInstance();
+		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
+		params.put("userId", userid);
+		params.put("drugCompanyId",
+				SharedPreferenceUtil.getString(context, "enterpriseId", "") );
+		params.put("orgId", newOrgId);
+		params.put("employeeId",employeeId);
+		return params;
+	}
 
 	public static Map<String,String>updateUserName(Context context,String newName,String userId,String employeeId){
 		Map<String, String> params = getMapInstance();

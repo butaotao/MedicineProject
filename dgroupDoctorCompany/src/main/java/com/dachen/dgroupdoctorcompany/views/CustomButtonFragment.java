@@ -32,6 +32,7 @@ public class CustomButtonFragment  extends Fragment {
     TextView c;
     TextView d;
     long sixTime;
+    boolean works;
     FloatingActionButton leftCenterButton;
     MenuWithFABActivity activity;
     public FloatingActionMenu circleMenu;
@@ -39,8 +40,10 @@ public class CustomButtonFragment  extends Fragment {
     long time;
     public void setActivity(MenuWithFABActivity activity,long time) {
             this.activity = activity;
-        sixTime = com.dachen.medicine.common.utils.TimeUtils.getTime(time,6, 0);
+
         this.time = time;
+        works = false;
+        setdata();
     }
     public CustomButtonFragment() {
         this.activity = activity;
@@ -127,36 +130,47 @@ public class CustomButtonFragment  extends Fragment {
                     tv_alertnotsign.setVisibility(View.GONE);
                     //activity.timeStamp; 1472594400000  1472594400000
                     long nowTime = activity.timeStamp;
-
-                    long twentyTime = com.dachen.medicine.common.utils.TimeUtils.getTime(time,0, 0);
                     long yesdayworktime = activity.ytdayWorkTime;
                     long yesdayworkofftime = activity.ytdayOffTime;
-                    boolean haveworksign = haveSignWork();
-                    if (sixTime <= nowTime)
+                    boolean offwork = haveOffWork();
+                 /*   offwork = false;
+                    yesdayworkofftime = 0;
+                    nowTime = System.currentTimeMillis();*/
+
+                    long twentyTime = com.dachen.medicine.common.utils.TimeUtils.getTime(nowTime,0, 0);
+                    sixTime = com.dachen.medicine.common.utils.TimeUtils.getTime(nowTime,6, 0);
+                    if (sixTime <= nowTime)//6点之后
                               {
-                        if (haveworksign) {
-                            d.setBackgroundResource(R.drawable.class_icon);
-                        } else {
-                            d.setBackgroundResource(R.drawable.work_icon);
-                        }
+                            workOrOff();
                     } else if (sixTime > nowTime&&
                             nowTime>=twentyTime) {
                         if (yesdayworktime==0){
-                            d.setBackgroundResource(R.drawable.work_icon);
+                            workOrOff();
                         }else if(yesdayworktime!=0&&(yesdayworktime<yesdayworkofftime)){
-                            d.setBackgroundResource(R.drawable.work_icon);
+                            workOrOff();
                         }else if(yesdayworktime!=0&&(yesdayworktime>yesdayworkofftime)){
-                           if (haveworksign) {
+                          if (offwork) {
                                 //说明打过下班卡了
-                                d.setBackgroundResource(R.drawable.work_icon);
+                              works =true;
+                              d.setBackgroundResource(R.drawable.work_icon);
                             } else {
                                 if (SharedPreferenceUtil.getLong(activity,sixTime+"",0)==0){
                                     tv_alertnotsign.setVisibility(View.VISIBLE);
+                                    works =false;
+                                    //说明没有打过下班卡
+                                    d.setBackgroundResource(R.drawable.class_icon);
+                                }else {
+                                    works =true;
+                                    d.setBackgroundResource(R.drawable.work_icon);
                                 }
-                                //说明没有打过下班卡
-                                d.setBackgroundResource(R.drawable.class_icon);
-                            }
+
+                             }
+                        }else {
+                            workOrOff();
                         }
+                    }
+                    if (haveWork()){
+                          workOrOff();
                     }
                 }
                 @Override
@@ -171,6 +185,48 @@ public class CustomButtonFragment  extends Fragment {
             d.setOnClickListener(new myOnclickListener());
             return rootView;
         }
+    public void setdata() {
+        long nowTime = activity.timeStamp;
+        long yesdayworktime = activity.ytdayWorkTime;
+        long yesdayworkofftime = activity.ytdayOffTime;
+        boolean offwork = haveOffWork();
+
+        long twentyTime = com.dachen.medicine.common.utils.TimeUtils.getTime(nowTime, 0, 0);
+        sixTime = com.dachen.medicine.common.utils.TimeUtils.getTime(nowTime, 6, 0);
+        tv_alertnotsign.setVisibility(View.GONE);
+        if (sixTime > nowTime && nowTime >= twentyTime) {
+            if (yesdayworktime == 0) {
+
+            } else if (yesdayworktime != 0 && (yesdayworktime < yesdayworkofftime)) {
+
+            } else if (yesdayworktime != 0 && (yesdayworktime > yesdayworkofftime)) {
+                if (offwork) {
+                    //说明打过下班卡了
+                    works = true;
+                    d.setBackgroundResource(R.drawable.work_icon);
+                } else {
+                    if (SharedPreferenceUtil.getLong(activity, sixTime + "", 0) == 0) {
+                        tv_alertnotsign.setVisibility(View.VISIBLE);
+
+                    } else {
+                        tv_alertnotsign.setVisibility(View.GONE);
+                    }
+
+                }
+            }
+        }
+    }
+    public void workOrOff(){
+        boolean haveworksignall = haveSignWork();
+        if (haveworksignall) {
+            works =false;
+            d.setBackgroundResource(R.drawable.class_icon);
+        } else {
+            works =true;
+            d.setBackgroundResource(R.drawable.work_icon);
+        }
+
+    }
      class myOnclickListener implements View.OnClickListener{
 
         @Override
@@ -208,8 +264,7 @@ public class CustomButtonFragment  extends Fragment {
                     choicePlace();
                 }
             }else  if(v  == d){
-                if (activity.mDataLists.size()>0){
-
+                if (!works){
                     workSing("下班", AddSignInActivity.SIGN_OFFWORKING);
                 }else {
                     workSing("上班",AddSignInActivity.SIGN_WORKING);
@@ -246,7 +301,40 @@ public class CustomButtonFragment  extends Fragment {
         if (null!=activity.mDataLists&&activity.mDataLists.size()>0){
             for (int i=0;i<activity.mDataLists.size();i++){
                 if (activity.mDataLists.get(i).tag!=null&&activity.mDataLists.get(i).tag.size()>0){
-                    if (activity.mDataLists.get(i).tag.get(0).equals("上班")||activity.mDataLists.get(i).tag.get(0).equals("下班")){
+                    if (activity.mDataLists.get(i).tag.get(0).equals("上班")||activity.mDataLists.get(i).
+                            tag.get(0).equals("下班")){
+                        return true;
+                    }
+                    ;
+                }
+            }
+        }
+        return false;
+    }
+    public boolean workSingToday(){
+        if (null!=activity.mDataLists&&activity.mDataLists.size()>0){
+            return true;
+        }
+        return false;
+    }
+    public boolean haveOffWork(){
+        if (null!=activity.mDataLists&&activity.mDataLists.size()>0){
+            for (int i=0;i<activity.mDataLists.size();i++){
+                if (activity.mDataLists.get(i).tag!=null&&activity.mDataLists.get(i).tag.size()>0){
+                    if (activity.mDataLists.get(i).tag.get(0).equals("下班") ){
+                        return true;
+                    }
+                    ;
+                }
+            }
+        }
+        return false;
+    }
+    public boolean haveWork(){
+        if (null!=activity.mDataLists&&activity.mDataLists.size()>0){
+            for (int i=0;i<activity.mDataLists.size();i++){
+                if (activity.mDataLists.get(i).tag!=null&&activity.mDataLists.get(i).tag.size()>0){
+                    if (activity.mDataLists.get(i).tag.get(0).equals("上班") ){
                         return true;
                     }
                     ;

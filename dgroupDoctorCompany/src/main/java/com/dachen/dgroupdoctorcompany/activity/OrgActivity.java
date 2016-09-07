@@ -18,6 +18,7 @@ import com.dachen.dgroupdoctorcompany.app.CompanyApplication;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
+import com.dachen.dgroupdoctorcompany.db.dbdao.DepAdminsListDao;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.entity.CompanyDepment;
 import com.dachen.dgroupdoctorcompany.entity.OrgEntity;
@@ -55,7 +56,10 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
     private int count=0;//打开了多少次当前页面
     View layoutView;
     public String userId = "";
+    public String myuserId = "";
     private GuiderHListView mOrgListGuilde;
+    DepAdminsListDao depDao ;
+    String url;
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -66,6 +70,9 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
                     ToastUtil.showToast(OrgActivity.this,"修改成功");
                     for(int i=0;i<count;i++){
                         MActivityManager.getInstance().finishActivity(OrgActivity.class);
+                    }
+                    if (entity.userId.equals(myuserId)){
+                        depDao.clearAll();
                     }
                     finish();
                     break;
@@ -81,8 +88,10 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
         super.onCreate(savedInstanceState);
 
         layoutView = View.inflate(this,R.layout.activity_org,null);
-        userId = UserInfo.getInstance(this).getId();
+        myuserId = UserInfo.getInstance(this).getId();
+
         setContentView(layoutView);
+        depDao = new DepAdminsListDao(this);
         initView();
         initData();
         setTitle("选择部门");
@@ -105,6 +114,12 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
         companyContactDao = new CompanyContactDao(this);
         entity = (CompanyContactListEntity) getIntent().getSerializableExtra("user");
         entity = companyContactDao.queryByUserid(entity.userId+"");
+        userId = entity.userId;
+        if (userId.equals(myuserId)){
+            url = Constants.UPDATE_USER_NAME;
+        }else {
+            url = Constants.UPDATE_ORG;
+        }
         mOrgSelectAdapter = new MyAdapter(OrgActivity.this,mDepamentsList,entity);
         listview.setAdapter(mOrgSelectAdapter);
         String companyName = SharedPreferenceUtil.getString(CompanyApplication.getInstance(), "enterpriseName", "");
@@ -116,36 +131,36 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 OrgEntity.Data depaments = (OrgEntity.Data) parent.getAdapter().getItem(position);
-                if(null != depaments){
-                    if(depaments.subList.size() == 0){
+                if (null != depaments) {
+                    if (depaments.subList.size() == 0) {
                         boolean isCheck = depaments.isCheck;
-                        if(isCheck){
+                        if (isCheck) {
                             isCheck = false;
                             orgId = "";
-                        }else{
+                        } else {
                             isCheck = true;
                             orgId = depaments.id;
                         }
-                        for(int i=0;i<mDepamentsList.size();i++){
+                        for (int i = 0; i < mDepamentsList.size(); i++) {
                             OrgEntity.Data data = mDepamentsList.get(i);
-                            if(i == position){
+                            if (i == position) {
                                 data.isCheck = isCheck;
-                            }else{
+                            } else {
                                 data.isCheck = false;
                             }
                         }
                         mOrgSelectAdapter.update(mDepamentsList);
-                        setDepartmen(depaments.name,orgId);
-                    }else{
+                        setDepartmen(depaments.name, orgId);
+                    } else {
                         mOrgListGuilde.setOldPosition();
-                        mOrgListGuilde.addTask(depaments.name,depaments.name);
+                        mOrgListGuilde.addTask(depaments.name, depaments.name);
                         mOrgListGuilde.notifyDataSetChanged();
                         mDepamentsList = depaments.subList;
                         backId();
                         mOrgSelectAdapter.update(mDepamentsList);
                         mDepamentsStack.add(copyToNewList(mDepamentsList));
                         mStackCount++;
-                       otherPage = true;
+                        otherPage = true;
                     }
                 }
             }
@@ -174,14 +189,16 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
             mOrgListGuilde.setSelection(mOrgListGuilde.getCurrentPosition());
         }
     }
-    private void updateOrg(String id){
-        if(TextUtils.isEmpty(orgId)){
-            ToastUtil.showToast(OrgActivity.this,"请先选择要修改的部门");
-            return;
-        }
+    private void updateOrg(String id) {
+
         showLoadingDialog();
-        new HttpManager().post(this, Constants.UPDATE_ORG, Result.class, Params
-                .updateOrg(OrgActivity.this, orgId, id,entity.employeeId), this, false, 1);
+        if (entity.userId.equals(myuserId)){
+            new HttpManager().post(this, url,Result.class, Params
+                    .updateOrgOnself(OrgActivity.this, orgId, id, entity.employeeId), this, false,1);
+        }else {
+            new HttpManager().post(this, url, Result.class, Params
+                    .updateOrg(OrgActivity.this, orgId, id, entity.employeeId), this, false, 1);
+        }
     }
 
     private void getOrganization(){
@@ -357,6 +374,10 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
         }
     }
     public void showDialog(){
+        if(TextUtils.isEmpty(orgId)){
+            ToastUtil.showToast(OrgActivity.this,"请先选择要修改的部门");
+            return;
+        }
         //确定移动到所选部门吗？“，
         final CustomDialog dialog = new CustomDialog(this);
         dialog.showDialog("", "确定移动到所选部门吗?",R.string.cancel,R.string.sure, new View.OnClickListener() {

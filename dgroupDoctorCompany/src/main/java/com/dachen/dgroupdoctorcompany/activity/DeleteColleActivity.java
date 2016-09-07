@@ -7,6 +7,7 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -37,6 +38,7 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
     TextView tv_positiondes;
     TextView tv_phonedes;
     CompanyContactListEntity entity;
+    CompanyContactListEntity entityMySelf;
     CompanyContactDao companyContactDao;
     Button btn_delete;
     Button btn_setmanager;
@@ -47,6 +49,7 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
     RelativeLayout rl_editname;
     RelativeLayout rl_editdept;
     RelativeLayout rl_position;
+
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -67,7 +70,7 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
         btn_setrepresent = (Button) findViewById(R.id.btn_setrepresent);
         btn_setmanager.setOnClickListener(this);
         btn_setrepresent.setOnClickListener(this);
-
+        companyContactDao = new CompanyContactDao(DeleteColleActivity.this);
         rl_editname = (RelativeLayout) findViewById(R.id.rl_editname);
         rl_editname.setOnClickListener(this);
 
@@ -84,6 +87,9 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
         Bundle bundle = getIntent().getBundleExtra("colleage");
         mPosition = getIntent().getStringExtra("position");
         entity = (CompanyContactListEntity) bundle.getSerializable("colleage");
+        entityMySelf = new CompanyContactListEntity();
+        String userid = SharedPreferenceUtil.getString(this,"id","");
+        entityMySelf = companyContactDao.queryByUserid(userid);
         tv_namedes.setText(entity.name);
         tv_departdes.setText(entity.department);
         tv_positiondes.setText(entity.position);
@@ -91,7 +97,7 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
          findViewById(R.id.rl_editdept).setOnClickListener(this);
         isManager =0;
         isPresent =0;
-        companyContactDao = new CompanyContactDao(DeleteColleActivity.this);
+
         enableBack();
         showBtn();
 
@@ -110,6 +116,27 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
                         tv_positiondes.setText(entitye.position);
                         tv_phonedes.setText(entitye.telephone);
                         entity = entitye;
+                        if (entityMySelf!=null&&!TextUtils.isEmpty(entityMySelf.treePath)&&
+                                !entity.treePath.startsWith(entityMySelf.treePath)){
+                            rl_editname.setOnClickListener(null);
+                            rl_editdept.setOnClickListener(null);
+                            rl_position.setOnClickListener(null);
+                            findViewById(R.id.arrow1).setVisibility(View.GONE);
+                            findViewById(R.id.arrow2).setVisibility(View.GONE);
+                            findViewById(R.id.arrow3).setVisibility(View.GONE);
+                            btn_delete.setBackgroundColor(getResources().getColor(R.color.red_88f95442));
+                            btn_setrepresent.setBackgroundColor(getResources().getColor(R.color.color_8839cf78));
+                            btn_setmanager.setBackgroundColor(getResources().getColor(R.color.color_9ddcff));
+
+                            btn_setmanager.setFocusable(false);
+                            btn_setmanager.setClickable(false);
+
+                            btn_delete.setFocusable(false);
+                            btn_delete.setClickable(false);
+
+                            btn_setrepresent.setFocusable(false);
+                            btn_setrepresent.setClickable(false);
+                        }
                         break;
                     }
                 }
@@ -136,6 +163,9 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
             rl_editname.setOnClickListener(null);
             rl_editdept.setOnClickListener(null);
             rl_position.setOnClickListener(null);
+            findViewById(R.id.arrow1).setVisibility(View.GONE);
+            findViewById(R.id.arrow2).setVisibility(View.GONE);
+            findViewById(R.id.arrow3).setVisibility(View.GONE);
         }else if(!userid.equals(entity.userId)){
             btn_delete.setBackgroundColor(getResources().getColor(R.color.red_f95442));
             btn_delete.setFocusable(true);
@@ -167,13 +197,15 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
             btn_setrepresent.setBackgroundColor(getResources().getColor(R.color.color_8839cf78));
             btn_setrepresent.setFocusable(false);
             btn_setrepresent.setClickable(false);
-
-            btn_delete.setBackgroundColor(getResources().getColor(R.color.red_88f95442));
-            btn_delete.setFocusable(false);
-            btn_delete.setClickable(false);
+            btn_setmanager.setBackgroundColor(getResources().getColor(R.color.color_9ddcff));
+            btn_setmanager.setFocusable(false);
+            btn_setmanager.setClickable(false);
             rl_editname.setOnClickListener(null);
             rl_editdept.setOnClickListener(null);
             rl_position.setOnClickListener(null);
+            findViewById(R.id.arrow1).setVisibility(View.GONE);
+            findViewById(R.id.arrow2).setVisibility(View.GONE);
+            findViewById(R.id.arrow3).setVisibility(View.GONE);
         }
 
     }

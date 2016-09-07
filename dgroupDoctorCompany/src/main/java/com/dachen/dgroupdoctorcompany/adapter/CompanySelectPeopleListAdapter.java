@@ -71,7 +71,7 @@ public class CompanySelectPeopleListAdapter extends BaseCustomAdapter<BaseSearch
                 //   holder.btn_radio.setSelected(true);
               holder.btn_radio.setBackgroundResource(R.drawable.icon_pay_selected);
             }else {
-              //  holder.btn_radio.setSelected(false);
+
 
             }
 
@@ -80,7 +80,6 @@ public class CompanySelectPeopleListAdapter extends BaseCustomAdapter<BaseSearch
             }
             if(!TextUtils.isEmpty(c2.headPicFileName))
             {
-                //ImageLoader.getInstance().displayImage(c2.headPicFileName, holder.head_icon);
                 CustomImagerLoader.getInstance().loadImage(holder.head_icon, c2.headPicFileName,
                         R.drawable.head_icons_company, R.drawable.head_icons_company);
             }
@@ -88,14 +87,9 @@ public class CompanySelectPeopleListAdapter extends BaseCustomAdapter<BaseSearch
             holder.rl_depart.setVisibility(View.VISIBLE);
             holder.rl_people.setVisibility(View.GONE);
             holder.tv_depart.setText("" + c1.name);
-            if (!TextUtils.isEmpty(c1.type)&&c1.type.equals("1")){
+            if (!TextUtils.isEmpty(c1.type)&&c1.type.equals("3")){
                 holder.view_add1.setVisibility(View.VISIBLE);
             }
-
-
-           /* holder.tv_name_leader.setText(""+c1.username);
-             String url = contact.headPicFileName;
-             holder.leader_position.setText(contact.position);*/
 
 
         }
