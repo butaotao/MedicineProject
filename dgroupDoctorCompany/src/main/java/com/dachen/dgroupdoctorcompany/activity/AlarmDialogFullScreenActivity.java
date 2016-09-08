@@ -117,6 +117,7 @@ public class AlarmDialogFullScreenActivity extends BaseActivity   {
             intent.putExtra("name", SignInActivity.address);
             intent.putExtra("longitude", longitude);
             intent.putExtra("latitude", latitude);
+            intent.putExtra("addressname",SignInActivity.allAddress);
             intent.putExtra("mode", AddSignInActivity.MODE_WORKING);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);

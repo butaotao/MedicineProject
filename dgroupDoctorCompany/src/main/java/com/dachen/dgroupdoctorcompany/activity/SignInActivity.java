@@ -183,6 +183,7 @@ public class SignInActivity extends BaseActivity implements HttpManager.OnHttpLi
                     intent.putExtra("latitude",latitude);
                     intent.putExtra("longitude",longitude);
                     intent.putExtra("city",city);
+                    intent.putExtra("addressname",SignInActivity.allAddress);
                     startActivity(intent);
                 }
 
@@ -326,6 +327,7 @@ public class SignInActivity extends BaseActivity implements HttpManager.OnHttpLi
                 address = addressM;
             }
         }
+        lengh = shortestLenth;
         distanceMap.clear();
         distanceMap = null;
     }

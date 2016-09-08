@@ -33,6 +33,8 @@ public class BaseActivity extends FragmentActivity implements View.OnClickListen
     private AnimationDrawable mAnimationDrawable;
     public boolean isActive=true;
     boolean changeTitlebarColor;
+    public RelativeLayout rl_titlebar;
+    View line_titlebar;
     public void showLoadingDialog() {
         /*
         if (mLoadingView == null) {
@@ -185,17 +187,28 @@ public class BaseActivity extends FragmentActivity implements View.OnClickListen
         // this.mApplication.getActivityManager().finishActivity(this.getClass());
     }
     public void changerTitleBar(){
+        rl_titlebar = (RelativeLayout) findViewById(R.id.rl_titlebar);
+        line_titlebar = findViewById(R.id.line_titlebar);
+        if (rl_titlebar!=rl_titlebar){
+            rl_titlebar.setBackgroundResource(R.color.color_3cbaff);
+        }
+        if (null!=line_titlebar){
+            line_titlebar.setVisibility(View.GONE);
+        }
+        iv_back = (ImageView) findViewById(R.id.iv_back);
+        iv_back.setBackgroundResource(R.drawable.icon_back_n);
         setTitlecolor(getResources().getColor(R.color.white));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             setTranslucentStatus(true);
         }
         TextView tv_back = (TextView) findViewById(R.id.tv_back);
         tv_back.setTextColor(Color.WHITE);
-        iv_back = (ImageView) findViewById(R.id.iv_back);
-        iv_back.setBackgroundResource(R.drawable.icon_back_n);
+
         SystemBarTintManager tintManager = new SystemBarTintManager(this);
         tintManager.setStatusBarTintEnabled(true);
         tintManager.setStatusBarTintResource(R.color.color_3cbaff);
+
+
     }
     @TargetApi(19)
     private void setTranslucentStatus(boolean on) {

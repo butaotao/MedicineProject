@@ -451,8 +451,10 @@ public class Params {
 		return (HashMap<String, String>) params;
 	}
 
-	public static Map<String,String>getSelfVisitParams(Context context,String addressName,String state,String doctorId,String doctorName,String remark,String id,String coordinate,String address
-	,String deviceId,String orgId,String goodsGroupList,String urlList){
+	public static Map<String,String>getSelfVisitParams(Context context,String addressName,
+													   String state,String doctorId,String doctorName,
+													   String remark,String id,String coordinate,String address
+	,String deviceId,String orgId,String goodsGroupList,String urlList,String signedId){
 		Map<String, String> params = getMapInstance();
 		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
 		params.put("userId", SharedPreferenceUtil.getString(context, "id", ""));
@@ -471,8 +473,12 @@ public class Params {
 		params.put("remark", remark);
 		if(!TextUtils.isEmpty(id)){
 			params.put("id", id);
-		}
 
+		}
+		if(!TextUtils.isEmpty(signedId)){
+			params.put("signedId",signedId);
+
+		}
 		params.put("coordinate", coordinate);
 		params.put("address", address);
 		params.put("addressName", addressName);

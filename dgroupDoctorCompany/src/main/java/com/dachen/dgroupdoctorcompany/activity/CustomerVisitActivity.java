@@ -223,7 +223,8 @@ public class CustomerVisitActivity extends BaseActivity implements HttpManager.O
         }
         showLoadingDialog();
         new HttpManager().post(this, Constants.CREATE_OR_UPDATA_VISIT, Result.class,
-                Params.getVisitParams(CustomerVisitActivity.this, addressName, state, mStrDoctorID, mStrDoctorName, remark, mId, coordinate, address),
+                Params.getVisitParams(CustomerVisitActivity.this, addressName, state, mStrDoctorID, mStrDoctorName,
+                        remark, mId, coordinate, address),
                 this, false, 4);
     }
 

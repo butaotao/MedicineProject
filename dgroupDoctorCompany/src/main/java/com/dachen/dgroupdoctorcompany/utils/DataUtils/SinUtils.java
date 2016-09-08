@@ -3,6 +3,7 @@ package com.dachen.dgroupdoctorcompany.utils.DataUtils;
 import android.app.Activity;
 import android.content.Intent;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 
 import com.dachen.common.utils.ToastUtil;
 import com.dachen.dgroupdoctorcompany.activity.CustomerVisitActivity;
@@ -12,6 +13,7 @@ import com.dachen.dgroupdoctorcompany.activity.SelfVisitActivity;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.entity.SignLable;
+import com.dachen.dgroupdoctorcompany.entity.SignResult;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.Params;
@@ -34,6 +36,7 @@ public class SinUtils {
     public static String snippetss;
     public static String defaltsignLables;
     public static String tags;
+    public static String signedId = "";
     public static Map<String,String> mapLable2Id = new HashMap<>();
     public static void signDefault(final Activity activity, final String address,
                                    final String coordinate, final String defaltsignLable,
@@ -201,7 +204,7 @@ public class SinUtils {
         String orgId = GetUserDepId.getUserDepId(activity);
         TelephonyManager TelephonyMgr = (TelephonyManager)activity.getSystemService(activity.TELEPHONY_SERVICE);
         String deviceId = TelephonyMgr.getDeviceId();
-        new HttpManager().post(activity, Constants.CREATE_OR_UPDATA_SIGIN_IN, Result.class,
+        new HttpManager().post(activity, Constants.CREATE_OR_UPDATA_SIGIN_IN, SignResult.class,
                 Params.getWorkingParams(activity, deviceId, "", "", latitude+","+longitude, address, signLable, orgId),
                 new HttpManager.OnHttpListener<Result>() {
                     @Override
@@ -213,19 +216,29 @@ public class SinUtils {
                                 activity1.closeLoadingDialog();
                             }
                             snippets = snippet;
-
+                            SignResult result = (SignResult)response;
+                            if (null!=result.data&&null!=result.data.signed&&!TextUtils.isEmpty(result.data.signed.id)){
+                                signedId = result.data.signed.id;
+                            }
                                 if (activity instanceof SelectAddressActivity){
                                     sigStep = 1;
                                     snippets = snippet;
+
+
                                     activity.finish();
                                     return;
                                 }
                             if (type == 4){
+
                                     Intent intent = new Intent(activity, SelfVisitActivity.class);
                                     intent.putExtra("address", SinUtils.addresss);
                                     intent.putExtra("longitude", SinUtils.longituds);
                                     intent.putExtra("latitude", SinUtils.latitudes);
                                     intent.putExtra("addressname", SinUtils.snippets);
+                                if (null!=result.data&&null!=result.data.signed&&!TextUtils.isEmpty(result.data.signed.id)){
+                                    intent.putExtra("signedId",result.data.signed.id);
+                                }
+
                                     intent.putExtra("mode", CustomerVisitActivity.MODE_FROM_SIGN);
                                     intent.putExtra("city", citys);
                                     activity.startActivity(intent);

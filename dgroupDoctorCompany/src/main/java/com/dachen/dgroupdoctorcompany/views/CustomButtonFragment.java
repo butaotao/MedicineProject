@@ -38,6 +38,9 @@ public class CustomButtonFragment  extends Fragment {
     public FloatingActionMenu circleMenu;
     TextView tv_alertnotsign;
     long time;
+    public static final String WORK = "上班";
+    public static final String OFFWORK = "下班";
+    public static final String VISIT = "拜访";
     public void setActivity(MenuWithFABActivity activity,long time) {
             this.activity = activity;
 
@@ -206,8 +209,6 @@ public class CustomButtonFragment  extends Fragment {
                 } else if (yesdayworktime != 0 && (yesdayworktime > yesdayworkofftime)) {
                     if (offwork) {
                         //说明打过下班卡了
-                        works = true;
-                        d.setBackgroundResource(R.drawable.work_icon);
                     } else {
                         if (SharedPreferenceUtil.getLong(activity, sixTime + "", 0) == 0) {
                             tv_alertnotsign.setVisibility(View.VISIBLE);
@@ -244,6 +245,7 @@ public class CustomButtonFragment  extends Fragment {
                     intent.putExtra("name", activity.address);
                     intent.putExtra("longitude", activity.longitude);
                     intent.putExtra("latitude", activity.latitude);
+                    intent.putExtra("addressname",activity.allAddress);
                     intent.putExtra("mode", AddSignInActivity.MODE_WORKING);
                     startActivity(intent);
                 }else {
@@ -263,19 +265,19 @@ public class CustomButtonFragment  extends Fragment {
             }else if(v  == b){
                 if (activity.lengh<=activity.allowDistance&&activity.lengh>=0&&!TextUtils.isEmpty(activity.address)){
                     SinUtils.signDefaultvisit(activity, activity.address,
-                            activity.longitude, activity.latitude , activity.address,activity.allAddress,  "拜访", false,4);
+                            activity.longitude, activity.latitude , activity.address,activity.allAddress,  VISIT, false,4);
                 }else {
                    // SinUtils.signDefault(activity, activity.address, activity.latitude + "," + activity.longitude, "拜访", false);
                     choicePlace();
                 }
             }else  if(v  == d){
                 if (!works){
-                    workSing("下班", AddSignInActivity.SIGN_OFFWORKING);
+                    workSing(OFFWORK, AddSignInActivity.SIGN_OFFWORKING);
                 }else {
-                    workSing("上班",AddSignInActivity.SIGN_WORKING);
+                    workSing(WORK,AddSignInActivity.SIGN_WORKING);
                 }
                 }
-            circleMenu.close(true);
+            closeMenu();
             }
 
         }
@@ -306,8 +308,8 @@ public class CustomButtonFragment  extends Fragment {
         if (null!=activity.mDataLists&&activity.mDataLists.size()>0){
             for (int i=0;i<activity.mDataLists.size();i++){
                 if (activity.mDataLists.get(i).tag!=null&&activity.mDataLists.get(i).tag.size()>0){
-                    if (activity.mDataLists.get(i).tag.get(0).equals("上班")||activity.mDataLists.get(i).
-                            tag.get(0).equals("下班")){
+                    if (activity.mDataLists.get(i).tag.get(0).equals(WORK)||activity.mDataLists.get(i).
+                            tag.get(0).equals(OFFWORK)){
                         return true;
                     }
                     ;
@@ -326,7 +328,7 @@ public class CustomButtonFragment  extends Fragment {
         if (null!=activity.mDataLists&&activity.mDataLists.size()>0){
             for (int i=0;i<activity.mDataLists.size();i++){
                 if (activity.mDataLists.get(i).tag!=null&&activity.mDataLists.get(i).tag.size()>0){
-                    if (activity.mDataLists.get(i).tag.get(0).equals("下班") ){
+                    if (activity.mDataLists.get(i).tag.get(0).equals(OFFWORK) ){
                         return true;
                     }
                     ;
@@ -339,7 +341,7 @@ public class CustomButtonFragment  extends Fragment {
         if (null!=activity.mDataLists&&activity.mDataLists.size()>0){
             for (int i=0;i<activity.mDataLists.size();i++){
                 if (activity.mDataLists.get(i).tag!=null&&activity.mDataLists.get(i).tag.size()>0){
-                    if (activity.mDataLists.get(i).tag.get(0).equals("上班") ){
+                    if (activity.mDataLists.get(i).tag.get(0).equals(WORK) ){
                         return true;
                     }
                     ;
@@ -349,6 +351,7 @@ public class CustomButtonFragment  extends Fragment {
         return false;
     }
     public void showAlertDialog(){
+        closeMenu();
         final com.dachen.medicine.view.CustomDialog dialog = new CustomDialog(activity);
         dialog.showDialog("", "确认昨天忘记了下班签到", new View.OnClickListener() {
             @Override
@@ -363,5 +366,10 @@ public class CustomButtonFragment  extends Fragment {
                 dialog.dimissDialog();
             }
         });
+    }
+    public void closeMenu(){
+        if (null!=circleMenu){
+            circleMenu.close(true);
+        }
     }
 }

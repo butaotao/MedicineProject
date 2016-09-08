@@ -119,7 +119,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
     private long presentTime;
     private long serviceTime;
     private String remark;
-
+    private String signedId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -192,14 +192,15 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
 
     private void initData() {
         Log.d("zxy :", "191 : SelfVisitActivity : initData : ");
-        presentTime = getIntent().getLongExtra("time",0);
-        serviceTime = this.getIntent().getLongExtra("time",0);
+        presentTime = getIntent().getLongExtra("time", 0);
+        serviceTime = this.getIntent().getLongExtra("time", 0);
         TelephonyManager TelephonyMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         deviceId = TelephonyMgr.getDeviceId();
         orginId = GetUserDepId.getUserDepId(this);
         new HttpManager().post(this, Constants.GET_SERVERTIME, ServerTimeBean.class,
                 Params.getServerTime(SelfVisitActivity.this),
                 this, false, 1);
+        signedId = this.getIntent().getStringExtra("signedId");
         if (MODE_FROM_VIST_LIST_ITEM == mMode || MODE_FROM_SIGN_LIST==mMode) {//拜访列表,签到列表
             Log.d("zxy :", "197 : SelfVisitActivity : initData : if");
 //            mStrAddress = this.getIntent().getStringExtra("addressname");
@@ -300,8 +301,9 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
 
                 showLoadingDialog();
                 new HttpManager().post(this, Constants.CREATE_OR_UPDATA_VISIT, Result.class,
-                        Params.getSelfVisitParams(SelfVisitActivity.this, mStrFloor, state, mStrDoctorID, mStrDoctorName, etRemark.getText().toString(), mId, coordinate, mStrAddress,
-                                deviceId, orginId, mStrMedia, str),
+                        Params.getSelfVisitParams(SelfVisitActivity.this, mStrFloor, state,
+                                mStrDoctorID, mStrDoctorName, etRemark.getText().toString(), mId, coordinate, mStrAddress,
+                                deviceId, orginId, mStrMedia, str,signedId),
                         this, false, 4);
 
                 break;
@@ -318,6 +320,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                 intentAddress.putExtra("latitude", latitude);
                 intentAddress.putExtra("longitude", longitude);
                 intentAddress.putExtra("city", city);
+                intentAddress.putExtra("signedId",signedId);
                 startActivityForResult(intentAddress, REQUEST_SELECT_ADDRESS);
                 break;
             case R.id.variety_ray://药品选择

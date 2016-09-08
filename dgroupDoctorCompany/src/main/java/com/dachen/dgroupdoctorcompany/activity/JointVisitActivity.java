@@ -213,8 +213,9 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
 
                 showLoadingDialog();
                 new HttpManager().post(this, Constants.CREATE_OR_UPDATA_VISIT, Result.class,
-                        Params.getSelfVisitParams(JointVisitActivity.this, mStrFloor, state, mStrDoctorID, mStrDoctorName, etRemark.getText().toString(), mId, coordinate, mStrAddress,
-                                deviceId,orginId,mStrMedia,str),
+                        Params.getSelfVisitParams(JointVisitActivity.this, mStrFloor, state, mStrDoctorID,
+                                mStrDoctorName, etRemark.getText().toString(), mId, coordinate, mStrAddress,
+                                deviceId,orginId,mStrMedia,str,""),
                         this, false, 4);
                 break;
             case R.id.visitors_ray:

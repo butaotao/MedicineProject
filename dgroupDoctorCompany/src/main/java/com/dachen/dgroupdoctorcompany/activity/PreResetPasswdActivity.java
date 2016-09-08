@@ -17,8 +17,10 @@ import android.widget.TextView;
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
+import com.dachen.dgroupdoctorcompany.entity.CheckPhoneOnSys;
 import com.dachen.dgroupdoctorcompany.entity.TelePhoneVerifyData;
 import com.dachen.medicine.common.utils.ToastUtils;
+import com.dachen.medicine.config.UserInfo;
 import com.dachen.medicine.entity.ResetPassword;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
@@ -48,7 +50,7 @@ public class PreResetPasswdActivity extends BaseActivity implements
 	public static final String PHONE = "telephone";
 	public static final String RANCODE = "ranCode";
 	String phoneNumber;
-
+	private static boolean TELEPHONE_AUTH = true;//是否要验证真实手机号
 	@Nullable
 	@Bind(R.id.phone_numer_edit)
 	ClearEditText mPhoneNumEdit;
@@ -61,7 +63,8 @@ public class PreResetPasswdActivity extends BaseActivity implements
 	@Nullable
 	@Bind(R.id.next_step_btn)
 	Button mNextStepBtn;
-
+	public static final int SMSCODE = 0; //短信验证
+	public static final int VOICECODE = 1; //语音验证
 	@Nullable
 	@Bind(R.id.get_call_code)
 	TextView get_call_code;
@@ -106,12 +109,9 @@ public class PreResetPasswdActivity extends BaseActivity implements
 	@Nullable
 	@OnClick(R.id.get_call_code)
 	void onGetCallCodeClicked() {
-		String phoneNumber = mPhoneNumEdit.getText().toString().trim();
-		if (TextUtils.isEmpty(phoneNumber)) {
-			ToastUtils.showToast(PreResetPasswdActivity.this,"请输入正确的手机号");
-			return;
-		}
-		getVoiceCode(phoneNumber);
+
+		verifyTelephone( VOICECODE);
+		//getVoiceCode(phoneNumber);
 	}
 	/**
 	 * 获取4位语音验证码
@@ -134,7 +134,8 @@ public class PreResetPasswdActivity extends BaseActivity implements
 	@Nullable
 	@OnClick(R.id.send_again_btn)
 	void onSendAgainBtnClicked() {
-		phoneNumber = mPhoneNumEdit.getText().toString().trim();
+		verifyTelephone(SMSCODE);
+		/*phoneNumber = mPhoneNumEdit.getText().toString().trim();
 		if (TextUtils.isEmpty(phoneNumber)) {
 			ToastUtils.showToast(PreResetPasswdActivity.this, getResources().getString(
 					R.string.toast_verify_phone_null));
@@ -145,14 +146,14 @@ public class PreResetPasswdActivity extends BaseActivity implements
 					R.string.toast_verify_phone_length));
 			return;
 		}
-		/*if (!StringUtils.isMobileNumber(phoneNumber)) {
+		*//*if (!StringUtils.isMobileNumber(phoneNumber)) {
 			mPhoneNumEdit.requestFocus();
 			mPhoneNumEdit.setError(StringUtils.editTextHtmlErrorTip(
 					PreResetPasswdActivity.this,
 					R.string.phone_number_format_error));
 			return;
-		}*/
-		sendAgain();
+		}*//*
+		sendAgain();*/
 	}
 
 	@Nullable
@@ -215,13 +216,6 @@ public class PreResetPasswdActivity extends BaseActivity implements
 			return;
 		}
 
-		/*if (!StringUtils.isMobileNumber(phoneNumber)) {
-			mPhoneNumEdit.requestFocus();
-			mPhoneNumEdit.setError(StringUtils.editTextHtmlErrorTip(this,
-					R.string.phone_number_format_error));
-			return;
-		}*/
-
 		authCode = mAuthCodeEdit.getText().toString().trim();
 		if (TextUtils.isEmpty(authCode)) {
 			mAuthCodeEdit.requestFocus();
@@ -249,7 +243,7 @@ public class PreResetPasswdActivity extends BaseActivity implements
 		params.put("ranCode", randcode);
 		params.put("smsid", smsid);
 		params.put("templateId", templateId);
-		new HttpManager().post(this,Constants.VERIFYRESETPASSWORD, Result.class, params, this,false, 1);
+		new HttpManager().post(this, Constants.VERIFYRESETPASSWORD, Result.class, params, this, false, 1);
 	}
 
 	@Override
@@ -328,5 +322,86 @@ public class PreResetPasswdActivity extends BaseActivity implements
 		ToastUtils.showToast(PreResetPasswdActivity.this,R.string.net_exception);
 		closeLoadingDialog();
 	}
+	/* 验证该号码有没有注册 */
+	private void verifyTelephone(final int smsOrVoice) {
+		phoneNumber = mPhoneNumEdit.getText().toString().trim();
+		if (TextUtils.isEmpty(phoneNumber)) {
+			ToastUtils.showToast(PreResetPasswdActivity.this,"请输入正确的手机号");
+			return;
+		}
 
+		if (TextUtils.isEmpty(phoneNumber)) {
+			ToastUtils.showToast(PreResetPasswdActivity.this, getResources().getString(
+					R.string.toast_verify_phone_null));
+			return;
+		}
+		if (phoneNumber.length()<11) {
+			ToastUtils.showToast(PreResetPasswdActivity.this, getResources().getString(
+					R.string.toast_verify_phone_length));
+			return;
+		}
+
+
+
+		showLoadingDialog();
+		HashMap<String,String> maps = new HashMap<>();
+		maps.put("access_token", UserInfo.getInstance(this).getSesstion());
+		maps.put("newPhone", phoneNumber);
+		new HttpManager().post(this, Constants.DRUG + "auth/checkRegisterTelephone", CheckPhoneOnSys.class,
+				maps, new HttpManager.OnHttpListener<Result>() {
+					@Override
+					public void onSuccess(Result result) {
+						if (result.resultCode == 1) {
+							CheckPhoneOnSys sys = (CheckPhoneOnSys) result;
+							if (sys.data != 1) {
+								closeLoadingDialog();
+								mSendAgainBtn.setText(R.string.getcode);
+								mSendAgainBtn.setEnabled(true);
+								mSendAgainBtn.setTextColor(getResources().getColor(R.color.blue_496fb7));
+								get_call_code.setTextColor(getResources().getColor(R.color.blue_496fb7));
+								get_call_code.setClickable(true);
+
+								ToastUtils.showToast(PreResetPasswdActivity.this, "该手机号未注册");
+								return;
+							}
+							if (result.getResultCode() == 1) {// 手机号没有被注册,那么就发送验证码
+
+								mSendAgainBtn.setEnabled(false);
+								mReckonHandler.sendEmptyMessage(0x1);
+
+								if (TELEPHONE_AUTH) {
+									if (smsOrVoice == SMSCODE)
+										sendAgain();
+									else if (smsOrVoice == VOICECODE) {
+										getVoiceCode(phoneNumber);
+									}
+								}
+							} else if (result.getResultCode() == 0) {// 手机号已经被注册
+								closeLoadingDialog();
+								if (!TextUtils.isEmpty(result.getResultMsg())) {
+									ToastUtils.showToast(PreResetPasswdActivity.this, result.getResultMsg());
+								}
+							} else {// 错误
+								closeLoadingDialog();
+								if (!TextUtils.isEmpty(result.getResultMsg())) {
+									ToastUtils.showToast(PreResetPasswdActivity.this, result.getResultMsg());
+								} else {
+									ToastUtils.showToast(PreResetPasswdActivity.this, getResources().getString(R.string.data_exception));
+								}
+							}
+						}
+					}
+
+					@Override
+					public void onSuccess(ArrayList<Result> result) {
+
+					}
+
+					@Override
+					public void onFailure(Exception e, String errorMsg, int s) {
+						closeLoadingDialog();
+					}
+				},
+				false, 1);
+	}
 }

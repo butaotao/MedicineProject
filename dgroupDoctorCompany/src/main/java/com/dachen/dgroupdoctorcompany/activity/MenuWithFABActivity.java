@@ -58,6 +58,8 @@ public class MenuWithFABActivity extends SignInActivity implements View.OnClickL
         View view = View.inflate(this, R.layout.activity_menu_sing, null);
         setContentView(view);
         setTitle("签到");
+        SinUtils.signedId = "";
+        SinUtils.sigStep = -1;
         setTitlecolor(getResources().getColor(R.color.white));
         rl_titlebar = (RelativeLayout) findViewById(R.id.rl_titlebar);
         rl_titlebar.setBackgroundColor(getResources().getColor(R.color.color_3cbaff));
@@ -193,7 +195,9 @@ public class MenuWithFABActivity extends SignInActivity implements View.OnClickL
                             intent.putExtra("time",timeStamp);
                             intent.putExtra("mode", CustomerVisitActivity.MODE_FROM_SIGN);
                             intent.putExtra("city", city);
+                            intent.putExtra("signedId",SinUtils.signedId);
                             startActivity(intent);
+                            SinUtils.signedId = "";
                         }
                     }else{
                     }

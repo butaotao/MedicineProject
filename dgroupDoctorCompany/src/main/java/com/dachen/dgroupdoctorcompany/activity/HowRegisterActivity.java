@@ -23,7 +23,7 @@ public class HowRegisterActivity extends BaseActivity{
         enableBack();
         String des = SharedPreferenceUtil.getString(this, "netdes", NetConfig.KANG_ZHE);
         enableBack();
-        mURL = "http://"+des+ Constants.DRUG+"web/dev/DGroupBusiness/documentation/regInfo.html";
+        mURL = "http://"+des+"/"+Constants.DRUG+"web/dev/DGroupBusiness/documentation/regInfo.html";
 
         setTitle("如何注册账号");
         mWebView = (WebView) findViewById(R.id.mWeb);

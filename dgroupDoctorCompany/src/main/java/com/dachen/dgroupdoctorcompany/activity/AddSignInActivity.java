@@ -92,7 +92,7 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
     private String city;
     private LinearLayout ll_singtag;
     private long serverTime;
-
+    private String addressname;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,10 +152,11 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
         mSoundId = mSoundPool.load(AddSignInActivity.this, R.raw.sign_add, 1);
         lastClickTime = System.currentTimeMillis();
         mMode = this.getIntent().getIntExtra("mode", MODE_WORKING);
-        mSignMode = this.getIntent().getIntExtra("singmode",-1);
+        mSignMode = this.getIntent().getIntExtra("singmode", -1);
         tabid = this.getIntent().getStringExtra("tabid");
-        serverTime = this.getIntent().getLongExtra("time",0);
+        serverTime = this.getIntent().getLongExtra("time", 0);
         snippet = getIntent().getStringExtra("snippet");
+        addressname = getIntent().getStringExtra("addressname");
         city = getIntent().getStringExtra("city");
         if (mSignMode ==  AddSignInActivity.SIGN_OFFWORKING){
             mListLable.add("下班");
@@ -433,7 +434,7 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
                                     intent.putExtra("address", mAddressName);
                                     intent.putExtra("longitude", longitude);
                                     intent.putExtra("latitude", latitude);
-                                    intent.putExtra("addressname", city + mAddressName + snippet);
+                                    intent.putExtra("addressname", addressname);
                                     intent.putExtra("mode", CustomerVisitActivity.MODE_FROM_SIGN);
                                     intent.putExtra("city", city);
                                     startActivity(intent);

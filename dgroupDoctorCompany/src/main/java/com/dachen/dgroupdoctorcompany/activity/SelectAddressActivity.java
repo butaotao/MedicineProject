@@ -138,6 +138,7 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
                 intent.putExtra("longitude", longitude);
                 intent.putExtra("latitude", latitude);
                 intent.putExtra("time", mTime);
+                intent.putExtra("addressname",SignInActivity.allAddress);
                 intent.putExtra("mode", AddSignInActivity.MODE_WORKING);
                 intent.putExtra("allow",true);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
