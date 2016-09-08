@@ -186,32 +186,37 @@ public class CustomButtonFragment  extends Fragment {
             return rootView;
         }
     public void setdata() {
-        long nowTime = activity.timeStamp;
-        long yesdayworktime = activity.ytdayWorkTime;
-        long yesdayworkofftime = activity.ytdayOffTime;
-        boolean offwork = haveOffWork();
+        if (null!=tv_alertnotsign){
+            long nowTime = activity.timeStamp;
+            long yesdayworktime = activity.ytdayWorkTime;
+            long yesdayworkofftime = activity.ytdayOffTime;
+            boolean offwork = haveOffWork();
 
-        long twentyTime = com.dachen.medicine.common.utils.TimeUtils.getTime(nowTime, 0, 0);
-        sixTime = com.dachen.medicine.common.utils.TimeUtils.getTime(nowTime, 6, 0);
-        tv_alertnotsign.setVisibility(View.GONE);
-        if (sixTime > nowTime && nowTime >= twentyTime) {
-            if (yesdayworktime == 0) {
+            long twentyTime = com.dachen.medicine.common.utils.TimeUtils.getTime(nowTime, 0, 0);
+            sixTime = com.dachen.medicine.common.utils.TimeUtils.getTime(nowTime, 6, 0);
 
-            } else if (yesdayworktime != 0 && (yesdayworktime < yesdayworkofftime)) {
+                tv_alertnotsign.setVisibility(View.GONE);
 
-            } else if (yesdayworktime != 0 && (yesdayworktime > yesdayworkofftime)) {
-                if (offwork) {
-                    //说明打过下班卡了
-                    works = true;
-                    d.setBackgroundResource(R.drawable.work_icon);
-                } else {
-                    if (SharedPreferenceUtil.getLong(activity, sixTime + "", 0) == 0) {
-                        tv_alertnotsign.setVisibility(View.VISIBLE);
 
+            if (sixTime > nowTime && nowTime >= twentyTime) {
+                if (yesdayworktime == 0) {
+
+                } else if (yesdayworktime != 0 && (yesdayworktime < yesdayworkofftime)) {
+
+                } else if (yesdayworktime != 0 && (yesdayworktime > yesdayworkofftime)) {
+                    if (offwork) {
+                        //说明打过下班卡了
+                        works = true;
+                        d.setBackgroundResource(R.drawable.work_icon);
                     } else {
-                        tv_alertnotsign.setVisibility(View.GONE);
-                    }
+                        if (SharedPreferenceUtil.getLong(activity, sixTime + "", 0) == 0) {
+                            tv_alertnotsign.setVisibility(View.VISIBLE);
 
+                        } else {
+                            tv_alertnotsign.setVisibility(View.GONE);
+                        }
+
+                    }
                 }
             }
         }

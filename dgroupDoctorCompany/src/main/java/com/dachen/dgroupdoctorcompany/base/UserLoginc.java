@@ -52,8 +52,10 @@ public class UserLoginc {
            UserInfo.getInstance(mThis).setSession(access_token);
        }
         UserInfo.getInstance(mThis).setContextSession(logins.data.access_context);
-        SharedPreferenceUtil.putString(mThis, "context_token",
-                logins.data.access_context);
+        if(!TextUtils.isEmpty(logins.data.access_context)) {
+            SharedPreferenceUtil.putString(mThis, "context_token",
+                    logins.data.access_context);
+        }
         UserInfo.getInstance(mThis).setPackageName(mThis, "com.dachen.dgroupdoctorcompany");
         UserInfo.getInstance(mThis).setUserType(Constants.USER_TYPE);
         UserInfo.getInstance(mThis).setId(userId);
