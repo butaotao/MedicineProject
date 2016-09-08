@@ -44,6 +44,8 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
     private TextView                            tvMore;
 
     private List<SignInLists.DataBean.PageDataBean>      mDataLists = new ArrayList<>();
+    private List<SignInLists.DataBean.PageDataBean>      mVisitLists = new ArrayList<>();
+    private List<SignInLists.DataBean.PageDataBean>      mSignists = new ArrayList<>();
     private SingnInListsAdapter                 mAdapter;
     private int                                 pageIndex = 0;
     private int                                 pageSize = 20;
@@ -91,23 +93,19 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
             @Override
             public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
                 pageIndex = 0;
-                //mDataLists.clear();//在这里清空后刷新后无数据会导致闪退 zxy
                 getListData();
             }
 
             @Override
             public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
                 pageIndex++;
-                //mDataLists.clear();//在这里清空后刷新后无数据会导致闪退 zxy
                 getListData();
             }
         });
         mVSignin.setEmptyView(findViewById(R.id.empty_container));
         if(UserInfo.getInstance(SignListActivity.this).isMediePresent()){
-            Log.d("zxy :", "126 : SignListActivity : initData : VISIBLE");
             mVType.setVisibility(View.VISIBLE);
         }else{
-            Log.d("zxy :", "129 : SignListActivity : initData : GONE");
             //mVType.setVisibility(View.GONE);
         }
         getListData();
@@ -184,6 +182,8 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
                     }
                     mAdapter.notifyDataSetChanged();
                 }
+                //分离数据
+
                 if(beforeSize>0){
                     int afterSize = mDataLists.size();
                     if(beforeSize == afterSize){

@@ -185,7 +185,6 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
 
             mDepamentsStack.add(copyToNewList(mDepamentsList));
             mStackCount++;
-            Log.d("zxy", "initData: mStackCount = "+mStackCount);
         }
 
     }
@@ -241,7 +240,6 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
                      mStackCount++;
 
                  }
-                Log.d("zxy", "onSuccess: mStackCount = "+mStackCount);
             }else{
                  GetAllDoctor.getInstance().getPeople(OrgActivity.this, handler);
 

@@ -7,7 +7,7 @@
         android:layout_margin="5dp"
         android:textSize="17sp"
         android:textColor="@color/color_3cbaff"
-        android:text="@string/返回"
+        android:text="@string/关闭"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 

@@ -45,7 +45,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -119,6 +118,7 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
     private LinearLayout ll_showmapdes;
     boolean etRemarkEnable = false;//拜访记录是否可编辑
     private long mTime;
+    private String mRemark;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -318,7 +318,7 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
                     address = member.getAddressName();
                     mStrFloor = member.getAddressName();
                     mStrDoctorName = member.getDoctorName();
-                    String remark = member.getRemark();
+                    mRemark = member.getRemark();
                     coordinate = member.getCoordinate();
                     mStrDoctorID = member.getDoctorId();
                     List<String> picList = member.getImgUrls();
@@ -329,7 +329,7 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
                     }
                     tv_address.setText(mStrAddress);
                     tvSelected.setText(mStrDoctorName);
-                    etRemark.setText(remark);
+                    etRemark.setText(mRemark);
                     Date date = new Date(mTime);
                     String strDate = TimeFormatUtils.china_format_date(date);
                     String strWeek = TimeFormatUtils.week_format_date(date);
@@ -395,43 +395,7 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
                             }
                         }
                     }
-                    long timeMillis = System.currentTimeMillis();
-                    SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
-                    String sp_time = sf.format(mTime);
-                    String current_time = sf.format(timeMillis);
-                    if(!sp_time.equals(current_time)){//不是同一天，不可编辑
-                        del_desp.setVisibility(View.INVISIBLE);
-                        tv_title_save.setVisibility(View.GONE);
-                        //selectedPicture.remove(ADDPIC);
-                        mAdapter.notifyDataSetChanged();
-                        //desp2.setVisibility(View.GONE);
-                        variety_arrow.setVisibility(View.INVISIBLE);
-                        name_arrow.setVisibility(View.INVISIBLE);
-                        variety_ray.setEnabled(false);
-                        vSelect.setEnabled(false);
-                        tvSelected.setTextColor(getResources().getColor(R.color.gray_666666));
-                        tv_variety.setTextColor(getResources().getColor(R.color.gray_666666));
-                        tvSelected.setHintTextColor(getResources().getColor(R.color.gray_666666));
-                        tv_variety.setHintTextColor(getResources().getColor(R.color.gray_666666));
-                        if(TextUtils.isEmpty(mStrDoctorName)){
-                            tvSelected.setHint("无");
-                        }else{
-                            tvSelected.setText(mStrDoctorName);
-                        }
-                        if(TextUtils.isEmpty(remark)){
-                            etRemark.setHint("无");
-                        }else{
-                            etRemark.setText(remark);
-                        }
-                        if (TextUtils.isEmpty(tv_variety.getText().toString())) {
-                            tv_variety.setHint("无");
-                        }
-                    }else{
-                        tv_title_save.setVisibility(View.VISIBLE);
-                        tvSelected.setText(mStrDoctorName);
-                        etRemark.setText(remark);
-                        del_desp.setVisibility(View.VISIBLE);
-                    }
+                    setRemarkEnable();
                 }
             } else if (response instanceof VisitEditEnableBean) {
                 VisitEditEnableBean editEnable = (VisitEditEnableBean) response;
@@ -637,10 +601,38 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
         if (etRemarkEnable) {
             etRemark.setEnabled(true);
             desp2.setVisibility(View.VISIBLE);
+            tv_title_save.setVisibility(View.VISIBLE);
+            tvSelected.setText(mStrDoctorName);
+            etRemark.setText(mRemark);
+            del_desp.setVisibility(View.VISIBLE);
         }else {
             desp2.setVisibility(View.GONE);
             selectedPicture.remove(ADDPIC);
             etRemark.setEnabled(false);
+            del_desp.setVisibility(View.INVISIBLE);
+            tv_title_save.setVisibility(View.GONE);
+            mAdapter.notifyDataSetChanged();
+            variety_arrow.setVisibility(View.INVISIBLE);
+            name_arrow.setVisibility(View.INVISIBLE);
+            variety_ray.setEnabled(false);
+            vSelect.setEnabled(false);
+            tvSelected.setTextColor(getResources().getColor(R.color.gray_666666));
+            tv_variety.setTextColor(getResources().getColor(R.color.gray_666666));
+            tvSelected.setHintTextColor(getResources().getColor(R.color.gray_666666));
+            tv_variety.setHintTextColor(getResources().getColor(R.color.gray_666666));
+            if(TextUtils.isEmpty(mStrDoctorName)){
+                tvSelected.setHint("无");
+            }else{
+                tvSelected.setText(mStrDoctorName);
+            }
+            if(TextUtils.isEmpty(mRemark)){
+                etRemark.setHint("无");
+            }else{
+                etRemark.setText(mRemark);
+            }
+            if (TextUtils.isEmpty(tv_variety.getText().toString())) {
+                tv_variety.setHint("无");
+            }
         }
     }
 }

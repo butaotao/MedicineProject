@@ -191,9 +191,8 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
     }
 
     private void initData() {
-        Log.d("zxy :", "191 : SelfVisitActivity : initData : ");
-        presentTime = getIntent().getLongExtra("time", 0);
-        serviceTime = this.getIntent().getLongExtra("time", 0);
+        presentTime = getIntent().getLongExtra("time",0);
+        serviceTime = this.getIntent().getLongExtra("time",0);
         TelephonyManager TelephonyMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         deviceId = TelephonyMgr.getDeviceId();
         orginId = GetUserDepId.getUserDepId(this);

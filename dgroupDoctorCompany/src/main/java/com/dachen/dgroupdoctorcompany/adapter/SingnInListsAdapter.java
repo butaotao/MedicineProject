@@ -89,10 +89,17 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
             String remark = pageDataBean.remark;
             long time = pageDataBean.longTime;
 
-            if("拜访".equals(type)){//如果是上班签到
+            if("拜访".equals(type)){   //如果是上班签到
                 String address = pageDataBean.address;
                 if(TextUtils.isEmpty(address)){
                     address = pageDataBean.address;
+                }
+                List<String> listLable = pageDataBean.tag;
+                if(null!=listLable && listLable.size()>0){  //显示拜访标签
+                    childHolder.tvLable.setVisibility(View.VISIBLE);
+                    childHolder.tvLable.setText(listLable.get(0));
+                }else{
+                    childHolder.tvLable.setVisibility(View.GONE);
                 }
                 childHolder.tvAddress.setText(address);
                 childHolder.ivPicture.setBackgroundResource(R.drawable.icon_signle_visit);
@@ -104,8 +111,6 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
                 }else{
                     childHolder.tvName.setText("拜访 "+doctorname);
                 }
-
-                childHolder.tvLable.setVisibility(View.GONE);
 
             }else if("协同拜访".equals(type)){//协同拜访
                 String address = pageDataBean.address;
@@ -125,7 +130,7 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
 
                 childHolder.tvLable.setVisibility(View.VISIBLE);
                 childHolder.tvLable.setText("协同");
-            }else /*if("上班".equals(type))*/{//独立拜访
+            }else /*if("上班".equals(type))*/{  //独立拜访
                 childHolder.ivPicture.setBackgroundResource(R.drawable.icon_sign);
                 childHolder.tvName.setText("考勤打卡");
                 String address = pageDataBean.address;

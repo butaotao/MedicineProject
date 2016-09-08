@@ -86,6 +86,12 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
     String parentId;
     View layoutView;
     Activity context;
+    private  final  int LISTVIEWITEMCLICK = 1;
+    private  final  int GUIDERITEMCLICK = 2;
+    private  final  int BACKCLICK = 3;
+    private int from;
+    String  depName;
+    private int currentPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,11 +122,11 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
         //View view = stub.inflate(this, R.layout.stub_viewtext, rl);
         mCp_listguilde = (GuiderHListView) findViewById(R.id.cp_listguilde);
         Bundle extras = getIntent().getExtras();
-        String depName;
+
         if (extras != null) {//如果部门存在,显示部门,不存在直接显示公司名
-            depName = extras.getString("depName");//得到部门名字
+            departName = extras.getString("depName");//得到部门名字
         }else {
-            depName = SharedPreferenceUtil.getString(CompanyApplication.getInstance(), "enterpriseName", "");
+            departName = SharedPreferenceUtil.getString(CompanyApplication.getInstance(), "enterpriseName", "");
         }
 
         mCp_listguilde.setOnItemClickListener(this);
@@ -138,7 +144,7 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
             companyid = "0";
         }
         setDepartmen(baseDepartName,idDep);
-        mCp_listguilde.addTask(depName,idDep);
+        mCp_listguilde.addTask(departName,idDep);
         mCp_listguilde.setAdapter();
        // listGuideMap.put(currentPosition++, idDep);
         ButterKnife.bind(this);
@@ -233,11 +239,10 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
     }
     public void getDepment(BaseSearch contact ,boolean clickRadio){
         CompanyDepment.Data.Depaments  c1 = (CompanyDepment.Data.Depaments) (contact);
-        setTitle(c1.name);
-        Log.d("zxy :", "233 : CompanyContactListActivity : getDepment :  "+c1.name);
-        mCp_listguilde.addTask(c1.name,c1.id);
-        mCp_listguilde.notifyDataSetChanged();
-        mCp_listguilde.setOldPosition();
+       // setTitle(c1.name);
+       // Log.d("zxy :", "233 : CompanyContactListActivity : getDepment :  "+c1.name);
+        from = LISTVIEWITEMCLICK;
+        departName = c1.name;
         parentId = c1.parentId;
         setDepartmen(c1.name, c1.id);
         if (c1 != null) {
@@ -328,26 +333,21 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
                 finish();
                 break;
         }
-
     }
 
     public void backtofront() {
         int position = mCp_listguilde.getCurrentPosition()-1;//当前任务栈id数
-        Log.d("zxy :", "342 : CompanyContactListActivity : backtofront : position = " + position);
         if (position == 0) {   //只剩联系人了,直接返回,  清空数据释放缓存
             finish();
             return;
         }if (position == 1) {  //公司页面
             setTitle(baseDepartName);
-            idDep =  mCp_listguilde.reMoveTask();
+            idDep =  mCp_listguilde.reMoveTaskId();
         }else{//返回
-            idDep =  mCp_listguilde.reMoveTask();
+            idDep =  mCp_listguilde.reMoveTaskId();
         }
-        mCp_listguilde.setOldPosition();
-        mCp_listguilde.notifyDataSetChanged();
-        String title = mCp_listguilde.getLastDerpartName(position);
-        Log.d("zxy :", "349 : CompanyContactListActivity : backtofront : title = "+title);
-        setTitle(title);
+        from = BACKCLICK;
+        departName = mCp_listguilde.getLastDerpartName(position);
         getOrganization(idDep);
     }
 
@@ -369,6 +369,22 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
     public void onSuccess(Result response) {
         //tv.setVisibility(View.GONE);
         empteyll.setVisibility(View.GONE);
+        switch (from) {
+            case LISTVIEWITEMCLICK://ListView点击请求数据成功
+                mCp_listguilde.addTask(departName,idDep);
+                break;
+            case GUIDERITEMCLICK:   //导航listView
+                mCp_listguilde.addBackTask(currentPosition);
+                departName= mCp_listguilde.getLastDerpartName(0);
+                break;
+            case BACKCLICK:         //返回
+                mCp_listguilde.reMoveTask();
+                departName= mCp_listguilde.getLastDerpartName(0);
+                break;
+        }
+        setTitle(departName);
+        mCp_listguilde.setOldPosition();
+        mCp_listguilde.notifyDataSetChanged();
         boolean haveDep = false;
         p++;
         if (response != null && response.resultCode == 1) {
@@ -580,10 +596,10 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
         if (position == mCp_listguilde.getAdapter().getCount() - 1) {
             return;
         }
-        idDep = mCp_listguilde.addBackTask(position);
-        String derpartName = mCp_listguilde.getLastDerpartName(position);
-        setTitle(derpartName);
-        mCp_listguilde.notifyDataSetChanged();
+        currentPosition = position;
+        idDep = mCp_listguilde.addBackTaskId(currentPosition);
+        from = GUIDERITEMCLICK;
+
         getOrganization(idDep);
 
     }

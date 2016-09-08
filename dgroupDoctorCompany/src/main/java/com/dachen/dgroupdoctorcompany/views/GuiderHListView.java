@@ -16,9 +16,9 @@ import java.util.Map;
  * @Author: zxy on 16/8/23下午7:40.
  * @描述 水平导航列表
  */
-public class GuiderHListView extends HorizontalListView {
+public class GuiderHListView extends HListview {
     Context mContext;
-    private HorizontalListView mHListView;
+    private HListview mHListView;
     private ArrayList<String> mListGuide;              //导航Listview数据
     private Map<Integer, ArrayList<String>> departList;   //导航Listview数据任务栈
     private CompanyListGuide mListGuideAdapter;
@@ -29,63 +29,12 @@ public class GuiderHListView extends HorizontalListView {
     public GuiderHListView(Context context, AttributeSet attrs) {
         super(context, attrs);
         initView(context);
-        //TextView textView = new TextView(context);
     }
 
     @Override
     public LayoutTransition getLayoutTransition() {
         return super.getLayoutTransition();
     }
-
-
-    @Override
-    public void setSelection(int position) {
-        int positionX = position * this.getWidth();
-        int maxWidth = this.getChildCount() * this.getWidth();
-        if (positionX <= 0) {
-            positionX = 0;
-        }
-        if (positionX > maxWidth) {
-            positionX = maxWidth;
-        }
-        scrollTo(positionX);
-    }
-
-    public void toLastPosition(){
-        setSelection(getCurrentPosition());
-    }
-
-    public synchronized void scrollTo(int x) {
-        android.util.Log.d("zxy :", "49 : GuiderHListView : scrollTo : x = " + x +", mNextX = "+mNextX);
-        int startX = mNextX;//开始滚动时候的滚动偏移量
-        int startY = 0;
-        int dx = x - mNextX;//滚动偏移量的变化量
-        int dy = 0;
-        int duration = 500;//滚动的时长
-        mScroller.startScroll(startX, startY, dx, dy);
-
-        //invalidate();//触发重新绘制
-         requestLayout();
-    }
-
-    /**
-     * 触发重新绘制时候的一个回调
-     * 计算滚动的偏移量
-     */
-/*
-    @Override
-    public void computeScroll() {
-        Log.d("zxy :", "67 : GuiderHListView : computeScroll :");
-        //computeScrollOffset根据当前已经经过的时间来计算当前应该在的滚动的偏移量，如果滚动没有结束，return true.
-        if (mScroller.computeScrollOffset()) {
-            //滚动到当前应该在的滚动的偏移量mScroller.getCurrX()
-            scrollTo(mScroller.getCurrX(), 0);
-            // invalidate();
-            Log.d("zxy :", "72 : GuiderHListView : computeScroll : " + mScroller.getCurrX());
-            postInvalidate();
-        }
-    }
-*/
 
     private void initView(Context context) {
         mContext = context;
@@ -187,13 +136,11 @@ public class GuiderHListView extends HorizontalListView {
     }
 
     public void setOldPosition() {
-        this.oldPosition = mAdapter.getCount() - 1;
+        this.oldPosition = mListGuideAdapter.getCount() - 1;
     }
 
     public void notifyDataSetChanged() {
         mListGuideAdapter.notifyDataSetChanged();
-        Log.d("zxy :", "196 : GuiderHListView : notifyDataSetChanged : notifyDataSetChanged");
-        toLastPosition();
     }
 
 

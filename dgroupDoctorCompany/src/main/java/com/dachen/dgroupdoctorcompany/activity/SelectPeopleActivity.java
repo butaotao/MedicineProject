@@ -4,7 +4,6 @@ package com.dachen.dgroupdoctorcompany.activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
@@ -298,22 +297,20 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
         mListGuider.notifyDataSetChanged();
         getOrganization();
     }
-
+/*
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if(hasFocus){
             mListGuider.setSelection(mListGuider.getAdapter().getCount()-1);
         }
-    }
+    }*/
     //水平导航条目点击事件
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (position == mListGuider.getListGuide().size() - 1) {
             return;
         }
-       /* mListGuider.setOldPosition();
-        mListGuider.notifyDataSetChanged();*/
         from = GUIDERITEMCLICK;
         currentPosition = position;
         idDep = mListGuider.addBackTaskId(position);
@@ -557,10 +554,9 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                         mListGuider.reMoveTask();
                     break;
                 }
-                //onWindowFocusChanged(true);
-                //mListGuider.setSelection(mListGuider.getCurrentPosition());//跳转到最后一条
                 mListGuider.setOldPosition();
                 mListGuider.notifyDataSetChanged();
+                mListGuider.setSelection(mListGuider.getAdapter().getCount()-1);
                 CompanyDepment companyDepment = (CompanyDepment) (response);
                 if (null != companyDepment.data && null != companyDepment.data.departments && companyDepment.data.departments.size() > 0) {
                     list.clear();
@@ -602,7 +598,6 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                         adapter.notifyDataSetChanged();
                     }
                 }
-
             }
         }
     }
@@ -610,12 +605,10 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
 
     @Override
     public void onSuccess(ArrayList response) {
-    Log.d("zxy :", "560 : SelectPeopleActivity : onSuccess : ");
     }
 
     @Override
     public void onFailure(Exception e, String errorMsg, int s) {
-Log.d("zxy :", "566 : SelectPeopleActivity : onFailure : ");
     }
 
     public void back() {

@@ -1,178 +1,407 @@
 package com.dachen.dgroupdoctorcompany.views;
 
+/**
+ * @项目名 MedicineProject
+ * @Author: zxy on 16/9/8下午2:05.
+ * @描述 水平滑动listView
+ */
+
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.DataSetObserver;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Rect;
-import android.graphics.Region;
-import android.text.TextPaint;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.EdgeEffectCompat;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.SoundEffectConstants;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.accessibility.AccessibilityEvent;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
-import android.widget.OverScroller;
+import android.widget.ListView;
 import android.widget.ScrollView;
-import android.widget.TextView;
+import android.widget.Scroller;
 
 import com.dachen.dgroupdoctorcompany.R;
 
-import java.util.Random;
-import java.util.Stack;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
+
+// @formatter:off
 /**
- * Created by Septenary on 15/10/20.<br>
- * Custom Horizontal ListView for TV apps.<br>
- *
- * Welcome to visit my website <a href="http://www.septenary.cn">Septenary</a><br>
+ * A view that shows items in a horizontally scrolling list. The items
+ * come from the {@link ListAdapter} associated with this view. <br>
+ * <br>
+ * <b>Limitations:</b>
+ * <ul>
+ * <li>Does not support keyboard navigation</li>
+ * <li>Does not support scroll bars<li>
+ * <li>Does not support header or footer views<li>
+ * <li>Does not support disabled items<li>
+ * </ul>
+ * <br>
+ * <b>Custom XML Parameters Supported:</b><br>
+ * <br>
+ * <ul>
+ * <li><b>divider</b> - The divider to use between items. This can be a color or a drawable. If a drawable is used
+ * dividerWidth will automatically be set to the intrinsic width of the provided drawable, this can be overriden by providing a dividerWidth.</li>
+ * <li><b>dividerWidth</b> - The width of the divider to be drawn.</li>
+ * <li><b>android:requiresFadingEdge</b> - If horizontal fading edges are enabled this view will render them</li>
+ * <li><b>android:fadingEdgeLength</b> - The length of the horizontal fading edges</li>
+ * </ul>
  */
-public class HListView extends AdapterView<ListAdapter> {
+// @formatter:on
+public class HListview extends AdapterView<ListAdapter> {
+    /** Defines where to insert items into the ViewGroup, as defined in {@code ViewGroup #addViewInLayout(View, int, LayoutParams, boolean)} */
+    private static final int INSERT_AT_END_OF_LIST = -1;
+    private static final int INSERT_AT_START_OF_LIST = 0;
 
-    private static final String TAG = "HListView";
+    /** The velocity to use for overscroll absorption */
+    private static final float FLING_DEFAULT_ABSORB_VELOCITY = 30f;
 
-    private final GestureDetector mGestureDetector;
+    /** The friction amount to use for the fling tracker */
+    private static final float FLING_FRICTION = 0.009f;
 
-    private ListAdapter mAdapter;
+    /** Used for tracking the state data necessary to restore the HorizontalListView to its previous state after a rotation occurs */
+    private static final String BUNDLE_ID_CURRENT_X = "BUNDLE_ID_CURRENT_X";
 
-    private OverScroller mScroller;
+    /** The bundle id of the parents state. Used to restore the parent's state after a rotation occurs */
+    private static final String BUNDLE_ID_PARENT_STATE = "BUNDLE_ID_PARENT_STATE";
 
-    // 实际布局到当前视图的第一个 item 位置
-    private int mFirstPosition;
+    /** Tracks ongoing flings */
+    protected Scroller mFlingTracker = new Scroller(getContext());
 
-    // 回收站
-    private static final RecycleBin mRecycler = new RecycleBin();
+    /** Gesture listener to receive callbacks when gestures are detected */
+    private final GestureListener mGestureListener = new GestureListener();
 
-    // 子视图间距
-    private int mSpacing;
+    /** Used for detecting gestures within this view so they can be handled */
+    private GestureDetector mGestureDetector;
 
-    // 相对布局位置
-    private int mGravity;
+    /** This tracks the starting layout position of the leftmost view */
+    private int mDisplayOffset;
 
-    // 靠上布局
-    private static final int GRAVITY_TOP = 0;
+    /** Holds a reference to the adapter bound to this view */
+    protected ListAdapter mAdapter;
 
-    // 居中布局
-    private static final int GRAVITY_CENTER = 1;
+    /** Holds a cache of recycled views to be reused as needed */
+    private List<Queue<View>> mRemovedViewsCache = new ArrayList<Queue<View>>();
 
-    // 靠底布局
-    private static final int GRAVITY_BOTTOM = 2;
+    /** Flag used to mark when the adapters data has changed, so the view can be relaid out */
+    private boolean mDataChanged = false;
 
-    // item 宽度
-    private int mItemWidth;
+    /** Temporary rectangle to be used for measurements */
+    private Rect mRect = new Rect();
 
-    // item 高度
-    private int mItemHeight;
+    /** Tracks the currently touched view, used to delegate touches to the view being touched */
+    private View mViewBeingTouched = null;
 
-    // 左侧溢出范围
-    private int mLeftOffSet;
+    /** The width of the divider that will be used between list items */
+    private int mDividerWidth = 0;
 
-    // 右侧溢出范围
-    private int mRightOffSet;
+    /** The drawable that will be used as the list divider */
+    private Drawable mDivider = null;
 
-    // 子视图上边界
-    private int mLayoutTop;
+    /** The x position of the currently rendered view */
+    protected int mCurrentX;
 
-    // 当前选中位置
-    private int mSelectedPosition;
+    /** The x position of the next to be rendered view */
+    protected int mNextX;
 
-    // 测试画笔
-    private TextPaint mTextPaint;
+    /** Used to hold the scroll position to restore to post rotate */
+    private Integer mRestoreX = null;
 
-    // Adapter.getCount() 数量
-    private int mItemCount;
+    /** Tracks the maximum possible X position, stays at max value until last item is laid out and it can be determined */
+    private int mMaxX = Integer.MAX_VALUE;
 
-    // adapter 监听
-    private InnerDataSetObserver mDataSetObserver = new InnerDataSetObserver();
+    /** The adapter index of the leftmost view currently visible */
+    private int mLeftViewAdapterIndex;
 
-    // 控件总长度
-    private int mFillInWidth;
+    /** The adapter index of the rightmost view currently visible */
+    private int mRightViewAdapterIndex;
 
-    // 最后滚动时间戳
-    private long mLastScrollTimeStamp;
+    /** This tracks the currently selected accessibility item */
+    private int mCurrentlySelectedAdapterIndex;
 
-    // 最后长按时间戳
-    private long mLastLongPress;
+    /**
+     * Callback interface to notify listener that the user has scrolled this view to the point that it is low on data.
+     */
+    private RunningOutOfDataListener mRunningOutOfDataListener = null;
 
-    // item 缩放因子
-    private float mItemScaleFactor;
+    /**
+     * This tracks the user value set of how many items from the end will be considered running out of data.
+     */
+    private int mRunningOutOfDataThreshold = 0;
 
-    // item 缩放时常
-    private int mItemScaleDuration;
+    /**
+     * Tracks if we have told the listener that we are running low on data. We only want to tell them once.
+     */
+    private boolean mHasNotifiedRunningLowOnData = false;
 
-    public HListView(Context context) {
-        this(context, null);
-    }
+    /**
+     * Callback interface to be invoked when the scroll state has changed.
+     */
+    private OnScrollStateChangedListener mOnScrollStateChangedListener = null;
 
-    public HListView(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.HListViewStyle);
-    }
+    /**
+     * Represents the current scroll state of this view. Needed so we can detect when the state changes so scroll listener can be notified.
+     */
+    private OnScrollStateChangedListener.ScrollState mCurrentScrollState = OnScrollStateChangedListener.ScrollState.SCROLL_STATE_IDLE;
 
-    public HListView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+    /**
+     * Tracks the state of the left edge glow.
+     */
+    private EdgeEffectCompat mEdgeGlowLeft;
 
-        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.MyHListView, 0, 0);
-        mItemWidth = ta.getDimensionPixelSize(R.styleable.MyHListView_Hitem_width, 200);
-        mItemHeight = ta.getDimensionPixelSize(R.styleable.MyHListView_Hitem_height, 200);
-        mItemScaleFactor = ta.getFloat(R.styleable.MyHListView_Hitem_scale_factor, 1.1f);
-        mItemScaleDuration = ta.getInteger(R.styleable.MyHListView_Hitem_scale_duration, 300);
-        mSpacing = ta.getDimensionPixelOffset(R.styleable.MyHListView_Hspacing, 20);
-        mLeftOffSet = ta.getDimensionPixelOffset(R.styleable.MyHListView_Hleft_offset, 20);
-        mRightOffSet = ta.getDimensionPixelOffset(R.styleable.MyHListView_Hright_offset, 20);
-        mGravity = ta.getInt(R.styleable.MyHListView_Hgravity, 1);
-        int color = ta.getColor(R.styleable.MyHListView_Hbg_color, 0x80ffffff);
-        ta.recycle();
+    /**
+     * Tracks the state of the right edge glow.
+     */
+    private EdgeEffectCompat mEdgeGlowRight;
 
-        setBackgroundColor(color);
-        setPadding(0, 0, 0, 0);
+    /** The height measure spec for this view, used to help size children views */
+    private int mHeightMeasureSpec;
 
-        mScroller = new OverScroller(getContext());
-        mGestureDetector = new GestureDetector(getContext(), getOnGestureListener());
+    /** Used to track if a view touch should be blocked because it stopped a fling */
+    private boolean mBlockTouchAction = false;
 
-        setFocusable(true);
-        requestFocus();
+    /** Used to track if the parent vertically scrollable view has been told to DisallowInterceptTouchEvent */
+    private boolean mIsParentVerticiallyScrollableViewDisallowingInterceptTouchEvent = false;
 
-        if (isInEditMode()) {
-            test();
+    /**
+     * The listener that receives notifications when this view is clicked.
+     */
+    private OnClickListener mOnClickListener;
+
+    public HListview(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        mEdgeGlowLeft = new EdgeEffectCompat(context);
+        mEdgeGlowRight = new EdgeEffectCompat(context);
+        mGestureDetector = new GestureDetector(context, mGestureListener);
+        bindGestureDetector();
+        initView();
+        retrieveXmlConfiguration(context, attrs);
+        setWillNotDraw(false);
+
+        // If the OS version is high enough then set the friction on the fling tracker */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            HoneycombPlus.setFriction(mFlingTracker, FLING_FRICTION);
         }
     }
 
-    private void test() {
-        BaseAdapter adapter = new BaseAdapter() {
+    /** Registers the gesture detector to receive gesture notifications for this view */
+    private void bindGestureDetector() {
+        // Generic touch listener that can be applied to any view that needs to process gestures
+       /* final View.OnTouchListener gestureListenerHandler = new View.OnTouchListener() {
             @Override
-            public int getCount() {
-                return 10;
-            }
-
-            @Override
-            public String getItem(int position) {
-                return "Position:" + position;
-            }
-
-            @Override
-            public long getItemId(int position) {
-                return 0;
-            }
-
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                TextView tv = new TextView(getContext());
-                tv.setGravity(GRAVITY_CENTER);
-                tv.setBackgroundColor(0xff << 24 | new Random().nextInt(0xffffff));
-                tv.setText(getItem(position));
-                return tv;
+            public boolean onTouch(final View v, final MotionEvent event) {
+                // Delegate the touch event to our gesture detector
+                return mGestureDetector.onTouchEvent(event);
             }
         };
-        setAdapter(adapter);
+
+        setOnTouchListener(gestureListenerHandler);*/
+    }
+
+    /**
+     * When this HorizontalListView is embedded within a vertical scrolling view it is important to disable the parent view from interacting with
+     * any touch events while the user is scrolling within this HorizontalListView. This will start at this view and go up the view tree looking
+     * for a vertical scrolling view. If one is found it will enable or disable parent touch interception.
+     *
+     * @param disallowIntercept If true the parent will be prevented from intercepting child touch events
+     */
+    private void requestParentListViewToNotInterceptTouchEvents(Boolean disallowIntercept) {
+        // Prevent calling this more than once needlessly
+        if (mIsParentVerticiallyScrollableViewDisallowingInterceptTouchEvent != disallowIntercept) {
+            View view = this;
+
+            while (view.getParent() instanceof View) {
+                // If the parent is a ListView or ScrollView then disallow intercepting of touch events
+                if (view.getParent() instanceof ListView || view.getParent() instanceof ScrollView) {
+                    view.getParent().requestDisallowInterceptTouchEvent(disallowIntercept);
+                    mIsParentVerticiallyScrollableViewDisallowingInterceptTouchEvent = disallowIntercept;
+                    return;
+                }
+
+                view = (View) view.getParent();
+            }
+        }
+    }
+
+    /**
+     * Parse the XML configuration for this widget
+     *
+     * @param context Context used for extracting attributes
+     * @param attrs The Attribute Set containing the ColumnView attributes
+     */
+    private void retrieveXmlConfiguration(Context context, AttributeSet attrs) {
+        if (attrs != null) {
+            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.HorizontalListView);
+
+            // Get the provided drawable from the XML
+            final Drawable d = a.getDrawable(R.styleable.HorizontalListView_android_divider);
+            if (d != null) {
+                // If a drawable is provided to use as the divider then use its intrinsic width for the divider width
+                setDivider(d);
+            }
+
+            // If a width is explicitly specified then use that width
+            final int dividerWidth = a.getDimensionPixelSize(R.styleable.HorizontalListView_dividerWidth, 0);
+            if (dividerWidth != 0) {
+                setDividerWidth(dividerWidth);
+            }
+
+            a.recycle();
+        }
+    }
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+
+        // Add the parent state to the bundle
+        bundle.putParcelable(BUNDLE_ID_PARENT_STATE, super.onSaveInstanceState());
+
+        // Add our state to the bundle
+        bundle.putInt(BUNDLE_ID_CURRENT_X, mCurrentX);
+
+        return bundle;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Bundle) {
+            Bundle bundle = (Bundle) state;
+
+            // Restore our state from the bundle
+            mRestoreX = Integer.valueOf((bundle.getInt(BUNDLE_ID_CURRENT_X)));
+
+            // Restore out parent's state from the bundle
+            super.onRestoreInstanceState(bundle.getParcelable(BUNDLE_ID_PARENT_STATE));
+        }
+    }
+
+    /**
+     * Sets the drawable that will be drawn between each item in the list. If the drawable does
+     * not have an intrinsic width, you should also call {@link #setDividerWidth(int)}
+     *
+     * @param divider The drawable to use.
+     */
+    public void setDivider(Drawable divider) {
+        mDivider = divider;
+
+        if (divider != null) {
+            setDividerWidth(divider.getIntrinsicWidth());
+        } else {
+            setDividerWidth(0);
+        }
+    }
+
+    /**
+     * Sets the width of the divider that will be drawn between each item in the list. Calling
+     * this will override the intrinsic width as set by {@link #setDivider(Drawable)}
+     *
+     * @param width The width of the divider in pixels.
+     */
+    public void setDividerWidth(int width) {
+        mDividerWidth = width;
+
+        // Force the view to rerender itself
+        requestLayout();
+        invalidate();
+    }
+
+    private void initView() {
+        mLeftViewAdapterIndex = -1;
+        mRightViewAdapterIndex = -1;
+        mDisplayOffset = 0;
+        mCurrentX = 0;
+        mNextX = 0;
+        mMaxX = Integer.MAX_VALUE;
+        setCurrentScrollState(OnScrollStateChangedListener.ScrollState.SCROLL_STATE_IDLE);
+    }
+
+    /** Will re-initialize the HorizontalListView to remove all child views rendered and reset to initial configuration. */
+    private void reset() {
+        initView();
+        removeAllViewsInLayout();
+        requestLayout();
+    }
+
+    /** DataSetObserver used to capture adapter data change events */
+    private DataSetObserver mAdapterDataObserver = new DataSetObserver() {
+        @Override
+        public void onChanged() {
+            mDataChanged = true;
+
+            // Clear so we can notify again as we run out of data
+            mHasNotifiedRunningLowOnData = false;
+
+            unpressTouchedChild();
+
+            // Invalidate and request layout to force this view to completely redraw itself
+            invalidate();
+            requestLayout();
+        }
+
+        @Override
+        public void onInvalidated() {
+            // Clear so we can notify again as we run out of data
+            mHasNotifiedRunningLowOnData = false;
+
+            unpressTouchedChild();
+            reset();
+
+            // Invalidate and request layout to force this view to completely redraw itself
+            invalidate();
+            requestLayout();
+        }
+    };
+
+    @Override
+    public void setSelection(int position) {
+        mCurrentlySelectedAdapterIndex = position;
+        int positionX = position * this.getWidth();
+        int maxWidth = this.getChildCount() * this.getWidth();
+        if (positionX <= 0) {
+            positionX = 0;
+        }
+        if (positionX > maxWidth) {
+            positionX = maxWidth;
+        }
+        scrollTo(positionX);
+    }
+
+    @Override
+    public View getSelectedView() {
+        return getChild(mCurrentlySelectedAdapterIndex);
+    }
+
+    @Override
+    public void setAdapter(ListAdapter adapter) {
+        if (mAdapter != null) {
+            mAdapter.unregisterDataSetObserver(mAdapterDataObserver);
+        }
+
+        if (adapter != null) {
+            // Clear so we can notify again as we run out of data
+            mHasNotifiedRunningLowOnData = false;
+
+            mAdapter = adapter;
+            mAdapter.registerDataSetObserver(mAdapterDataObserver);
+        }
+
+        initializeRecycledViewCache(mAdapter.getViewTypeCount());
+        reset();
     }
 
     @Override
@@ -180,518 +409,1013 @@ public class HListView extends AdapterView<ListAdapter> {
         return mAdapter;
     }
 
-    @Override
-    public void setAdapter(ListAdapter adapter) {
-        if (mAdapter != null) {
-            mAdapter.unregisterDataSetObserver(mDataSetObserver);
+    /**
+     * Will create and initialize a cache for the given number of different types of views.
+     *
+     * @param viewTypeCount - The total number of different views supported
+     */
+    private void initializeRecycledViewCache(int viewTypeCount) {
+        // The cache is created such that the response from mAdapter.getItemViewType is the array index to the correct cache for that item.
+        mRemovedViewsCache.clear();
+        for (int i = 0; i < viewTypeCount; i++) {
+            mRemovedViewsCache.add(new LinkedList<View>());
         }
-
-        mAdapter = adapter;
-
-        mRecycler.clear();
-        if (mAdapter == null || mAdapter.isEmpty()) {
-            setFocusable(false);
-            mDataSetObserver.onEmpty();
-        } else {
-            setFocusable(true);
-            mAdapter.registerDataSetObserver(mDataSetObserver);
-            mFirstPosition = 0;
-            mDataSetObserver.onChanged();
-            setSelection(mFirstPosition);
-        }
-    }
-
-    private class InnerDataSetObserver extends DataSetObserver {
-
-        boolean dataChanged;
-
-        @Override
-        public void onChanged() {
-            mItemCount = getAdapter().getCount();
-            mFillInWidth = mLeftOffSet + mRightOffSet + (mItemCount - 1) * mSpacing + mItemCount * mItemWidth;
-            dataChanged = true;
-            removeAllViewsInLayout();
-            scrollTo(0, 0);
-            requestLayout();
-        }
-
-        @Override
-        public void onInvalidated() {
-            // nothing
-        }
-
-        public boolean isDataChanged() {
-            boolean changed = dataChanged;
-            dataChanged = false;
-            return changed;
-        }
-
-        public void onEmpty() {
-            mItemCount = 0;
-            mFillInWidth = 0;
-            dataChanged = true;
-            removeAllViewsInLayout();
-            scrollTo(0, 0);
-        }
-    }
-
-    @Override
-    protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
-        super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
-        setSelection(mSelectedPosition);
-    }
-
-    @Override
-    public View getSelectedView() {
-        if (mItemCount > 0 && mSelectedPosition >= 0) {
-            return getChildAt(mSelectedPosition - mFirstPosition);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public int getSelectedItemPosition() {
-        return mSelectedPosition;
-    }
-
-    @Override
-    public void setSelection(int position) {
-        // 1.unFocus pre view
-        onItemFocusChange(false);
-
-        // 3.reSet selectPosition
-        mSelectedPosition = position;
-
-        // 2.scroll to x
-        int areaStartX = getScrollXByPosition(position);
-        // layoutChildren(areaStartX, areaStartX + getWidth());
-        smoothScrollTo(areaStartX, 0);
-
-        // 4.focus cur view
-        onItemFocusChange(hasFocus());
-    }
-
-    // 锚点位置
-    private int getScrollXByPosition(int position) {
-        int left = mLeftOffSet + position * (mSpacing + mItemWidth);
-        int right = left + mItemWidth;
-        int dstRight = right + mRightOffSet;
-        int dstLeft = left - mLeftOffSet;
-        int x = getScrollX();
-        if (right > x + getWidth() - mRightOffSet) {
-            return dstRight - getWidth();
-        } else if (left < x + mLeftOffSet) {
-            return dstLeft;
-        } else {
-            return getScrollX();
-        }
-    }
-
-    public void onItemFocusChange(boolean focused) {
-
-        // anim focused itemView
-        View selected = getSelectedView();
-        if (null != selected) {
-            selected.setSelected(focused);
-            if (focused) {
-                zoomIn(selected);
-            } else {
-                zoomOut(selected);
-            }
-        }
-
-        // call back
-        OnItemSelectedListener onItemSelectedListener = getOnItemSelectedListener();
-        if (onItemSelectedListener != null) {
-            if (selected != null) {
-                onItemSelectedListener.onItemSelected(this, selected, mSelectedPosition, 0);
-            } else {
-                onItemSelectedListener.onNothingSelected(this);
-            }
-        }
-    }
-
-    // 放大
-    private void zoomIn(View view) {
-        if (view != null) {
-            view.animate().scaleX(mItemScaleFactor).scaleY(mItemScaleFactor).setDuration(mItemScaleDuration).start();
-        }
-    }
-
-    // 缩小
-    private void zoomOut(View view) {
-        if (view != null) {
-            view.animate().scaleX(1).scaleY(1).setDuration(mItemScaleDuration).start();
-        }
-    }
-
-    @Override
-    public void scrollTo(int x, int y) {
-        if (x < 0) {
-            x = 0;
-        } else if (x > mFillInWidth - getWidth()) {
-            x = mFillInWidth - getWidth();
-        }
-        layoutChildren(x, x + getWidth());
-        super.scrollTo(x, y);
-    }
-
-    public final void smoothScrollTo(int toX, int toY) {
-        smoothScrollBy(toX - getScrollX(), 0);
     }
 
     /**
-     * 参照 Like {@link ScrollView#scrollBy}
-     * Scroll smoothly instead of immediately.
+     * Returns a recycled view from the cache that can be reused, or null if one is not available.
+     *
+     * @param adapterIndex
+     * @return
      */
-    public final void smoothScrollBy(int dx, int dy) {
-        if (getChildCount() == 0) {
+    private View getRecycledView(int adapterIndex) {
+        int itemViewType = mAdapter.getItemViewType(adapterIndex);
+
+        if (isItemViewTypeValid(itemViewType)) {
+            return mRemovedViewsCache.get(itemViewType).poll();
+        }
+
+        return null;
+    }
+
+    /**
+     * Adds the provided view to a recycled views cache.
+     *
+     * @param adapterIndex
+     * @param view
+     */
+    private void recycleView(int adapterIndex, View view) {
+        // There is one Queue of views for each different type of view.
+        // Just add the view to the pile of other views of the same type.
+        // The order they are added and removed does not matter.
+        int itemViewType = mAdapter.getItemViewType(adapterIndex);
+        if (isItemViewTypeValid(itemViewType)) {
+            mRemovedViewsCache.get(itemViewType).offer(view);
+        }
+    }
+
+    private boolean isItemViewTypeValid(int itemViewType) {
+        return itemViewType < mRemovedViewsCache.size();
+    }
+
+    /** Adds a child to this viewgroup and measures it so it renders the correct size */
+    private void addAndMeasureChild(final View child, int viewPos) {
+        LayoutParams params = getLayoutParams(child);
+        addViewInLayout(child, viewPos, params, true);
+        measureChild(child);
+    }
+
+    /**
+     * Measure the provided child.
+     *
+     * @param child The child.
+     */
+    private void measureChild(View child) {
+        ViewGroup.LayoutParams childLayoutParams = getLayoutParams(child);
+        int childHeightSpec = ViewGroup.getChildMeasureSpec(mHeightMeasureSpec, getPaddingTop() + getPaddingBottom(), childLayoutParams.height);
+
+        int childWidthSpec;
+        if (childLayoutParams.width > 0) {
+            childWidthSpec = MeasureSpec.makeMeasureSpec(childLayoutParams.width, MeasureSpec.EXACTLY);
+        } else {
+            childWidthSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+        }
+
+        child.measure(childWidthSpec, childHeightSpec);
+    }
+
+    /** Gets a child's layout parameters, defaults if not available. */
+    private ViewGroup.LayoutParams getLayoutParams(View child) {
+        ViewGroup.LayoutParams layoutParams = child.getLayoutParams();
+        if (layoutParams == null) {
+            // Since this is a horizontal list view default to matching the parents height, and wrapping the width
+            layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        }
+
+        return layoutParams;
+    }
+
+    @SuppressLint("WrongCall")
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+
+        if (mAdapter == null) {
             return;
         }
-        final int scrollX = getScrollX();
-        int minX = 0;
-        int maxX = mFillInWidth - getWidth() + minX;
-        if (scrollX + dx < minX) {
-            dx = minX - scrollX;
-        } else if (scrollX + dx > maxX) {
-            dx = maxX - scrollX;
+
+        // Force the OS to redraw this view
+        invalidate();
+
+        // If the data changed then reset everything and render from scratch at the same offset as last time
+        if (mDataChanged) {
+            int oldCurrentX = mCurrentX;
+            initView();
+            removeAllViewsInLayout();
+            mNextX = oldCurrentX;
+            mDataChanged = false;
         }
-        long duration = AnimationUtils.currentAnimationTimeMillis() - mLastScrollTimeStamp;
-        if (duration > 250) {
-            mScroller.startScroll(scrollX, getScrollY(), dx, 0, 250);
-            invalidate();
-        } else {
-            if (!mScroller.isFinished()) {
-                mScroller.abortAnimation();
+
+        // If restoring from a rotation
+        if (mRestoreX != null) {
+            mNextX = mRestoreX;
+            mRestoreX = null;
+        }
+
+        // If in a fling
+        if (mFlingTracker.computeScrollOffset()) {
+            // Compute the next position
+            mNextX = mFlingTracker.getCurrX();
+        }
+
+        // Prevent scrolling past 0 so you can't scroll past the end of the list to the left
+        if (mNextX < 0) {
+            mNextX = 0;
+
+            // Show an edge effect absorbing the current velocity
+            if (mEdgeGlowLeft.isFinished()) {
+                mEdgeGlowLeft.onAbsorb((int) determineFlingAbsorbVelocity());
             }
-            scrollBy(dx, dy);
+
+            mFlingTracker.forceFinished(true);
+            setCurrentScrollState(OnScrollStateChangedListener.ScrollState.SCROLL_STATE_IDLE);
+        } else if (mNextX > mMaxX) {
+            // Clip the maximum scroll position at mMaxX so you can't scroll past the end of the list to the right
+            mNextX = mMaxX;
+
+            // Show an edge effect absorbing the current velocity
+            if (mEdgeGlowRight.isFinished()) {
+                mEdgeGlowRight.onAbsorb((int) determineFlingAbsorbVelocity());
+            }
+
+            mFlingTracker.forceFinished(true);
+            setCurrentScrollState(OnScrollStateChangedListener.ScrollState.SCROLL_STATE_IDLE);
         }
-        mLastScrollTimeStamp = AnimationUtils.currentAnimationTimeMillis();
+
+        // Calculate our delta from the last time the view was drawn
+        int dx = mCurrentX - mNextX;
+        removeNonVisibleChildren(dx);
+        fillList(dx);
+        positionChildren(dx);
+
+        // Since the view has now been drawn, update our current position
+        mCurrentX = mNextX;
+
+        // If we have scrolled enough to lay out all views, then determine the maximum scroll position now
+        if (determineMaxX()) {
+            // Redo the layout pass since we now know the maximum scroll position
+            onLayout(changed, left, top, right, bottom);
+            return;
+        }
+
+        // If the fling has finished
+        if (mFlingTracker.isFinished()) {
+            // If the fling just ended
+            if (mCurrentScrollState == OnScrollStateChangedListener.ScrollState.SCROLL_STATE_FLING) {
+                setCurrentScrollState(OnScrollStateChangedListener.ScrollState.SCROLL_STATE_IDLE);
+            }
+        } else {
+            // Still in a fling so schedule the next frame
+            ViewCompat.postOnAnimation(this, mDelayedLayout);
+        }
+    }
+
+    @Override
+    protected float getLeftFadingEdgeStrength() {
+        int horizontalFadingEdgeLength = getHorizontalFadingEdgeLength();
+
+        // If completely at the edge then disable the fading edge
+        if (mCurrentX == 0) {
+            return 0;
+        } else if (mCurrentX < horizontalFadingEdgeLength) {
+            // We are very close to the edge, so enable the fading edge proportional to the distance from the edge, and the width of the edge effect
+            return (float) mCurrentX / horizontalFadingEdgeLength;
+        } else {
+            // The current x position is more then the width of the fading edge so enable it fully.
+            return 1;
+        }
+    }
+
+    @Override
+    protected float getRightFadingEdgeStrength() {
+        int horizontalFadingEdgeLength = getHorizontalFadingEdgeLength();
+
+        // If completely at the edge then disable the fading edge
+        if (mCurrentX == mMaxX) {
+            return 0;
+        } else if ((mMaxX - mCurrentX) < horizontalFadingEdgeLength) {
+            // We are very close to the edge, so enable the fading edge proportional to the distance from the ednge, and the width of the edge effect
+            return (float) (mMaxX - mCurrentX) / horizontalFadingEdgeLength;
+        } else {
+            // The distance from the maximum x position is more then the width of the fading edge so enable it fully.
+            return 1;
+        }
+    }
+
+    /** Determines the current fling absorb velocity */
+    private float determineFlingAbsorbVelocity() {
+        // If the OS version is high enough get the real velocity */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            return IceCreamSandwichPlus.getCurrVelocity(mFlingTracker);
+        } else {
+            // Unable to get the velocity so just return a default.
+            // In actuality this is never used since EdgeEffectCompat does not draw anything unless the device is ICS+.
+            // Less then ICS EdgeEffectCompat essentially performs a NOP.
+            return FLING_DEFAULT_ABSORB_VELOCITY;
+        }
+    }
+
+    /** Use to schedule a request layout via a runnable */
+    private Runnable mDelayedLayout = new Runnable() {
+        @Override
+        public void run() {
+            requestLayout();
+        }
+    };
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        // Cache off the measure spec
+        mHeightMeasureSpec = heightMeasureSpec;
+    };
+
+    /**
+     * Determine the Max X position. This is the farthest that the user can scroll the screen. Until the last adapter item has been
+     * laid out it is impossible to calculate; once that has occurred this will perform the calculation, and if necessary force a
+     * redraw and relayout of this view.
+     *
+     * @return true if the maxx position was just determined
+     */
+    private boolean determineMaxX() {
+        // If the last view has been laid out, then we can determine the maximum x position
+        if (isLastItemInAdapter(mRightViewAdapterIndex)) {
+            View rightView = getRightmostChild();
+
+            if (rightView != null) {
+                int oldMaxX = mMaxX;
+
+                // Determine the maximum x position
+                mMaxX = mCurrentX + (rightView.getRight() - getPaddingLeft()) - getRenderWidth();
+
+                // Handle the case where the views do not fill at least 1 screen
+                if (mMaxX < 0) {
+                    mMaxX = 0;
+                }
+
+                if (mMaxX != oldMaxX) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /** Adds children views to the left and right of the current views until the screen is full */
+    private void fillList(final int dx) {
+        // Get the rightmost child and determine its right edge
+        int edge = 0;
+        View child = getRightmostChild();
+        if (child != null) {
+            edge = child.getRight();
+        }
+
+        // Add new children views to the right, until past the edge of the screen
+        fillListRight(edge, dx);
+
+        // Get the leftmost child and determine its left edge
+        edge = 0;
+        child = getLeftmostChild();
+        if (child != null) {
+            edge = child.getLeft();
+        }
+
+        // Add new children views to the left, until past the edge of the screen
+        fillListLeft(edge, dx);
+    }
+
+    private void removeNonVisibleChildren(final int dx) {
+        View child = getLeftmostChild();
+
+        // Loop removing the leftmost child, until that child is on the screen
+        while (child != null && child.getRight() + dx <= 0) {
+            // The child is being completely removed so remove its width from the display offset and its divider if it has one.
+            // To remove add the size of the child and its divider (if it has one) to the offset.
+            // You need to add since its being removed from the left side, i.e. shifting the offset to the right.
+            mDisplayOffset += isLastItemInAdapter(mLeftViewAdapterIndex) ? child.getMeasuredWidth() : mDividerWidth + child.getMeasuredWidth();
+
+            // Add the removed view to the cache
+            recycleView(mLeftViewAdapterIndex, child);
+
+            // Actually remove the view
+            removeViewInLayout(child);
+
+            // Keep track of the adapter index of the left most child
+            mLeftViewAdapterIndex++;
+
+            // Get the new leftmost child
+            child = getLeftmostChild();
+        }
+
+        child = getRightmostChild();
+
+        // Loop removing the rightmost child, until that child is on the screen
+        while (child != null && child.getLeft() + dx >= getWidth()) {
+            recycleView(mRightViewAdapterIndex, child);
+            removeViewInLayout(child);
+            mRightViewAdapterIndex--;
+            child = getRightmostChild();
+        }
+    }
+
+    private void fillListRight(int rightEdge, final int dx) {
+        // Loop adding views to the right until the screen is filled
+        while (rightEdge + dx + mDividerWidth < getWidth() && mRightViewAdapterIndex + 1 < mAdapter.getCount()) {
+            mRightViewAdapterIndex++;
+
+            // If mLeftViewAdapterIndex < 0 then this is the first time a view is being added, and left == right
+            if (mLeftViewAdapterIndex < 0) {
+                mLeftViewAdapterIndex = mRightViewAdapterIndex;
+            }
+
+            // Get the view from the adapter, utilizing a cached view if one is available
+            View child = mAdapter.getView(mRightViewAdapterIndex, getRecycledView(mRightViewAdapterIndex), this);
+            addAndMeasureChild(child, INSERT_AT_END_OF_LIST);
+
+            // If first view, then no divider to the left of it, otherwise add the space for the divider width
+            rightEdge += (mRightViewAdapterIndex == 0 ? 0 : mDividerWidth) + child.getMeasuredWidth();
+
+            // Check if we are running low on data so we can tell listeners to go get more
+            determineIfLowOnData();
+        }
+    }
+
+    private void fillListLeft(int leftEdge, final int dx) {
+        // Loop adding views to the left until the screen is filled
+        while (leftEdge + dx - mDividerWidth > 0 && mLeftViewAdapterIndex >= 1) {
+            mLeftViewAdapterIndex--;
+            View child = mAdapter.getView(mLeftViewAdapterIndex, getRecycledView(mLeftViewAdapterIndex), this);
+            addAndMeasureChild(child, INSERT_AT_START_OF_LIST);
+
+            // If first view, then no divider to the left of it
+            leftEdge -= mLeftViewAdapterIndex == 0 ? child.getMeasuredWidth() : mDividerWidth + child.getMeasuredWidth();
+
+            // If on a clean edge then just remove the child, otherwise remove the divider as well
+            mDisplayOffset -= leftEdge + dx == 0 ? child.getMeasuredWidth() : mDividerWidth + child.getMeasuredWidth();
+        }
+    }
+
+    /** Loops through each child and positions them onto the screen */
+    private void positionChildren(final int dx) {
+        int childCount = getChildCount();
+
+        if (childCount > 0) {
+            mDisplayOffset += dx;
+            int leftOffset = mDisplayOffset;
+
+            // Loop each child view
+            for (int i = 0; i < childCount; i++) {
+                View child = getChildAt(i);
+                int left = leftOffset + getPaddingLeft();
+                int top = getPaddingTop();
+                int right = left + child.getMeasuredWidth();
+                int bottom = top + child.getMeasuredHeight();
+
+                // Layout the child
+                child.layout(left, top, right, bottom);
+
+                // Increment our offset by added child's size and divider width
+                leftOffset += child.getMeasuredWidth() + mDividerWidth;
+            }
+        }
+    }
+
+    /** Gets the current child that is leftmost on the screen. */
+    private View getLeftmostChild() {
+        return getChildAt(0);
+    }
+
+    /** Gets the current child that is rightmost on the screen. */
+    private View getRightmostChild() {
+        return getChildAt(getChildCount() - 1);
+    }
+
+    /**
+     * Finds a child view that is contained within this view, given the adapter index.
+     * @return View The child view, or or null if not found.
+     */
+    private View getChild(int adapterIndex) {
+        if (adapterIndex >= mLeftViewAdapterIndex && adapterIndex <= mRightViewAdapterIndex) {
+            return getChildAt(adapterIndex - mLeftViewAdapterIndex);
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the index of the child that contains the coordinates given.
+     * This is useful to determine which child has been touched.
+     * This can be used for a call to {@link #getChildAt(int)}
+     *
+     * @param x X-coordinate
+     * @param y Y-coordinate
+     * @return The index of the child that contains the coordinates. If no child is found then returns -1
+     */
+    private int getChildIndex(final int x, final int y) {
+        int childCount = getChildCount();
+
+        for (int index = 0; index < childCount; index++) {
+            getChildAt(index).getHitRect(mRect);
+            if (mRect.contains(x, y)) {
+                return index;
+            }
+        }
+
+        return -1;
+    }
+
+    /** Simple convenience method for determining if this index is the last index in the adapter */
+    private boolean isLastItemInAdapter(int index) {
+        return index == mAdapter.getCount() - 1;
+    }
+
+    /** Gets the height in px this view will be rendered. (padding removed) */
+    private int getRenderHeight() {
+        return getHeight() - getPaddingTop() - getPaddingBottom();
+    }
+
+    /** Gets the width in px this view will be rendered. (padding removed) */
+    private int getRenderWidth() {
+        return getWidth() - getPaddingLeft() - getPaddingRight();
+    }
+
+    /** Scroll to the provided offset */
+    public void scrollTo(int x) {
+        mFlingTracker.startScroll(mNextX, 0, x - mNextX, 0);
+        //setCurrentScrollState(OnScrollStateChangedListener.ScrollState.SCROLL_STATE_FLING);
+        requestLayout();
+    }
+
+    @Override
+    public int getFirstVisiblePosition() {
+        return mLeftViewAdapterIndex;
+    }
+
+    @Override
+    public int getLastVisiblePosition() {
+        return mRightViewAdapterIndex;
+    }
+
+    /** Draws the overscroll edge glow effect on the left and right sides of the horizontal list */
+    private void drawEdgeGlow(Canvas canvas) {
+        if (mEdgeGlowLeft != null && !mEdgeGlowLeft.isFinished() && isEdgeGlowEnabled()) {
+            // The Edge glow is meant to come from the top of the screen, so rotate it to draw on the left side.
+            final int restoreCount = canvas.save();
+            final int height = getHeight();
+
+            canvas.rotate(-90, 0, 0);
+            canvas.translate(-height + getPaddingBottom(), 0);
+
+            mEdgeGlowLeft.setSize(getRenderHeight(), getRenderWidth());
+            if (mEdgeGlowLeft.draw(canvas)) {
+                invalidate();
+            }
+
+            canvas.restoreToCount(restoreCount);
+        } else if (mEdgeGlowRight != null && !mEdgeGlowRight.isFinished() && isEdgeGlowEnabled()) {
+            // The Edge glow is meant to come from the top of the screen, so rotate it to draw on the right side.
+            final int restoreCount = canvas.save();
+            final int width = getWidth();
+
+            canvas.rotate(90, 0, 0);
+            canvas.translate(getPaddingTop(), -width);
+            mEdgeGlowRight.setSize(getRenderHeight(), getRenderWidth());
+            if (mEdgeGlowRight.draw(canvas)) {
+                invalidate();
+            }
+
+            canvas.restoreToCount(restoreCount);
+        }
+    }
+
+    /** Draws the dividers that go in between the horizontal list view items */
+    private void drawDividers(Canvas canvas) {
+        final int count = getChildCount();
+
+        // Only modify the left and right in the loop, we set the top and bottom here since they are always the same
+        final Rect bounds = mRect;
+        mRect.top = getPaddingTop();
+        mRect.bottom = mRect.top + getRenderHeight();
+
+        // Draw the list dividers
+        for (int i = 0; i < count; i++) {
+            // Don't draw a divider to the right of the last item in the adapter
+            if (!(i == count - 1 && isLastItemInAdapter(mRightViewAdapterIndex))) {
+                View child = getChildAt(i);
+
+                bounds.left = child.getRight();
+                bounds.right = child.getRight() + mDividerWidth;
+
+                // Clip at the left edge of the screen
+                if (bounds.left < getPaddingLeft()) {
+                    bounds.left = getPaddingLeft();
+                }
+
+                // Clip at the right edge of the screen
+                if (bounds.right > getWidth() - getPaddingRight()) {
+                    bounds.right = getWidth() - getPaddingRight();
+                }
+
+                // Draw a divider to the right of the child
+                drawDivider(canvas, bounds);
+
+                // If the first view, determine if a divider should be shown to the left of it.
+                // A divider should be shown if the left side of this view does not fill to the left edge of the screen.
+                if (i == 0 && child.getLeft() > getPaddingLeft()) {
+                    bounds.left = getPaddingLeft();
+                    bounds.right = child.getLeft();
+                    drawDivider(canvas, bounds);
+                }
+            }
+        }
+    }
+
+    /**
+     * Draws a divider in the given bounds.
+     *
+     * @param canvas The canvas to draw to.
+     * @param bounds The bounds of the divider.
+     */
+    private void drawDivider(Canvas canvas, Rect bounds) {
+        if (mDivider != null) {
+            mDivider.setBounds(bounds);
+            mDivider.draw(canvas);
+        }
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (isInEditMode()) {
-            TextPaint paint = new TextPaint();
-            paint.setTextSize(30);
-            paint.setColor(Color.CYAN);
-            int y = getHeight() * 8 / 9;
-            canvas.drawLine(0, y, mFillInWidth, y, paint);
-            canvas.drawText("leftOffset", mLeftOffSet, 30, paint);
-            for (int i = 0; i < 20; i++) {
-                canvas.drawText("index" + i, mLeftOffSet + i * (mItemWidth + mSpacing), y, paint);
-            }
-        }
+        drawDividers(canvas);
     }
 
     @Override
-    public void computeScroll() {
-        if (mScroller.computeScrollOffset()) {
-            int x = mScroller.getCurrX();
-            int y = mScroller.getCurrY();
-            scrollTo(x, y);
-            invalidate();
-        }
+    protected void dispatchDraw(Canvas canvas) {
+        super.dispatchDraw(canvas);
+        drawEdgeGlow(canvas);
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        switch (mGravity) {
-            case GRAVITY_TOP:
-                mLayoutTop = 0;
-                break;
-            case GRAVITY_CENTER:
-                mLayoutTop = (getMeasuredHeight() - mItemHeight) / 2;
-                break;
-            case GRAVITY_BOTTOM:
-                mLayoutTop = getMeasuredHeight() - mItemHeight;
-                break;
-        }
+    protected void dispatchSetPressed(boolean pressed) {
+        // Don't dispatch setPressed to our children. We call setPressed on ourselves to
+        // get the selector in the right state, but we don't want to press each child.
     }
 
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        if (changed || mDataSetObserver.isDataChanged()) {
-            super.onLayout(changed, left, top, right, bottom);
-            removeAllViewsInLayout();
-            layoutChildren(0, getWidth());
-            setSelection(mSelectedPosition);
-        }
+    protected boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        mFlingTracker.fling(mNextX, 0, (int) -velocityX, 0, 0, mMaxX, 0, 0);
+        setCurrentScrollState(OnScrollStateChangedListener.ScrollState.SCROLL_STATE_FLING);
+        requestLayout();
+        return true;
     }
 
-    private void layoutChildren(int areaStartX, int areaEndX) {
+    protected boolean onDown(MotionEvent e) {
+        // If the user just caught a fling, then disable all touch actions until they release their finger
+       // mBlockTouchAction = !mFlingTracker.isFinished();
 
-        // 1. ensure start & end position
-        final int startPosition = (areaStartX - mLeftOffSet) / (mItemWidth + mSpacing);
-        final int endPosition = (areaEndX - mLeftOffSet) / (mItemWidth + mSpacing) + 1;
-        final int count = endPosition - startPosition;
+        // Allow a finger down event to catch a fling
+        mFlingTracker.forceFinished(true);
+        //setCurrentScrollState(OnScrollStateChangedListener.ScrollState.SCROLL_STATE_IDLE);
 
-        final int oldCount = getChildCount();
-        if (startPosition == mFirstPosition && oldCount == count) {
-            return;
-        }
+        //unpressTouchedChild();
 
-        final int start = Math.max(Math.min(mFirstPosition, startPosition), 0);
+      /*  if (!mBlockTouchAction) {
+            // Find the child that was pressed
+            final int index = getChildIndex((int) e.getX(), (int) e.getY());
+            if (index >= 0) {
+                // Save off view being touched so it can later be released
+                mViewBeingTouched = getChildAt(index);
 
-        final int end = Math.min(Math.max(mFirstPosition + oldCount, startPosition + count), mItemCount);
-
-        // 2.ensure scrap views
-        Stack<View> removed = new Stack<View>();
-
-        for (int i = start; i < end && i < mItemCount; i++) {
-            boolean isNew = i >= startPosition && i < startPosition + count;
-            boolean isOld = i >= mFirstPosition && i < mFirstPosition + oldCount;
-            if (isOld && !isNew) {
-                View child = getChildAt(i - mFirstPosition);
-                if (child != null) {
-                    removed.push(child);
+                if (mViewBeingTouched != null) {
+                    // Set the view as pressed
+                    mViewBeingTouched.setPressed(true);
+                    refreshDrawableState();
                 }
             }
-        }
+        }*/
 
-        // 3.remove views into scrap recycler
-        while (!removed.empty()) {
-            View child = removed.pop();
-            if (child != null) {
-                child.setSelected(false);
-                child.clearAnimation();
-                removeViewInLayout(child);
-                mRecycler.addScrapView(child);
-            }
-        }
-
-        // 4.layout scrap views
-        for (int position = start; position < end && position < mItemCount; position++) {
-            boolean isNew = position >= startPosition && position < startPosition + count;
-            boolean isOld = position >= mFirstPosition && position < mFirstPosition + oldCount;
-            if (!isOld && isNew) {
-                View child = mRecycler.getScrapView();
-                child = mAdapter.getView(position, child, this);
-                boolean rightFlow = position >= mFirstPosition;
-                layoutChild(child, position, rightFlow);
-            }
-        }
-        mFirstPosition = startPosition;
+        return true;
     }
 
-    private void layoutChild(View view, int position, boolean rightFlow) {
-        // 1. measure
-        measureItem(view);
+    /** If a view is currently pressed then unpress it */
+    private void unpressTouchedChild() {
+        if (mViewBeingTouched != null) {
+            // Set the view as not pressed
+            mViewBeingTouched.setPressed(false);
+            refreshDrawableState();
 
-        // 2. add in layout
-        int relativeIndex = rightFlow ? -1 : 0;
-        addViewInLayout(view, relativeIndex, null, true);
-
-        // 3. layout
-        int left = mLeftOffSet + (position) * (mItemWidth + mSpacing);
-        int top = mLayoutTop;
-        view.layout(left, top, left + view.getMeasuredWidth(), top + view.getMeasuredHeight());
-    }
-
-    private void measureItem(View view) {
-        LayoutParams params = view.getLayoutParams();
-        if (params == null) {
-            params = new LayoutParams(mItemWidth, mItemHeight);
-        } else {
-            params.width = mItemWidth;
-            params.height = mItemHeight;
+            // Null out the view so we don't leak it
+            mViewBeingTouched = null;
         }
-        view.setLayoutParams(params);
-        int widthMeasureSpec = MeasureSpec.makeMeasureSpec(params.width, MeasureSpec.EXACTLY);
-        int heightMeasureSpec = MeasureSpec.makeMeasureSpec(params.height, MeasureSpec.EXACTLY);
-        view.measure(widthMeasureSpec, heightMeasureSpec);
     }
 
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        boolean handled = false;
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_DPAD_LEFT:
-                handled = moveLeft();
-                break;
-            case KeyEvent.KEYCODE_DPAD_RIGHT:
-                handled = moveRight();
-                break;
-            case KeyEvent.KEYCODE_DPAD_CENTER:
-            case KeyEvent.KEYCODE_NUMPAD_ENTER:
-            case KeyEvent.KEYCODE_ENTER:
-                event.startTracking();
-                handled = true;
-                break;
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+       /* @Override
+        public boolean onDown(MotionEvent e) {
+            return HLIstview2.this.onDown(e);
         }
-        return handled || super.onKeyDown(keyCode, event);
-    }
 
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        boolean handled = false;
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            return HLIstview2.this.onFling(e1, e2, velocityX, velocityY);
+        }
 
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_DPAD_CENTER:
-            case KeyEvent.KEYCODE_NUMPAD_ENTER:
-            case KeyEvent.KEYCODE_ENTER:
-                long duration = event.getEventTime() - event.getDownTime();
-                if (event.isTracking() && event.getDownTime() > mLastLongPress && duration < ViewConfiguration.getLongPressTimeout()) {
-                    performItemClick(getSelectedView(), getSelectedItemPosition(), getSelectedItemId());
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            // Lock the user into interacting just with this view
+            requestParentListViewToNotInterceptTouchEvents(true);
+
+            setCurrentScrollState(OnScrollStateChangedListener.ScrollState.SCROLL_STATE_TOUCH_SCROLL);
+            unpressTouchedChild();
+            mNextX += (int) distanceX;
+            updateOverscrollAnimation(Math.round(distanceX));
+            requestLayout();
+
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            unpressTouchedChild();
+            OnItemClickListener onItemClickListener = getOnItemClickListener();
+
+            final int index = getChildIndex((int) e.getX(), (int) e.getY());
+
+            // If the tap is inside one of the child views, and we are not blocking touches
+            if (index >= 0 && !mBlockTouchAction) {
+
+                View child = getChildAt(index);
+                int adapterIndex = mLeftViewAdapterIndex + index;
+
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(HLIstview2.this, child, adapterIndex, mAdapter.getItemId(adapterIndex));
+                    return true;
                 }
-                handled = true;
-                break;
+            }
+
+            if (mOnClickListener != null && !mBlockTouchAction) {
+                mOnClickListener.onClick(HLIstview2.this);
+            }
+
+            return false;
         }
 
-        return handled || super.onKeyUp(keyCode, event);
-    }
+        @Override
+        public void onLongPress(MotionEvent e) {
+            unpressTouchedChild();
 
-    @Override
-    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-        boolean handled = false;
+            final int index = getChildIndex((int) e.getX(), (int) e.getY());
+            if (index >= 0 && !mBlockTouchAction) {
+                View child = getChildAt(index);
+                OnItemLongClickListener onItemLongClickListener = getOnItemLongClickListener();
+                if (onItemLongClickListener != null) {
+                    int adapterIndex = mLeftViewAdapterIndex + index;
+                    boolean handled = onItemLongClickListener.onItemLongClick(HLIstview2.this, child, adapterIndex, mAdapter
+                            .getItemId(adapterIndex));
 
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_DPAD_CENTER:
-            case KeyEvent.KEYCODE_NUMPAD_ENTER:
-            case KeyEvent.KEYCODE_ENTER:
-                mLastLongPress = event.getEventTime();
-                performItemLongClick(getSelectedView(), getSelectedItemPosition(), getSelectedItemId());
-                handled = true;
-                break;
+                    if (handled) {
+                        // BZZZTT!!1!
+                        performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+                    }
+                }
+            }
+        }*/
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return HListview.this.onDown(e);
         }
 
-        return handled || super.onKeyLongPress(keyCode, event);
-    }
-
-    @Override
-    public boolean performItemClick(View view, int position, long id) {
-        if (view != null) {
-            return super.performItemClick(view, position, id);
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+                               float velocityY) {
+            return HListview.this.onFling(e1, e2, velocityX, velocityY);
         }
-        return false;
-    }
 
-    public boolean performItemLongClick(View view, int position, long id) {
-        OnItemLongClickListener l = getOnItemLongClickListener();
-        if (l != null) {
-            playSoundEffect(SoundEffectConstants.CLICK);
-            if (view != null) {
-                view.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_LONG_CLICKED);
-                l.onItemLongClick(this, view, position, id);
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2,
+                                float distanceX, float distanceY) {
+
+            synchronized (HListview.this) {
+                mNextX += (int) distanceX;
+            }
+            requestLayout();
+
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+
+            final int index = getChildIndex((int) e.getX(), (int) e.getY());
+            for (int i = 0; i < getChildCount(); i++) {
+                View child = getChildAt(i);
+                int adapterIndex = mLeftViewAdapterIndex + index;
+                if (isEventWithinView(e, child)) {
+                    if (mOnItemClicked != null) {
+                        mOnItemClicked.onItemClick(HListview.this, child, adapterIndex, mAdapter.getItemId(adapterIndex));
+                    }
+                    if (mOnItemSelected != null) {
+                        mOnItemSelected.onItemSelected(HListview.this, child, adapterIndex, mAdapter.getItemId(adapterIndex));
+                    }
+                    break;
+                }
             }
             return true;
         }
 
-        return false;
-    }
+        @Override
+        public void onLongPress(MotionEvent e) {
+            int childCount = getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                View child = getChildAt(i);
+                if (isEventWithinView(e, child)) {
+                    if (mOnItemLongClicked != null) {
+                        mOnItemLongClicked.onItemLongClick(HListview.this, child, mLeftViewAdapterIndex + 1 + i, mAdapter.getItemId(mLeftViewAdapterIndex + 1 + i));
+                    }
+                    break;
+                }
 
-    // 焦点右移
-    private boolean moveRight() {
-        int selection = mSelectedPosition;
-        selection++;
-        if (selection >= mItemCount) {
-            return false;
+            }
         }
-        setSelection(selection);
-        return true;
-    }
 
-    // 焦点左移
-    private boolean moveLeft() {
-        int selection = mSelectedPosition;
-        selection--;
-        if (selection < 0) {
-            return false;
+        private boolean isEventWithinView(MotionEvent e, View child) {
+            Rect viewRect = new Rect();
+            int[] childPosition = new int[2];
+            child.getLocationOnScreen(childPosition);
+            int left = childPosition[0];
+            int right = left + child.getWidth();
+            int top = childPosition[1];
+            int bottom = top + child.getHeight();
+            viewRect.set(left, top, right, bottom);
+            return viewRect.contains((int) e.getRawX(), (int) e.getRawY());
         }
-        setSelection(selection);
-        return true;
-    }
-
+    };
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        return mGestureDetector.onTouchEvent(event);
-    }
-
-    // 手势监听
-    private GestureDetector.OnGestureListener getOnGestureListener() {
-        return new GestureDetector.SimpleOnGestureListener() {
-
-            public boolean onDown(MotionEvent e) {
-                return true;
+        // Detect when the user lifts their finger off the screen after a touch
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            // If not flinging then we are idle now. The user just finished a finger scroll.
+            if (mFlingTracker == null || mFlingTracker.isFinished()) {
+                setCurrentScrollState(OnScrollStateChangedListener.ScrollState.SCROLL_STATE_IDLE);
             }
 
-            public boolean onSingleTapConfirmed(MotionEvent e) {
-                int position = getPositionByXY((int) e.getX(), (int) e.getY());
-                if (position >= 0 && position < mItemCount) {
-                    performItemClick(getChildAt(position - mFirstPosition), position, 0);
+            // Allow the user to interact with parent views
+            requestParentListViewToNotInterceptTouchEvents(false);
+
+            releaseEdgeGlow();
+        } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
+            unpressTouchedChild();
+            releaseEdgeGlow();
+
+            // Allow the user to interact with parent views
+            requestParentListViewToNotInterceptTouchEvents(false);
+        }
+
+        return super.onTouchEvent(event);
+    }
+
+    /** Release the EdgeGlow so it animates */
+    private void releaseEdgeGlow() {
+        if (mEdgeGlowLeft != null) {
+            mEdgeGlowLeft.onRelease();
+        }
+
+        if (mEdgeGlowRight != null) {
+            mEdgeGlowRight.onRelease();
+        }
+    }
+
+    /**
+     * Sets a listener to be called when the HorizontalListView has been scrolled to a point where it is
+     * running low on data. An example use case is wanting to auto download more data when the user
+     * has scrolled to the point where only 10 items are left to be rendered off the right of the
+     * screen. To get called back at that point just register with this function with a
+     * numberOfItemsLeftConsideredLow value of 10. <br>
+     * <br>
+     * This will only be called once to notify that the HorizontalListView is running low on data.
+     * Calling notifyDataSetChanged on the adapter will allow this to be called again once low on data.
+     *
+     * @param listener The listener to be notified when the number of array adapters items left to
+     * be shown is running low.
+     *
+     * @param numberOfItemsLeftConsideredLow The number of array adapter items that have not yet
+     * been displayed that is considered too low.
+     */
+    public void setRunningOutOfDataListener(RunningOutOfDataListener listener, int numberOfItemsLeftConsideredLow) {
+        mRunningOutOfDataListener = listener;
+        mRunningOutOfDataThreshold = numberOfItemsLeftConsideredLow;
+    }
+
+    /**
+     * This listener is used to allow notification when the HorizontalListView is running low on data to display.
+     */
+    public static interface RunningOutOfDataListener {
+        /** Called when the HorizontalListView is running out of data and has reached at least the provided threshold. */
+        void onRunningOutOfData();
+    }
+
+    /**
+     * Determines if we are low on data and if so will call to notify the listener, if there is one,
+     * that we are running low on data.
+     */
+    private void determineIfLowOnData() {
+        // Check if the threshold has been reached and a listener is registered
+        if (mRunningOutOfDataListener != null && mAdapter != null &&
+                mAdapter.getCount() - (mRightViewAdapterIndex + 1) < mRunningOutOfDataThreshold) {
+
+            // Prevent notification more than once
+            if (!mHasNotifiedRunningLowOnData) {
+                mHasNotifiedRunningLowOnData = true;
+                mRunningOutOfDataListener.onRunningOutOfData();
+            }
+        }
+    }
+
+    /**
+     * Register a callback to be invoked when the HorizontalListView has been clicked.
+     *
+     * @param listener The callback that will be invoked.
+     */
+    @Override
+    public void setOnClickListener(OnClickListener listener) {
+        mOnClickListener = listener;
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when the view scroll state has changed.
+     */
+    public interface OnScrollStateChangedListener {
+        public enum ScrollState {
+            /**
+             * The view is not scrolling. Note navigating the list using the trackball counts as being
+             * in the idle state since these transitions are not animated.
+             */
+            SCROLL_STATE_IDLE,
+
+            /**
+             * The user is scrolling using touch, and their finger is still on the screen
+             */
+            SCROLL_STATE_TOUCH_SCROLL,
+
+            /**
+             * The user had previously been scrolling using touch and had performed a fling. The
+             * animation is now coasting to a stop
+             */
+            SCROLL_STATE_FLING
+        }
+
+        /**
+         * Callback method to be invoked when the scroll state changes.
+         *
+         * @param scrollState The current scroll state.
+         */
+        public void onScrollStateChanged(ScrollState scrollState);
+    }
+
+    /**
+     * Sets a listener to be invoked when the scroll state has changed.
+     *
+     * @param listener The listener to be invoked.
+     */
+    public void setOnScrollStateChangedListener(OnScrollStateChangedListener listener) {
+        mOnScrollStateChangedListener = listener;
+    }
+
+    /**
+     * Call to set the new scroll state.
+     * If it has changed and a listener is registered then it will be notified.
+     */
+    private void setCurrentScrollState(OnScrollStateChangedListener.ScrollState newScrollState) {
+        // If the state actually changed then notify listener if there is one
+        if (mCurrentScrollState != newScrollState && mOnScrollStateChangedListener != null) {
+            mOnScrollStateChangedListener.onScrollStateChanged(newScrollState);
+        }
+
+        mCurrentScrollState = newScrollState;
+    }
+
+    /**
+     * Updates the over scroll animation based on the scrolled offset.
+     *
+     * @param scrolledOffset The scroll offset
+     */
+    private void updateOverscrollAnimation(final int scrolledOffset) {
+        if (mEdgeGlowLeft == null || mEdgeGlowRight == null) return;
+
+        // Calculate where the next scroll position would be
+        int nextScrollPosition = mCurrentX + scrolledOffset;
+
+        // If not currently in a fling (Don't want to allow fling offset updates to cause over scroll animation)
+        if (mFlingTracker == null || mFlingTracker.isFinished()) {
+            // If currently scrolled off the left side of the list and the adapter is not empty
+            if (nextScrollPosition < 0) {
+
+                // Calculate the amount we have scrolled since last frame
+                int overscroll = Math.abs(scrolledOffset);
+
+                // Tell the edge glow to redraw itself at the new offset
+                mEdgeGlowLeft.onPull((float) overscroll / getRenderWidth());
+
+                // Cancel animating right glow
+                if (!mEdgeGlowRight.isFinished()) {
+                    mEdgeGlowRight.onRelease();
                 }
-                return true;
-            }
+            } else if (nextScrollPosition > mMaxX) {
+                // Scrolled off the right of the list
 
-            public void onLongPress(MotionEvent e) {
-                int position = getPositionByXY((int) e.getX(), (int) e.getY());
-                if (position >= 0 && position < mItemCount) {
-                    performItemLongClick(getChildAt(position - mFirstPosition), position, 0);
+                // Calculate the amount we have scrolled since last frame
+                int overscroll = Math.abs(scrolledOffset);
+
+                // Tell the edge glow to redraw itself at the new offset
+                mEdgeGlowRight.onPull((float) overscroll / getRenderWidth());
+
+                // Cancel animating left glow
+                if (!mEdgeGlowLeft.isFinished()) {
+                    mEdgeGlowLeft.onRelease();
                 }
             }
-
-            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                scrollBy((int) distanceX, 0);
-                return true;
-            }
-
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                fling((int) -velocityX);
-                return true;
-            }
-
-            private int getPositionByXY(int x, int y) {
-                int position = -1;
-                for (int i = 0; i < getChildCount(); i++) {
-                    View view = getChildAt(i);
-                    Region region = new Region(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
-                    if (region.contains(x, y)) {
-                        return i + mFirstPosition;
-                    }
-                }
-                return position;
-            }
-        };
-    }
-
-    // 甩动手势
-    private void fling(int velocityX) {
-        if (getChildCount() > 0) {
-            int minX = 0;
-            int maxX = mFillInWidth - getWidth() + minX;
-            int overX = getWidth() / 4;
-            mScroller.fling(getScrollX(), getScrollY(), velocityX, 0, minX, maxX, 0, 0, overX, 0);
-            invalidate();
         }
     }
 
-    // 回收站
-    private static class RecycleBin {
+    /**
+     * Checks if the edge glow should be used enabled.
+     * The glow is not enabled unless there are more views than can fit on the screen at one time.
+     */
+    private boolean isEdgeGlowEnabled() {
+        if (mAdapter == null || mAdapter.isEmpty()) return false;
 
-        private final Stack<View> mScrapViews;
+        // If the maxx is more then zero then the user can scroll, so the edge effects should be shown
+        return mMaxX > 0;
+    }
 
-        public RecycleBin() {
-            mScrapViews = new Stack<View>();
-        }
-
-        public View getScrapView() {
-            if (!mScrapViews.empty()) {
-                return mScrapViews.pop();
+    @TargetApi(11)
+    /** Wrapper class to protect access to API version 11 and above features */
+    private static final class HoneycombPlus {
+        static {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                throw new RuntimeException("Should not get to HoneycombPlus class unless sdk is >= 11!");
             }
-            return null;
         }
 
-        public void addScrapView(View v) {
-            mScrapViews.push(v);
-        }
-
-        public void clear() {
-            mScrapViews.clear();
+        /** Sets the friction for the provided scroller */
+        public static void setFriction(Scroller scroller, float friction) {
+            if (scroller != null) {
+                scroller.setFriction(friction);
+            }
         }
     }
+
+    @TargetApi(14)
+    /** Wrapper class to protect access to API version 14 and above features */
+    private static final class IceCreamSandwichPlus {
+        static {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                throw new RuntimeException("Should not get to IceCreamSandwichPlus class unless sdk is >= 14!");
+            }
+        }
+
+        /** Gets the velocity for the provided scroller */
+        public static float getCurrVelocity(Scroller scroller) {
+            return scroller.getCurrVelocity();
+        }
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        boolean handled = super.dispatchTouchEvent(ev);
+        handled |= mGestureDetector.onTouchEvent(ev);
+        return handled;
+    }
+    private OnItemSelectedListener mOnItemSelected;
+    private OnItemClickListener mOnItemClicked;
+    private OnItemLongClickListener mOnItemLongClicked;
+
+    @Override
+    public void setOnItemSelectedListener(OnItemSelectedListener listener) {
+        mOnItemSelected = listener;
+    }
+
+    @Override
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        mOnItemClicked = listener;
+    }
+
+    @Override
+    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
+        mOnItemLongClicked = listener;
+    }
+
 }
