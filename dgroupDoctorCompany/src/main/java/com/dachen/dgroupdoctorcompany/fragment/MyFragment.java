@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -257,6 +258,7 @@ public class MyFragment extends BaseFragment implements OnClickListener,ActionSh
 						// TODO Auto-generated method stub
 						if (null == response) {
 							//removeregeisterXiaoMi();
+							Log.d("zxy :", "261 : MyFragment : onSuccess : ");
 							SharedPreferenceUtil.putString(mActivity, "session", "");
 							SharedPreferenceUtil.putLong(mActivity, "expires_in", 0L);
 							Intent intent = new Intent(mActivity, LoginActivity.class);
@@ -267,6 +269,7 @@ public class MyFragment extends BaseFragment implements OnClickListener,ActionSh
 						} else {
 							if (response instanceof LoginRegisterResult) {
 								//	removeregeisterXiaoMi();
+								Log.d("zxy :", "271 : MyFragment : onSuccess : ");
 								SharedPreferenceUtil.putString(mActivity, "session", "");
 								SharedPreferenceUtil.putLong(mActivity, "expires_in", 0L);
 								Intent intent = new Intent(mActivity, LoginActivity.class);
@@ -286,6 +289,7 @@ public class MyFragment extends BaseFragment implements OnClickListener,ActionSh
 					@Override
 					public void onFailure(Exception e, String errorMsg,
 										  int s) {
+						Log.d("zxy :", "289 : MyFragment : onFailure : ");
 						//removeregeisterXiaoMi();
 						SharedPreferenceUtil.putString(mActivity, "session", "");
 						SharedPreferenceUtil.putLong(mActivity, "expires_in", 0L);
@@ -355,6 +359,7 @@ public class MyFragment extends BaseFragment implements OnClickListener,ActionSh
 	@Override
 	public void onSuccess(Result response) {
 		// TODO Auto-generated method stub
+		Log.d("zxy :", "362 : MyFragment : onSuccess : ");
 		if(null != response){
 			if(response instanceof LoginRegisterResult){
 				String userID = SharedPreferenceUtil.getString(CompanyApplication.context, "id", "");

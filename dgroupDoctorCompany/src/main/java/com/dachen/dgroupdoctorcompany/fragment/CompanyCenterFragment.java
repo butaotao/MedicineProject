@@ -2,7 +2,6 @@ package com.dachen.dgroupdoctorcompany.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,13 +70,34 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
 
     private void initData() {
         new HttpManager<MyAppBean>().post(mActivity, Constants.GET_APPCENTER, MyAppBean.class,
-                Params.getAppCenterParams(mActivity), this,false,1);
+                Params.getAppCenterParams(mActivity), new OnHttpListener<Result>() {
+                    @Override
+                    public void onSuccess(Result response) {
+                        if (response instanceof MyAppBean ) {
+                            MyAppBean bean = (MyAppBean) response;
+                            mAdapter.removeAll();
+                            mPageData.clear();
+                            mPageData = bean.data.pageData;
+                            if (mPageData.size()>0&&mPageData!=null) {
+                                mAdapter.addData(mPageData);
+                                mAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onSuccess(ArrayList<Result> response) {
+                    }
+
+                    @Override
+                    public void onFailure(Exception e, String errorMsg, int s) {
+                    }
+                }, false, 1);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        // setUpViews();
     }
     @Override
     public void onStop() {
@@ -116,21 +136,23 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
 
     @Override
     public void onSuccess(Result response) {
-        if (response instanceof MyAppBean ) {
-            MyAppBean bean = (MyAppBean) response;
-            mPageData.clear();
-            mPageData = bean.data.pageData;
-            if (mPageData.size()>0&&mPageData!=null) {
-                Log.d("zxy :", "79 : CompanyCenterFragment : onSuccess : "+mPageData.size()+", "+mPageData.toString());
-                mAdapter.addData(mPageData);
-                mAdapter.notifyDataSetChanged();
-            }
-        }
+
     }
 
     @Override
+    public void onFailure(Exception e, String errorMsg, int s) {
+        // TODO Auto-generated method stub
+    }
+    @Override
     public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
         initData();
+        mLvAppCenter.postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                mLvAppCenter.onRefreshComplete();
+            }
+        }, 4000);
     }
 
     @Override

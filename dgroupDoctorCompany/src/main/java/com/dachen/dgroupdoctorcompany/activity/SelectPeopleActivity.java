@@ -303,7 +303,7 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if(hasFocus){
-            mListGuider.setSelection(mListGuider.getCurrentPosition());
+            mListGuider.setSelection(mListGuider.getAdapter().getCount()-1);
         }
     }
     //水平导航条目点击事件

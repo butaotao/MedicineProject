@@ -1,6 +1,7 @@
 package com.dachen.dgroupdoctorcompany.activity;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -107,6 +108,8 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
         mTvDes = (TextView) findViewById(R.id.tv_des);
         mTvDes.setVisibility(View.VISIBLE);
         mTvSave.setOnClickListener(this);
+        mTvSave.setEnabled(false);
+        mTvSave.setTextColor(Color.parseColor("#aaaaaa"));
         mTvDes.setOnClickListener(this);
     }
 
@@ -137,8 +140,12 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
                         if (isCheck) {
                             isCheck = false;
                             orgId = "";
-                        } else {
+                            mTvSave.setEnabled(false);
+                            mTvSave.setTextColor(Color.parseColor("#aaaaaa"));
+                        }else{
                             isCheck = true;
+                            mTvSave.setEnabled(true);
+                            mTvSave.setTextColor(Color.parseColor("#3cbaff"));
                             orgId = depaments.id;
                         }
                         for (int i = 0; i < mDepamentsList.size(); i++) {
@@ -222,15 +229,18 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
                  closeLoadingDialog();
                 OrgEntity orgEntity =(OrgEntity)(response);
                  mDepamentsList.clear();
-                 OrgEntity.Data data = new OrgEntity.Data(orgEntity.data.get(0).creatorDate,orgEntity.data.get(0).desc,orgEntity.data.get(0).enterpriseId,
-                         orgEntity.data.get(0).id,orgEntity.data.get(0).name+"(根目录)",orgEntity.data.get(0).parentId,new ArrayList<OrgEntity.Data>(),
-                         orgEntity.data.get(0).updator,orgEntity.data.get(0).updatorDate,orgEntity.data.get(0).creator,false);
-                 mDepamentsList.add(0, data);
-                 mDepamentsList.addAll(orgEntity.data.get(0).subList);
-                 mOrgSelectAdapter.update(mDepamentsList);
+                 if (orgEntity.data != null && orgEntity.data.size() > 0) {
+                     OrgEntity.Data data = new OrgEntity.Data(orgEntity.data.get(0).creatorDate,orgEntity.data.get(0).desc,orgEntity.data.get(0).enterpriseId,
+                             orgEntity.data.get(0).id,orgEntity.data.get(0).name+"(根目录)",orgEntity.data.get(0).parentId,new ArrayList<OrgEntity.Data>(),
+                             orgEntity.data.get(0).updator,orgEntity.data.get(0).updatorDate,orgEntity.data.get(0).creator,false);
+                     mDepamentsList.add(0, data);
+                     mDepamentsList.addAll(orgEntity.data.get(0).subList);
+                     mOrgSelectAdapter.update(mDepamentsList);
 
-                 mDepamentsStack.add(copyToNewList(mDepamentsList));
-                 mStackCount++;
+                     mDepamentsStack.add(copyToNewList(mDepamentsList));
+                     mStackCount++;
+
+                 }
                 Log.d("zxy", "onSuccess: mStackCount = "+mStackCount);
             }else{
                  GetAllDoctor.getInstance().getPeople(OrgActivity.this, handler);
@@ -263,8 +273,12 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
             if(isCheck){
                 isCheck = false;
                 orgId = "";
+                mTvSave.setEnabled(false);
+                mTvSave.setTextColor(Color.parseColor("#aaaaaa"));
             }else{
                 isCheck = true;
+                mTvSave.setEnabled(true);
+                mTvSave.setTextColor(Color.parseColor("#3cbaff"));
                 orgId = item.id;
             }
             for(int i=0;i<mDepamentsList.size();i++){
@@ -294,27 +308,20 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
         departmentId.add(c1);
     }
     public void backtofront() {
-        //Log.d("zxy", "backtofront: ");
         if (mDepamentsStack.size() == 1) {   //只剩联系人了,直接返回,  清空数据释放缓存
             finish();
             return;
         }if (mDepamentsStack.size() == 2) {  //公司页面
-           // setTitle("选择部门");
             mOrgListGuilde.reMoveTask();
             mDepamentsList = mDepamentsStack.get(mStackCount - 2);
             mDepamentsStack.remove(mStackCount-1);
-           // Log.d("zxy", "backtofront: 2  mStackCount = "+mStackCount+", mDepamentsList = " +mDepamentsList);
         }else{//返回
            mOrgListGuilde.reMoveTask();
             mDepamentsList = mDepamentsStack.get(mStackCount - 2);
             mDepamentsStack.remove(mStackCount-1);
-          //  Log.d("zxy", "backtofront: 3 mStackCount = "+mStackCount+", mDepamentsList = " +mDepamentsList);
         }
         mOrgListGuilde.setOldPosition();
-        String title = mOrgListGuilde.getListGuide().get(mOrgListGuilde.getListGuide().size()-1);
-       // setTitle(title);
         mStackCount--;
-       // Log.d("zxy", "backtofront: 4  mStackCount = "+mStackCount);
         backId();
         mOrgSelectAdapter.update(mDepamentsList);
     }
