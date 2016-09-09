@@ -172,6 +172,7 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
         }
         mId = this.getIntent().getStringExtra("id");
         allow = getIntent().getBooleanExtra("allow",false);
+        mAddressName = this.getIntent().getStringExtra("name");
         if(TextUtils.isEmpty(mId)){   //说明当前是添加签到
             latitude = this.getIntent().getDoubleExtra("latitude",0);
             longitude = this.getIntent().getDoubleExtra("longitude", 0);
@@ -186,7 +187,7 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
             mStrLatitude = String.valueOf(latitude);
             mStrLongitude = String.valueOf(longitude);
             coordinate = mStrLatitude+","+mStrLongitude;
-            mAddressName = this.getIntent().getStringExtra("name");
+
             mTvAddress.setText(mAddressName);
             long timeStamp = this.getIntent().getLongExtra("time",0);
             Log.d("zxy :", "188 : AddSignInActivity : initData : timeStamp = "+timeStamp);

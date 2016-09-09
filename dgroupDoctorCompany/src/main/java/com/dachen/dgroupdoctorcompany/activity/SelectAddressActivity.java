@@ -260,7 +260,8 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
                                intent.putExtra("mode", mMode);
                                intent.putExtra("city",city);
                                intent.putExtra("time", mTime);
-                               intent.putExtra("snippet",snippet);
+                               intent.putExtra("snippet",city+address+snippet);
+                               intent.putExtra("addressname",city+address+snippet);
                                intent.putExtra("singmode",singmode);
                                intent.putExtra("tabid",tabid);
                                startActivity(intent);

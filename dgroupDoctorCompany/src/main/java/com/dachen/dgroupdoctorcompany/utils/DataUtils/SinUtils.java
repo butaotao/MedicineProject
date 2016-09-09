@@ -46,7 +46,7 @@ public class SinUtils {
             BaseActivity activity1 = (BaseActivity)activity;
             activity1.showLoadingDialog();
         }
-        new HttpManager().get(activity, Constants.GET_SIGNED_LABLE, SignLable.class,
+        new HttpManager().post(activity, Constants.GET_SIGNED_LABLE, SignLable.class,
                 Params.getInfoParams(activity),
                 new HttpManager.OnHttpListener<Result>() {
                     @Override
@@ -154,7 +154,7 @@ public class SinUtils {
             BaseActivity activity1 = (BaseActivity)activity;
             activity1.showLoadingDialog();
         }
-        new HttpManager().get(activity, Constants.GET_SIGNED_LABLE, SignLable.class,
+        new HttpManager().post(activity, Constants.GET_SIGNED_LABLE, SignLable.class,
                 Params.getInfoParams(activity),
                 new HttpManager.OnHttpListener<Result>() {
                     @Override

@@ -135,25 +135,6 @@ public class PreResetPasswdActivity extends BaseActivity implements
 	@OnClick(R.id.send_again_btn)
 	void onSendAgainBtnClicked() {
 		verifyTelephone(SMSCODE);
-		/*phoneNumber = mPhoneNumEdit.getText().toString().trim();
-		if (TextUtils.isEmpty(phoneNumber)) {
-			ToastUtils.showToast(PreResetPasswdActivity.this, getResources().getString(
-					R.string.toast_verify_phone_null));
-			return;
-		}
-		if (phoneNumber.length()<11) {
-			ToastUtils.showToast(PreResetPasswdActivity.this, getResources().getString(
-					R.string.toast_verify_phone_length));
-			return;
-		}
-		*//*if (!StringUtils.isMobileNumber(phoneNumber)) {
-			mPhoneNumEdit.requestFocus();
-			mPhoneNumEdit.setError(StringUtils.editTextHtmlErrorTip(
-					PreResetPasswdActivity.this,
-					R.string.phone_number_format_error));
-			return;
-		}*//*
-		sendAgain();*/
 	}
 
 	@Nullable
@@ -330,11 +311,11 @@ public class PreResetPasswdActivity extends BaseActivity implements
 			return;
 		}
 
-		if (TextUtils.isEmpty(phoneNumber)) {
+		/*if (TextUtils.isEmpty(phoneNumber)) {
 			ToastUtils.showToast(PreResetPasswdActivity.this, getResources().getString(
 					R.string.toast_verify_phone_null));
 			return;
-		}
+		}*/
 		if (phoneNumber.length()<11) {
 			ToastUtils.showToast(PreResetPasswdActivity.this, getResources().getString(
 					R.string.toast_verify_phone_length));
@@ -367,7 +348,6 @@ public class PreResetPasswdActivity extends BaseActivity implements
 							if (result.getResultCode() == 1) {// 手机号没有被注册,那么就发送验证码
 
 								mSendAgainBtn.setEnabled(false);
-								mReckonHandler.sendEmptyMessage(0x1);
 
 								if (TELEPHONE_AUTH) {
 									if (smsOrVoice == SMSCODE)
