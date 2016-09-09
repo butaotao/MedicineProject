@@ -19,6 +19,7 @@ import com.dachen.dgroupdoctorcompany.utils.GaoDeMapUtils;
  * Created by Burt on 2016/3/26.
  */
 public class GaoDeService extends Service{
+
     private GaoDeMapUtils mGaoDeMapUtils;
     @Nullable
     @Override
@@ -29,18 +30,23 @@ public class GaoDeService extends Service{
     @Override
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
+
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mGaoDeMapUtils = new GaoDeMapUtils( this);
-        mGaoDeMapUtils.startLocation();
+        /*if (null!=intent){
+            long nowtime = intent.getLongExtra("nowtime",0);
+            mGaoDeMapUtils = new GaoDeMapUtils( this);
+            mGaoDeMapUtils.setNowtime(nowtime);
+            mGaoDeMapUtils.startLocation();
+        }*/
+
         return super.onStartCommand(intent, flags, startId);
     }
 

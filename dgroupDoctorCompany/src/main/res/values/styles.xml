@@ -1,7 +1,19 @@
 <resources>
 
     <style name="AppTheme" parent="android:Theme.Holo.Light.NoActionBar"/>
-
+    <style name="AppThemes" parent="AppBaseTheme">
+         <!-- Status Bar -->
+         <item name="android:windowTranslucentStatus">true</item>
+        <!-- Navigation Bar -->
+         <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:background">#00ffff</item>
+    </style>
+        <style name="title_bg" parent="android:Theme">
+            <item name="android:windowTitleBackgroundStyle">@style/Titleground</item>
+        </style>
+        <style name="Titleground">
+            <item name="android:background">#ff8f26</item>
+        </style>
     <style name="Width_Height_MAT">
 
         <item name="android:layout_width">match_parent</item>
@@ -64,6 +76,12 @@
         <item name="@android:windowEnterAnimation">@anim/umeng_socialize_slide_in_from_bottom</item>
         <!-- 进入时的动画 -->
         <item name="@android:windowExitAnimation">@anim/umeng_socialize_slide_out_from_bottom</item>
+        <!-- 退出时的动画 -->
+    </style>
+    <style name="Umengstyle2" parent="android:Animation">
+        <item name="@android:windowEnterAnimation">@anim/umeng_socialize_slide_in_from_bottom_change</item>
+        <!-- 进入时的动画 -->
+        <item name="@android:windowExitAnimation">@anim/umeng_socialize_slide_out_from_bottom_change</item>
         <!-- 退出时的动画 -->
     </style>
     <style name="ActionBar_BackBtn">
@@ -141,5 +159,22 @@
         <item name="android:textColor">@color/gray_333333</item>
         <item name="android:textSize">@dimen/text_size_16sp</item>
         <item name="android:textColorHint">@color/gray_cccccc</item>
+    </style>
+
+    <style name="DepartGuiderListView">
+        <item name="android:background">@color/color_background</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_height">60dp</item>
+    </style>
+
+    <style name="Right_Arrow">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:src">@drawable/arrow</item>
+        <item name="android:layout_alignParentRight">true</item>
     </style>
 </resources>

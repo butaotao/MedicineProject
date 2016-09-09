@@ -34,7 +34,7 @@
                     android:drawableLeft="@drawable/ic_search"
                     android:drawablePadding="5dip"
                     android:gravity="center"
-                    android:text="搜索姓名/手机号"
+                    android:text="搜索姓名/简拼/手机号"
                     android:textColor="#969794"
                     android:textColorHint="@color/gray"
                     android:textSize="14sp" />
@@ -217,7 +217,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginLeft="10dip"
                 android:layout_marginTop="15dp"
-                android:text="最近联系人"
+                android:text="常用联系人"
                 android:textColor="@color/color_888888" />
 
             <View

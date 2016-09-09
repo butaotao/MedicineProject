@@ -24,6 +24,7 @@ import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.entity.GoodsGroupsModel;
 import com.dachen.dgroupdoctorcompany.entity.PersonModel;
+import com.dachen.dgroupdoctorcompany.entity.VisitEditEnableBean;
 import com.dachen.dgroupdoctorcompany.entity.VisitMember;
 import com.dachen.dgroupdoctorcompany.entity.VisitMemberResponse;
 import com.dachen.dgroupdoctorcompany.utils.DataUtils.GetUserDepId;
@@ -44,7 +45,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -74,7 +74,6 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
 
     private RelativeLayout rl_back;
     private TextView tv_title_save;
-    private TextView tv_title;
     private TextView tvWeek;
     private TextView tvDate;
     private TextView tv_time_location;
@@ -117,16 +116,20 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
     private boolean isOrigin = false;
     private TextView  del_desp;
     private LinearLayout ll_showmapdes;
+    boolean etRemarkEnable = false;//拜访记录是否可编辑
+    private long mTime;
+    private String mRemark;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collaborative_visit);
         //初始化
-        initView();
+        initViews();
         initDate();
     }
 
-    public void initView() {
+    public void initViews() {
         TelephonyManager TelephonyMgr = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
         deviceId = TelephonyMgr.getDeviceId();
         orginId = GetUserDepId.getUserDepId(this);
@@ -138,11 +141,12 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
         tv_title_save = getViewById(R.id.tv_title_save);
         tv_title_save.setOnClickListener(this);
         tv_title_save.setVisibility(View.VISIBLE);
-        tv_title = getViewById(R.id.tv_title);
+        setTitle("客户拜访");
         if(MODE_FROM_VIST_LIST_ITEM == mMode){
-            tv_title.setText("拜访详情");
+            setTitle("拜访详情");
         }else if(MODE_FROM_SIGN == mMode || MODE_FROM_SIGN_LIST == mMode){
-        tv_title.setText("客户拜访");}
+            setTitle("客户拜访");
+        }
         tvWeek = getViewById(R.id.tvWeek);
         tvDate = getViewById(R.id.tvDate);
         ll_showmapdes = getViewById(R.id.ll_showmapdes);
@@ -182,6 +186,9 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
         new HttpManager().post(this, Constants.VISIT_DETAIL, VisitMemberResponse.class,
                 Params.getVisitDetail(JointVisitActivity.this, mId),
                 this, false, 4);
+        new HttpManager().post(this, Constants.VISIT_DETAIL_EDITEABLE, VisitEditEnableBean.class,
+                Params.getVisitDetail(JointVisitActivity.this, mId),
+                this, false, 4);
     }
 
     @Override
@@ -206,8 +213,9 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
 
                 showLoadingDialog();
                 new HttpManager().post(this, Constants.CREATE_OR_UPDATA_VISIT, Result.class,
-                        Params.getSelfVisitParams(JointVisitActivity.this, mStrFloor, state, mStrDoctorID, mStrDoctorName, etRemark.getText().toString(), mId, coordinate, mStrAddress,
-                                deviceId,orginId,mStrMedia,str),
+                        Params.getSelfVisitParams(JointVisitActivity.this, mStrFloor, state, mStrDoctorID,
+                                mStrDoctorName, etRemark.getText().toString(), mId, coordinate, mStrAddress,
+                                deviceId,orginId,mStrMedia,str,""),
                         this, false, 4);
                 break;
             case R.id.visitors_ray:
@@ -305,12 +313,12 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
             if(response instanceof VisitMemberResponse){
                 if(response.getResultCode() == 1){
                     VisitMember member = ((VisitMemberResponse) response).getData().getVisit();
-                    long time = member.getTime();
+                    mTime = member.getTime();
                     mStrAddress = member.getAddress();
                     address = member.getAddressName();
                     mStrFloor = member.getAddressName();
                     mStrDoctorName = member.getDoctorName();
-                    String remark = member.getRemark();
+                    mRemark = member.getRemark();
                     coordinate = member.getCoordinate();
                     mStrDoctorID = member.getDoctorId();
                     List<String> picList = member.getImgUrls();
@@ -321,8 +329,8 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
                     }
                     tv_address.setText(mStrAddress);
                     tvSelected.setText(mStrDoctorName);
-                    etRemark.setText(remark);
-                    Date date = new Date(time);
+                    etRemark.setText(mRemark);
+                    Date date = new Date(mTime);
                     String strDate = TimeFormatUtils.china_format_date(date);
                     String strWeek = TimeFormatUtils.week_format_date(date);
                     strTime = TimeFormatUtils.time_format_date(date);
@@ -387,46 +395,14 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
                             }
                         }
                     }
-                    long timeMillis = System.currentTimeMillis();
-                    SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
-                    String sp_time = sf.format(time);
-                    String current_time = sf.format(timeMillis);
-                    if(!sp_time.equals(current_time)){//不是同一天，不可编辑
-                        del_desp.setVisibility(View.INVISIBLE);
-                        tv_title_save.setVisibility(View.GONE);
-                        selectedPicture.remove(ADDPIC);
-                        mAdapter.notifyDataSetChanged();
-                        etRemark.setEnabled(false);
-                        desp2.setVisibility(View.GONE);
-                        variety_arrow.setVisibility(View.INVISIBLE);
-                        name_arrow.setVisibility(View.INVISIBLE);
-                        variety_ray.setEnabled(false);
-                        vSelect.setEnabled(false);
-                        tvSelected.setTextColor(getResources().getColor(R.color.gray_666666));
-                        tv_variety.setTextColor(getResources().getColor(R.color.gray_666666));
-                        tvSelected.setHintTextColor(getResources().getColor(R.color.gray_666666));
-                        tv_variety.setHintTextColor(getResources().getColor(R.color.gray_666666));
-                        if(TextUtils.isEmpty(mStrDoctorName)){
-                            tvSelected.setHint("无");
-                        }else{
-                            tvSelected.setText(mStrDoctorName);
-                        }
-                        if(TextUtils.isEmpty(remark)){
-                            etRemark.setHint("无");
-                        }else{
-                            etRemark.setText(remark);
-                        }
-                        if (TextUtils.isEmpty(tv_variety.getText().toString())) {
-                            tv_variety.setHint("无");
-                        }
-                    }else{
-                        tv_title_save.setVisibility(View.VISIBLE);
-                        etRemark.setEnabled(true);
-                        tvSelected.setText(mStrDoctorName);
-                        etRemark.setText(remark);
-                        del_desp.setVisibility(View.VISIBLE);
-                    }
+                    setRemarkEnable();
                 }
+            } else if (response instanceof VisitEditEnableBean) {
+                VisitEditEnableBean editEnable = (VisitEditEnableBean) response;
+                etRemarkEnable = editEnable.data.editStatus;
+                setRemarkEnable();
+
+
             }else if(response instanceof Result){
                 if(response.getResultCode() == 1){
                     if ("1".equals(state)) {
@@ -434,22 +410,23 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
                     }
                     if(MODE_FROM_VIST_LIST_ITEM == mMode){
                     }else if(MODE_FROM_SIGN == mMode || MODE_FROM_SIGN_LIST == mMode){
-                        Intent intent = new Intent(this,SignInActivity.class);
+                        Intent intent = new Intent(this,MenuWithFABActivity.class);
                         startActivity(intent);
-
                         Intent broad_intent=new Intent();
-                        broad_intent.setAction("action.to.signlist");
+                        broad_intent.setAction("action.to.signlisttoday");
                         sendBroadcast(broad_intent);
                     }else{
                         Intent intent = new Intent(this,VisitListActivity.class);
                         startActivity(intent);
                     }
                     finish();
+                }else {
+                    ToastUtil.showToast(JointVisitActivity.this, response.getResultMsg());
                 }
             }
-        }
         tv_title_save.setEnabled(true);
         tv_title_save.setClickable(true);
+    }
     }
 
     @Override
@@ -607,7 +584,7 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
     private void goBackMethod() {
         if(MODE_FROM_VIST_LIST_ITEM == mMode){
         }else if(MODE_FROM_SIGN == mMode){
-            Intent intent = new Intent(this,SignInActivity.class);
+            Intent intent = new Intent(this,MenuWithFABActivity.class);
             startActivity(intent);
         }else if(MODE_FROM_SIGN_LIST == mMode){
             finish();
@@ -616,5 +593,46 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
             startActivity(intent);
         }
         finish();
+    }
+    /**
+     * 判断是否可编辑
+     */
+    private void setRemarkEnable() {
+        if (etRemarkEnable) {
+            etRemark.setEnabled(true);
+            desp2.setVisibility(View.VISIBLE);
+            tv_title_save.setVisibility(View.VISIBLE);
+            tvSelected.setText(mStrDoctorName);
+            etRemark.setText(mRemark);
+            del_desp.setVisibility(View.VISIBLE);
+        }else {
+            desp2.setVisibility(View.GONE);
+            selectedPicture.remove(ADDPIC);
+            etRemark.setEnabled(false);
+            del_desp.setVisibility(View.INVISIBLE);
+            tv_title_save.setVisibility(View.GONE);
+            mAdapter.notifyDataSetChanged();
+            variety_arrow.setVisibility(View.INVISIBLE);
+            name_arrow.setVisibility(View.INVISIBLE);
+            variety_ray.setEnabled(false);
+            vSelect.setEnabled(false);
+            tvSelected.setTextColor(getResources().getColor(R.color.gray_666666));
+            tv_variety.setTextColor(getResources().getColor(R.color.gray_666666));
+            tvSelected.setHintTextColor(getResources().getColor(R.color.gray_666666));
+            tv_variety.setHintTextColor(getResources().getColor(R.color.gray_666666));
+            if(TextUtils.isEmpty(mStrDoctorName)){
+                tvSelected.setHint("无");
+            }else{
+                tvSelected.setText(mStrDoctorName);
+            }
+            if(TextUtils.isEmpty(mRemark)){
+                etRemark.setHint("无");
+            }else{
+                etRemark.setText(mRemark);
+            }
+            if (TextUtils.isEmpty(tv_variety.getText().toString())) {
+                tv_variety.setHint("无");
+            }
+        }
     }
 }

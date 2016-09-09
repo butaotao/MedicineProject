@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.InputType;
@@ -32,8 +33,10 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.dachen.common.async.SimpleResultListenerV2;
 import com.dachen.common.json.GJson;
-import com.dachen.common.utils.Logger;
+import com.dachen.common.utils.CommonUtils;
+import com.dachen.common.utils.QiNiuUtils;
 import com.dachen.common.utils.ToastUtil;
 import com.dachen.common.utils.UIHelper;
 import com.dachen.common.utils.VolleyUtil;
@@ -49,6 +52,9 @@ import com.dachen.dgroupdoctorcompany.im.adapter.GroupChatSetingAdapter;
 import com.dachen.dgroupdoctorcompany.im.bean.UpdateGroup2Bean;
 import com.dachen.dgroupdoctorcompany.im.events.AddGroupUserEvent;
 import com.dachen.dgroupdoctorcompany.utils.CallIntent;
+import com.dachen.dgroupdoctorcompany.views.DialogGetPhote;
+import com.dachen.gallery.CustomGalleryActivity;
+import com.dachen.gallery.GalleryAction;
 import com.dachen.imsdk.HttpErrorCode;
 import com.dachen.imsdk.ImSdk;
 import com.dachen.imsdk.activities.ImBaseActivity;
@@ -62,12 +68,18 @@ import com.dachen.imsdk.entity.event.GroupSettingEvent;
 import com.dachen.imsdk.entity.event.NewMsgEvent;
 import com.dachen.imsdk.net.ImCommonRequest;
 import com.dachen.imsdk.net.PollingURLs;
+import com.dachen.imsdk.net.SessionGroup;
+import com.dachen.imsdk.net.UploadEngine7Niu;
+import com.dachen.imsdk.service.ImRequestManager;
+import com.dachen.imsdk.utils.CameraUtil;
 import com.dachen.imsdk.utils.ImUtils;
+import com.dachen.medicine.common.utils.ToastUtils;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.entity.User;
 import com.dachen.medicine.volley.custom.ObjectResult;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,17 +106,22 @@ public class GroupChatSetingUI extends ImBaseActivity {
     private static final String TAG = GroupChatSetingUI.class.getSimpleName();
     public static final int REQUEST_CODE_UPDATE_GROUP = 10001;
     public static final int REQUEST_CODE_EDIT_TEXT = 10002;
+    public static final int REQUEST_CODE_AVATAR = 10003;
+    public static final int REQUEST_CODE_CROP_PIC = 10004;
+    private static final int REQUEST_CODE_CAMERA = 10005;
+    private static final int REQUEST_CODE_PICK_GALLERY = 10006;
 
     public static final String Key_groupId = "key_groupId";
     public static final String Key_NO_ADD = "key_no_add";
 
-    private String groupId = null;
+    private String groupId ;
     private boolean noAdd;
     private int extraItemNum = 2;
 
     private String groupName = null; // 组名称
     private boolean messgeRemind = false; // 消息提醒
     private Item deleteItem = null; // 要删除用户的Item
+    private Uri mNewPhotoUri;
 
     private boolean b_executeObtainTask_successed = false;// executeObtainTask是否执行成功
 
@@ -162,15 +179,21 @@ public class GroupChatSetingUI extends ImBaseActivity {
 
     @Bind(R.id.group_settting_layout)
     LinearLayout mGroupSettingLayout;
+    @Bind(R.id.iv_avatar)
+    ImageView iv_avatar;
+    @Bind(R.id.layout_avatar)
+    View layout_avatar;
 
     UISwitchButton im_group_chat_ui_setting_messge_remind;
     UISwitchButton im_group_chat_ui_setting_fav;
+    UISwitchButton switchTopChat;
 
     private GroupChatSetingAdapter mAdapter;
     // 是否设置过患者信息
     private boolean mIsSetPatientInfo;
 
     private ChatGroupDao dao;
+    private DialogGetPhote mPicDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -186,6 +209,7 @@ public class GroupChatSetingUI extends ImBaseActivity {
     protected void onDestroy() {
         EventBus.getDefault().unregister(this);
         super.onDestroy();
+        mDialog = null;
     }
 
     @OnItemClick(R.id.im_group_chat_ui_gridView)
@@ -265,7 +289,7 @@ public class GroupChatSetingUI extends ImBaseActivity {
                     } else {
                         execute_what = whatMessgeRemindNoTask;
                     }
-                    executeUpdateTask();
+                    executeUpdateTask(execute_what);
                 }
             }
         });
@@ -279,8 +303,31 @@ public class GroupChatSetingUI extends ImBaseActivity {
                     } else {
                         execute_what = whatFavNoTask;
                     }
-                    executeUpdateTask();
+                    executeUpdateTask(execute_what);
                 }
+            }
+        });
+        switchTopChat = (UISwitchButton) findViewById(R.id.switch_top_chat);
+        switchTopChat.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
+                if(!b_executeObtainTask_successed)return;
+                final int act=isChecked?1:0;
+                mDialog.show();
+                ImRequestManager.topChatGroup(groupId, act, new SimpleResultListenerV2() {
+                    @Override
+                    public void onSuccess(String data) {
+                        dao.setTopFlag(groupId,act);
+                        EventBus.getDefault().post(new GroupSettingEvent(groupId,GroupSettingEvent.TYPE_TOP));
+                        mDialog.dismiss();
+                    }
+
+                    @Override
+                    public void onError(String msg) {
+                        switchTopChat.setChecked(!isChecked,false);
+                        mDialog.dismiss();
+                    }
+                });
             }
         });
 
@@ -290,7 +337,8 @@ public class GroupChatSetingUI extends ImBaseActivity {
         mAdapter.setGroupId(groupId);
         im_group_chat_ui_gridView.setAdapter(mAdapter);
 
-        GroupInfo2Bean.Data groupInfo = (GroupInfo2Bean.Data) getIntent().getSerializableExtra("groupInfo");
+//        GroupInfo2Bean.Data groupInfo = (GroupInfo2Bean.Data) getIntent().getSerializableExtra("groupInfo");
+        ChatGroupPo groupInfo=dao.queryForId(groupId);
         noAdd = getIntent().getBooleanExtra(Key_NO_ADD, false);
         if (noAdd)
             extraItemNum = 0;
@@ -299,7 +347,16 @@ public class GroupChatSetingUI extends ImBaseActivity {
         }
         // 执行获取任务
         executeObtainTask();
-
+        mPicDialog=new DialogGetPhote(this,new DialogGetPhote.OnClickListener(){
+            @Override
+            public void btnPhotoClick(View v) {
+                selectPhoto();
+            }
+            @Override
+            public void btnCameraClick(View v) {
+                takePhoto();
+            }
+        });
     }
 
     /**
@@ -435,9 +492,9 @@ public class GroupChatSetingUI extends ImBaseActivity {
     /**
      * 初始化GridItem
      *
-     * @param userIds，WEB端会将组里的全部返回来，包含自己userId
+     * @param userIds ，WEB端会将组里的全部返回来，包含自己userId
      */
-    private void initGridItem(GroupInfo2Bean.Data.UserInfo[] userIds) {
+    private void initGridItem(List<UserInfo> userIds) {
         ArrayList<Item> gridItem = new ArrayList<Item>();
         // 清空
         gridItem.clear();
@@ -528,11 +585,7 @@ public class GroupChatSetingUI extends ImBaseActivity {
      */
     public void removeGridView(Item item) {
         this.deleteItem = item;
-        this.execute_what = whatDeleteUserTask;
-        /**
-         * 执行任务
-         */
-        executeUpdateTask();
+        executeUpdateTask(whatDeleteUserTask);
     }
 
     public void alertRemoveUser(final Item item) {
@@ -607,7 +660,7 @@ public class GroupChatSetingUI extends ImBaseActivity {
     @OnClick(R.id.im_group_chat_ui_setting_name_layout)
     void onClick_im_group_chat_ui_setting_name_layout() {
         String text = im_group_chat_ui_name_value.getText().toString();
-        SmallEditViewUI.openUI(mThis, "编辑群聊名称", text, InputType.TYPE_CLASS_TEXT, REQUEST_CODE_EDIT_TEXT);
+        SmallEditViewUI.openUI(mThis,16, "编辑群聊名称", text, InputType.TYPE_CLASS_TEXT, REQUEST_CODE_EDIT_TEXT);
     }
 
     /**
@@ -663,16 +716,33 @@ public class GroupChatSetingUI extends ImBaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.w(TAG, "onActivityResult():arg0:" + requestCode + ",arg1:" + resultCode);
         super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_OK) return;
         if (requestCode == REQUEST_CODE_UPDATE_GROUP) {
-            if (resultCode == RESULT_OK) {
-                setResult(RESULT_OK);
-                finish();
-            }
+            setResult(RESULT_OK);
+            finish();
         } else if (requestCode == REQUEST_CODE_EDIT_TEXT) {
-            if (resultCode == RESULT_OK) {
-                groupName = data.getStringExtra(SmallEditViewUI.key_text);
-                execute_what = whatChangeGroupNameTask;
-                executeUpdateTask();
+            groupName = data.getStringExtra(SmallEditViewUI.key_text);
+            executeUpdateTask(whatChangeGroupNameTask);
+        }else if(requestCode==REQUEST_CODE_PICK_GALLERY){
+            String[] all_path = data.getStringArrayExtra(GalleryAction.INTENT_ALL_PATH);
+            if (all_path == null||all_path.length==0) return;
+            Uri o = Uri.fromFile(new File(all_path[0]));
+            mNewPhotoUri = CameraUtil.getOutputMediaFileUri(mThis,CameraUtil.MEDIA_TYPE_IMAGE);
+            CameraUtil.cropImage(this, o, mNewPhotoUri, REQUEST_CODE_CROP_PIC, 1, 1, 300, 300);
+//            uploadAvatar(all_path[0]);
+        } else if (requestCode == REQUEST_CODE_CROP_PIC) { // 裁减图片
+            if (mNewPhotoUri != null) {
+                uploadAvatar(mNewPhotoUri.getPath());
+            } else {
+                ToastUtil.showToast(mThis, R.string.c_crop_failed);
+            }
+        }else if(requestCode==REQUEST_CODE_CAMERA){
+            if (mNewPhotoUri != null) {
+                Uri o = mNewPhotoUri;
+                mNewPhotoUri = CameraUtil.getOutputMediaFileUri(this, CameraUtil.MEDIA_TYPE_IMAGE);
+                CameraUtil.cropImage(this, o, mNewPhotoUri, REQUEST_CODE_CROP_PIC, 1, 1, 300, 300);
+            } else {
+                ToastUtils.showToast( mThis,R.string.c_photo_album_failed);
             }
         }
     }
@@ -681,58 +751,101 @@ public class GroupChatSetingUI extends ImBaseActivity {
      * 执行获取任务
      */
     private void executeObtainTask() {
-
-        mDialog.show();
-
-        RequestQueue queue = VolleyUtil.getQueue(this);
-        // queue.cancelAll(this);
-
-        String url = PollingURLs.getGroupInfo();
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("access_token", ImSdk.getInstance().accessToken);
-        map.put("gid", groupId);
-        map.put("userId", ImUtils.getLoginUserId());
-        StringRequest request = new ImCommonRequest(url, map, new Listener<String>() {
-
+        if (null!=mDialog){
+            mDialog.show();
+        }
+        SessionGroup tool=new SessionGroup(mThis);
+        tool.setCallbackNew(new SessionGroup.SessionGroupCallbackNew() {
             @Override
-            public void onResponse(String response) {
-                Logger.d(TAG, "executeObtainTask():onResponse():result:" + response);
+            public void onGroupInfo(ChatGroupPo po, int what) {
+                setGroupInfo(po);
+                // set true
+                b_executeObtainTask_successed = true;
                 mDialog.dismiss();
-                GroupInfo2Bean bean = GJson.parseObject(response, GroupInfo2Bean.class);
-                if (bean != null) {
-                    if (bean.resultCode == HttpErrorCode.successed) {
-                        GroupInfo2Bean.Data data = bean.data;
-                        if (data != null) {
-                            setGroupInfo(data);
-                        }
-                        // set true
-                        b_executeObtainTask_successed = true;
-
-                    } else {
-                        // 提示错误信息
-                        ToastUtil.showToast(mThis, bean.detailMsg);
-                    }
-                }
-
             }
 
-        }, new ErrorListener() {
-
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.w(TAG, "onErrorResponse()");
+            public void onGroupInfoFailed(String msg) {
+                ToastUtil.showToast(mThis, msg);
                 mDialog.dismiss();
-                ToastUtil.showErrorNet(mThis);
             }
-
         });
+        tool.getGroupInfoNew(groupId);
 
-        request.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, 0, 0));
-        queue.add(request);
+//        RequestQueue queue = VolleyUtil.getQueue(this);
+//        // queue.cancelAll(this);
+//        String url = PollingURLs.getGroupInfo();
+//        Map<String, String> map = new HashMap<String, String>();
+//        map.put("access_token", ImSdk.getInstance().accessToken);
+//        map.put("gid", groupId);
+//        map.put("userId", ImUtils.getLoginUserId());
+//        StringRequest request = new ImCommonRequest(url, map, new Listener<String>() {
+//
+//            @Override
+//            public void onResponse(String response) {
+//                Logger.d(TAG, "executeObtainTask():onResponse():result:" + response);
+//                if (null!=mDialog) {
+//                    mDialog.dismiss();
+//                }
+//                GroupInfo2Bean bean = GJson.parseObject(response, GroupInfo2Bean.class);
+//                if (bean != null) {
+//                    if (bean.resultCode == HttpErrorCode.successed) {
+//                        GroupInfo2Bean.Data data = bean.data;
+//                        if (data != null) {
+//                            setGroupInfo(data);
+//                        }
+//                        // set true
+//                        b_executeObtainTask_successed = true;
+//
+//                    } else {
+//                        // 提示错误信息
+//                        ToastUtil.showToast(mThis, bean.detailMsg);
+//                    }
+//                }
+//
+//            }
+//
+//        }, new ErrorListener() {
+//
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                Log.w(TAG, "onErrorResponse()");
+//                if (null!=mDialog) {
+//                    mDialog.dismiss();
+//                }
+//                ToastUtil.showErrorNet(mThis);
+//            }
+//
+//        });
+//        request.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, 0, 0));
+//        queue.add(request);
     }
 
-    private void setGroupInfo(GroupInfo2Bean.Data data) {
-        UserInfo[] doctorList = data.userList;
+//    private void setGroupInfo(GroupInfo2Bean.Data data) {
+//        UserInfo[] doctorList = data.userList;
+//        // 健康关怀计划要显示单独显示患者信息
+//        // 双人或者多人
+//        mAdapter.setSessionType(data.type);
+//        // 刷新数据
+//        initGridItem(doctorList);
+//        // 设置标题
+//        updateTitle(mAdapter.getItems());
+//        // 设置群聊名称
+//        setGroupChatName(data.gname);
+//        if (data.type == SessionType.session_multi) {
+//            // 组名称
+//            setGroupNameVisibility(true);
+//        }
+//        // 设置消息提醒开关
+//        setMessgeRemind(data.notify);
+//        boolean isFav = ChatGroupPo.getStateOnPos(data.status, 1) == 1;
+//        setFav(isFav);
+//        // 设置“退出多人聊天”控件的可见性
+//        setExitMultipleChatVisibility(data.type);
+//    }
+    private void setGroupInfo(ChatGroupPo data) {
+        ImageLoader.getInstance().displayImage(data.gpic,iv_avatar);
+        List<UserInfo> doctorList = JSON.parseArray(data.groupUsers,UserInfo.class);
         // 健康关怀计划要显示单独显示患者信息
         // 双人或者多人
         mAdapter.setSessionType(data.type);
@@ -741,16 +854,21 @@ public class GroupChatSetingUI extends ImBaseActivity {
         // 设置标题
         updateTitle(mAdapter.getItems());
         // 设置群聊名称
-        setGroupChatName(data.gname);
+        setGroupChatName(data.name);
         if (data.type == SessionType.session_multi) {
             // 组名称
             setGroupNameVisibility(true);
         }
         // 设置消息提醒开关
-        setMessgeRemind(data.notify);
+        boolean notify = ChatGroupPo.getStateOnPos(data.status, 0) == 1;
+        setMessgeRemind(notify);
         boolean isFav = ChatGroupPo.getStateOnPos(data.status, 1) == 1;
         setFav(isFav);
+        switchTopChat.setChecked(data.top==1,false);
         // 设置“退出多人聊天”控件的可见性
+        if(data.type==SessionType.session_multi){
+            layout_avatar.setVisibility(View.VISIBLE);
+        }
         setExitMultipleChatVisibility(data.type);
     }
 
@@ -812,14 +930,11 @@ public class GroupChatSetingUI extends ImBaseActivity {
     /**
      * 执行更新任务
      */
-    private void executeUpdateTask() {
+    private void executeUpdateTask(final int execute_what) {
         mDialog.show();
-
         RequestQueue queue = VolleyUtil.getQueue(this);
-        // queue.cancelAll(this);
         String url = "";
         Map<String, String> map = new HashMap<String, String>();
-//		map.put("access_token", UserSp.getInstance(context).getAccessToken(""));
         map.put("gid", groupId);
         map.put("fromUserId", ImUtils.getLoginUserId()); // fromUserId等于自己
         // if (execute_what == whatClearChatRecordTask) {
@@ -860,7 +975,9 @@ public class GroupChatSetingUI extends ImBaseActivity {
             @Override
             public void onResponse(String response) {
                 Log.w(TAG, "executeUpdateTask():onResponse():result:" + response);
-                mDialog.dismiss();
+                if (null!=mDialog) {
+                    mDialog.dismiss();
+                }
                 UpdateGroup2Bean bean = GJson.parseObject(response, UpdateGroup2Bean.class);
                 if (bean != null) {
                     if (bean.resultCode == HttpErrorCode.successed) {
@@ -899,8 +1016,6 @@ public class GroupChatSetingUI extends ImBaseActivity {
                     }
                 }
 
-                execute_what = whatNotKnowTask;
-
             }
 
         }, new ErrorListener() {
@@ -916,9 +1031,9 @@ public class GroupChatSetingUI extends ImBaseActivity {
                 } else if (execute_what == whatFavYesTask) {
                     setFav(false);
                 }
-                execute_what = whatNotKnowTask;
-
-                mDialog.dismiss();
+                if (null!=mDialog) {
+                    mDialog.dismiss();
+                }
 
                 ToastUtil.showErrorNet(GroupChatSetingUI.this);
             }
@@ -968,11 +1083,7 @@ public class GroupChatSetingUI extends ImBaseActivity {
 
                     @Override
                     public void onClick(DialogInterface arg0, int arg1) {
-                        execute_what = whatExitMultipleChatTask;
-                        /**
-                         * 执行任务
-                         */
-                        executeUpdateTask();
+                        executeUpdateTask(whatExitMultipleChatTask);
                     }
 
                 }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -1073,4 +1184,66 @@ public class GroupChatSetingUI extends ImBaseActivity {
             finish();
     }
 
+    @OnClick(R.id.layout_avatar)
+    void onClickLayoutAvatar() {
+//        CustomGalleryActivity.openUi(mThis,false, REQUEST_CODE_AVATAR);
+        mPicDialog.show();
+    }
+
+    private void selectPhoto() {
+        CustomGalleryActivity.openUi(this, false, REQUEST_CODE_PICK_GALLERY);
+    }
+
+    private void takePhoto() {
+        mNewPhotoUri = CameraUtil.getOutputMediaFileUri(this, CameraUtil.MEDIA_TYPE_IMAGE);
+        CameraUtil.captureImage(this, mNewPhotoUri, REQUEST_CODE_CAMERA);
+    }
+
+    private void uploadAvatar(String path){
+        mDialog.show();
+        UploadEngine7Niu.UploadObserver7NiuV2 callBack=new UploadEngine7Niu.UploadObserver7NiuV2() {
+            @Override
+            public void onUploadSuccess(String key, String url) {
+                modifyAvatar(url);
+            }
+
+            @Override
+            public void onUploadFailure(String msg) {
+                mDialog.dismiss();
+                if(!CommonUtils.checkNetworkEnable(mThis)){
+                    ToastUtil.showToast(mThis,"无网络可用，请检查连接或设置");
+                }else
+                    ToastUtil.showToast(mThis,"头像上传失败");
+            }
+        };
+        UploadEngine7Niu.uploadFileCommon(path,callBack, QiNiuUtils.BUCKET_GROUP_AVATAR,null);
+    }
+
+    private void modifyAvatar(final String picUrl){
+        SimpleResultListenerV2 listener=new SimpleResultListenerV2(){
+            @Override
+            public void onSuccess(String dataStr) {
+                ToastUtil.showToast(mThis,"头像设置成功");
+                ImageLoader.getInstance().displayImage(picUrl,iv_avatar);
+                GroupSettingEvent event=new GroupSettingEvent(groupId,GroupSettingEvent.TYPE_AVATAR);
+                event.url=picUrl;
+                EventBus.getDefault().post(event);
+                mDialog.dismiss();
+            }
+
+            @Override
+            public void onError(String msg) {
+                mDialog.dismiss();
+                ToastUtil.showToast(mThis,msg);
+            }
+        };
+        String url=PollingURLs.updateGroupPic();
+        Map<String, Object> reqMap = new HashMap<>();
+        reqMap.put("fromUserId",ImUtils.getLoginUserId());
+        reqMap.put("gid",groupId);
+        reqMap.put("name",picUrl);
+        ImCommonRequest request=new ImCommonRequest(url,reqMap, ImRequestManager.makeSucListener(listener),ImRequestManager.makeErrListener(listener));
+        VolleyUtil.getQueue(mThis).add(request);
+        mDialog.show();
+    }
 }

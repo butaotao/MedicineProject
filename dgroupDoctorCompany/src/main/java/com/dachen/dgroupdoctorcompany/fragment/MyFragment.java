@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -39,6 +40,7 @@ import com.dachen.dgroupdoctorcompany.activity.MyQRActivity;
 import com.dachen.dgroupdoctorcompany.activity.SettingActivity;
 import com.dachen.dgroupdoctorcompany.app.CompanyApplication;
 import com.dachen.dgroupdoctorcompany.app.Constants;
+import com.dachen.dgroupdoctorcompany.base.UserLoginc;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.entity.Group;
 import com.dachen.dgroupdoctorcompany.entity.LoginRegisterResult;
@@ -69,7 +71,7 @@ import de.greenrobot1.event.EventBus;
 
 public class MyFragment extends BaseFragment implements OnClickListener,ActionSheetListener, HttpManager.OnHttpListener {
 	public final static int REQUEST_USER_INFO = 101;
-	// 总View，总视图 
+	// 总View，总视图
 	View mRootView;
 	@Nullable
 	@Bind(R.id.tv_usericon)
@@ -195,7 +197,8 @@ public class MyFragment extends BaseFragment implements OnClickListener,ActionSh
 	}
 	private void getInfo(){
 		//获取个人信息
-		new HttpManager().get(mActivity, Constants.GET_INFO, com.dachen.dgroupdoctorcompany.entity.UserInfo.class,
+		new HttpManager().get(mActivity, Constants.GET_INFO,
+				LoginRegisterResult.class,
 				Params.getInfoParams(mActivity), this, false, 1);
 	}
 	@Override
@@ -255,6 +258,7 @@ public class MyFragment extends BaseFragment implements OnClickListener,ActionSh
 						// TODO Auto-generated method stub
 						if (null == response) {
 							//removeregeisterXiaoMi();
+							Log.d("zxy :", "261 : MyFragment : onSuccess : ");
 							SharedPreferenceUtil.putString(mActivity, "session", "");
 							SharedPreferenceUtil.putLong(mActivity, "expires_in", 0L);
 							Intent intent = new Intent(mActivity, LoginActivity.class);
@@ -265,6 +269,7 @@ public class MyFragment extends BaseFragment implements OnClickListener,ActionSh
 						} else {
 							if (response instanceof LoginRegisterResult) {
 								//	removeregeisterXiaoMi();
+								Log.d("zxy :", "271 : MyFragment : onSuccess : ");
 								SharedPreferenceUtil.putString(mActivity, "session", "");
 								SharedPreferenceUtil.putLong(mActivity, "expires_in", 0L);
 								Intent intent = new Intent(mActivity, LoginActivity.class);
@@ -284,6 +289,7 @@ public class MyFragment extends BaseFragment implements OnClickListener,ActionSh
 					@Override
 					public void onFailure(Exception e, String errorMsg,
 										  int s) {
+						Log.d("zxy :", "289 : MyFragment : onFailure : ");
 						//removeregeisterXiaoMi();
 						SharedPreferenceUtil.putString(mActivity, "session", "");
 						SharedPreferenceUtil.putLong(mActivity, "expires_in", 0L);
@@ -319,7 +325,7 @@ public class MyFragment extends BaseFragment implements OnClickListener,ActionSh
 				String userId = user.getUserId();
 				String headPicFileName = user.getHeadPicFileName();
 				String avatarUrl = StringUtils.getAvatarUrl(userId, headPicFileName);
-				if(!TextUtils.isEmpty(avatarUrl))
+				if(!TextViewUtils.isEmpty(avatarUrl))
 				{
 					ImageLoader.getInstance().displayImage(avatarUrl, head_icon);
 				}
@@ -353,30 +359,32 @@ public class MyFragment extends BaseFragment implements OnClickListener,ActionSh
 	@Override
 	public void onSuccess(Result response) {
 		// TODO Auto-generated method stub
+		Log.d("zxy :", "362 : MyFragment : onSuccess : ");
 		if(null != response){
-			if(response instanceof com.dachen.dgroupdoctorcompany.entity.UserInfo){
+			if(response instanceof LoginRegisterResult){
 				String userID = SharedPreferenceUtil.getString(CompanyApplication.context, "id", "");
-				com.dachen.dgroupdoctorcompany.entity.UserInfo userInfo = (com.dachen.dgroupdoctorcompany.entity.UserInfo) response;
-				if (null!=userInfo&&null!=((com.dachen.dgroupdoctorcompany.entity.UserInfo) response).data){
+				LoginRegisterResult userInfo = (LoginRegisterResult) response;
+				if (null!=userInfo&&null!=((LoginRegisterResult) response).data){
 					Message msg = Message.obtain();
 					msg.obj = userInfo;
-					if (userInfo.data==null){
+					if (userInfo.data==null||null==userInfo.data.majorUser){
 						return;
 					}
 					CompanyContactListEntity entity = new CompanyContactListEntity();
 					entity.userId = userInfo.data.userId+"";
-					entity.id = userInfo.data.id;
-					entity.department = userInfo.data.department;
-					entity.headPicFileName = userInfo.data.headPicFileName;
-					entity.position = userInfo.data.position;
-					entity.status = userInfo.data.status;
-					entity.telephone = userInfo.data.telephone;
-					entity.userStatus = userInfo.data.status;
+					entity.id = userInfo.data.majorUser.id;
+					entity.department = userInfo.data.majorUser.orgName;
+
+					entity.headPicFileName = userInfo.data.majorUser.headPic;
+					entity.position = userInfo.data.majorUser.title;
+					entity.telephone = userInfo.data.majorUser.telephone;
 					entity.userloginid = userID;
-					entity.name = userInfo.data.name;
-					SharedPreferenceUtil.putString(mActivity,"username",userInfo.data.name);
-					SharedPreferenceUtil.putString(mActivity, "telephone", userInfo.data.telephone);
-					SharedPreferenceUtil.putString(mActivity, SharedPreferenceUtil.getString(mActivity, "id", "") + "head_url",userInfo.data.headPicFileName);
+					entity.name = userInfo.data.majorUser.name;
+					LoginRegisterResult logins = (LoginRegisterResult) response;
+					UserLoginc.setUserInfo(logins, mActivity);
+					SharedPreferenceUtil.putString(mActivity,"username",entity.name);
+					SharedPreferenceUtil.putString(mActivity, "telephone", entity.telephone);
+					SharedPreferenceUtil.putString(mActivity, SharedPreferenceUtil.getString(mActivity, "id", "") + "head_url",entity.headPicFileName);
 					setUserInfo();
 					getAvatarImage();
 				}

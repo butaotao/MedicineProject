@@ -1,10 +1,13 @@
 package com.dachen.dgroupdoctorcompany.activity;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -12,6 +15,8 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -45,7 +50,9 @@ import com.dachen.dgroupdoctorcompany.fragment.MyFragment;
 import com.dachen.dgroupdoctorcompany.im.AppImConstants;
 import com.dachen.dgroupdoctorcompany.im.events.UnreadEvent;
 import com.dachen.dgroupdoctorcompany.im.utils.AppImUtils;
+import com.dachen.dgroupdoctorcompany.receiver.ChangeReceiver;
 import com.dachen.dgroupdoctorcompany.receiver.HwPushReceiver;
+import com.dachen.dgroupdoctorcompany.service.CallSmsSafeService;
 import com.dachen.dgroupdoctorcompany.service.VersionUpdateService;
 import com.dachen.dgroupdoctorcompany.utils.GaoDeMapUtils;
 import com.dachen.dgroupdoctorcompany.utils.UserInfo;
@@ -87,6 +94,7 @@ import de.greenrobot1.event.EventBus;
 public class MainActivity extends BaseActivity implements OnHttpListener,
         OnClickListener, GaoDeMapUtils.LocationListener {
     private static MainActivity instance;
+    public static  boolean sShowInfomation = false;
     private long startTime = 0;
     private int fragment_index = 0;
     protected List<Fragment> fragments;
@@ -131,12 +139,15 @@ public class MainActivity extends BaseActivity implements OnHttpListener,
     private String city;//城市
     private String mStrFloor;
     private String mStrAddressName;
-
+    ChangeReceiver receiver;
+    public static String action = "changeFragment";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         instance = this;
+        ToastUtil.showToast(this,"=====================patchtest=====================");
         mDao = new ChatGroupDao();
         ButterKnife.bind(this);
         if (fragments == null) {
@@ -165,14 +176,30 @@ public class MainActivity extends BaseActivity implements OnHttpListener,
         mGaoDeMapUtils = new GaoDeMapUtils(this.getApplicationContext(), this);
 
         getVersion();
-        if (SharedPreferenceUtil.getString(this,"showguider","0").equals("0")){
+       /* if (SharedPreferenceUtil.getString(this,"showguider","0").equals("0")){
             GuiderDialog dialog = new GuiderDialog(this);
             dialog.showDialog();
             SharedPreferenceUtil.putString(this,"showguider","1");
-        }
+        }*/
 
-      /*  Intent intent = new Intent(this,GuiderDialogActivity.class);
+     /*  Intent intent = new Intent(this,GuiderDialogActivity.class);
         startActivity(intent);*/
+
+        receiver = new ChangeReceiver(){
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                super.onReceive(context, intent);
+                int tab = intent.getIntExtra("tab",0);
+                if (tab==0){
+                    fragment_index = 0;
+                    clicks();
+                    showItem();
+                }
+            }
+        };;
+        IntentFilter filters= new IntentFilter();
+        filters.addAction(action);
+        registerReceiver(receiver, filters);
     }
 
 
@@ -186,11 +213,26 @@ public class MainActivity extends BaseActivity implements OnHttpListener,
         }
         return "";
     }
+    @TargetApi(19)
+       private void setTranslucentStatus(boolean on) {
+              Window win = getWindow();
+               WindowManager.LayoutParams winParams = win.getAttributes();
+              final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+               if (on) {
+                     winParams.flags |= bits;
+                   } else {
+                    winParams.flags &= ~bits;
+                  }
+              win.setAttributes(winParams);
+           }
 
     @Override
     protected void onDestroy() {
         EventBus.getDefault().unregister(this);
         instance = null;
+        if (null!=receiver){
+            unregisterReceiver(receiver);
+        }
         super.onDestroy();
     }
 
@@ -204,8 +246,17 @@ public class MainActivity extends BaseActivity implements OnHttpListener,
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        if (sShowInfomation) {
+            clicks();
+            sShowInfomation = false;
+        }
         UserInfo userInfo = UserInfo.getInstance(this);
       /*  ImSdk.getInstance().initUser(userInfo.getSesstion(),
                 userInfo.getId(), userInfo.getUserName(), userInfo.getNickName(), userInfo.getHeadUrl());*/
@@ -218,6 +269,7 @@ public class MainActivity extends BaseActivity implements OnHttpListener,
         AddressList addressList = new AddressList();
         CompanyCenterFragment companyCenterFragment = new CompanyCenterFragment();
         MyFragment myFragment = new MyFragment();
+        fragments.clear();
         fragments.add(infomationFragment);
         fragments.add(addressList);
         fragments.add(companyCenterFragment);
@@ -238,7 +290,6 @@ public class MainActivity extends BaseActivity implements OnHttpListener,
 
     @OnClick(R.id.infomation_layout)//消息
     public void clicks() {
-        // ToastUtils.showToast("===clickSettings====");
         fragment_index = 0;
         FragmentUtils.changeFragment(getSupportFragmentManager(),
                 R.id.fragment_container, fragments, fragment_index);
@@ -247,10 +298,11 @@ public class MainActivity extends BaseActivity implements OnHttpListener,
 
     @OnClick(R.id.contactlistfragment_layout)//通讯录
     public void clickscontactlayout() {
-        // ToastUtils.showToast("===clickSettings====");
         fragment_index = 1;
         FragmentUtils.changeFragment(getSupportFragmentManager(),
                 R.id.fragment_container, fragments, fragment_index);
+        Intent intent = new Intent(AddressList.action);
+        sendBroadcast(intent);
         showItem();
     }
 

@@ -25,11 +25,12 @@ public class Constants {
     public static String VERIFY_CODE = DRUG+"sms/randcode/verifyCode";
     public static String VISITRECORD = "visit/getVisitList";
     public static String VISITINFO = "visit/getVisitInfoByUserId";
+    public static String GETVOICECODE = DRUG+"user/preResetPasswordVoiceCode";
     /**
      * 自动登录
      */
-    public static String USER_LORGIN_AUTO = DRUG+ "drugCompanyEmployee/login/auto";
-
+    public static String USER_LORGIN_AUTO = DRUG+ "auth/loginAuto";
+    public static String ADDCONTACT = Constants.DRUG+"companyUser/addMajorUser";
     public static final int HTTP_REQUEST_NOT_LOGIN = 302;
     public static String USER_REGISTER = "user/register";
     /**
@@ -40,14 +41,16 @@ public class Constants {
      * 我 登出
      */
 
-    public static String LOGOUT = DRUG+"user/logout";
+    public static String LOGOUT = DRUG+"auth/logout";
     // 登录接口
-    public static final String LOGIN = DRUG + "drugCompanyEmployee/login";
+    public static final String LOGIN = DRUG + "auth/login";
     public static final String LOGINVERIFY = "login";
     public static final String XIAOMI = "user/registerDeviceToken";
     public static final String XIAOMIREMOVE = "user/removeDeviceToken";
 
     public static final String COMPANYCONTACTLIST = DRUG+"drugCompany/dept/getEnterpriseListByTs";
+    //
+    public static final String COMPANYCONTACTLISTNet = DRUG+"contacts/getEnterpriseListByTs";
     public static final String COMPANYGETALLCONTACT = DRUG+"drugCompany/dept/getAllEnterUsersByDptId";
     // 注册借口
     public static final String REGISTER = "sms/verify/telephone";
@@ -88,15 +91,15 @@ public class Constants {
     /**
      * 请求重置密码
      */
-    public static String PRE_RESET_PASSWD = DRUG+"/user/preResetPassword";
+    public static String PRE_RESET_PASSWD = DRUG+"auth/sendRanCode";
     /**
      * 重置密码
      */
-    public static String RESET_PASSWD = DRUG+"drugCompanyEmployee/resetPassword\n";
+    public static String RESET_PASSWD = DRUG+"auth/resetPassword";
     /**
      * 用户 - 验证重设密码的验证码
      */
-    public static String VERIFYRESETPASSWORD = DRUG+"user/verifyResetPassword";
+    public static String VERIFYRESETPASSWORD = DRUG+"auth/verifyResetPassword";
 
     public static String MEDIE_MANAGEMENT = DRUG+"assignGoodsGroup/getMySellerDrug";
 
@@ -107,7 +110,7 @@ public class Constants {
     public static String SAVE_FILE = "vpanfile/saveFile";
     public static String IS_IN_MY_FILE_LIST = "vpanfile/isInMyFileList";
     public static String ARCHIVE_LIST = "vpanfile/queryFile";
-    public static String GET_INFO = DRUG+"drugCompany/dept/getEnterUsersByUserId";
+    public static String GET_INFO = DRUG+"auth/getUserInfo";
     public static String GET_VISIT_URL = DRUG+"h5VistUrl/getUrlForH5";
     //直播会议 - 创建会议
     public static String MEETING_CREATE = "meeting/create";
@@ -131,25 +134,31 @@ public class Constants {
     public static String SIGIN_IN_DETAIL = "signed/getSignedDetail";
     //拜访客户详情
     public static String VISIT_DETAIL = "visit/getVisitDetail";
+    //拜访客户详情
+    public static String VISIT_DETAIL_EDITEABLE = "visit/getVisitEditStatus";
     //获取签到历史记录
     public static String GET_VISIT_LIST = "visit/getList";
+    //查询我的签到 分页列表信息
+    public static String GET_MYSIGNEDPAGE = "signed/getMySignedPage";
+    public static String GET_VISIT_LIST_TODAY = "signed/getTodaySignedList";
     //修改用户名称
-    public static String UPDATE_USER_NAME = DRUG+"user/updateUserName";
-    //修改用户职位
-    public static String UPDATE_JOB_TITLE = DRUG+"drugCompany/dept/updateUserTitle";
+    public static String UPDATE_USER_NAME = DRUG+"auth/updateOneselfInfo";
+    //修改用户职位companyUser/updateMajorUser
+    public static String UPDATE_JOB_TITLE = DRUG+"companyUser/updateMajorUser";
+    public static String UPDATE_NAME_MANAGER =DRUG+"companyUser/updateUserName";
     //删除拜访
     public static String DELETE_VISIT = "visit/deleteVisit";
     //获取用户组织结构
-    public static String GET_ENTER_ORG = DRUG+"drugCompany/dept/getEnterOrg";
+    public static String GET_ENTER_ORG = DRUG+"companyOrg/getOrgTree";
     //修改用户组织部门
-    public static String UPDATE_ORG = DRUG+"drugCompany/dept/updateUserOrg";
+    public static String UPDATE_ORG = DRUG+"companyUser/updateMajorUser";
     //根据部门ID获取部门结构
-    public static String DEPSTRUCT = DRUG+"drugCompany/dept/getDepartmentsByParentIdAndEId";
+    public static String DEPSTRUCT = DRUG+"companyOrg/getOrgListAndUserList";
     public static String MANINDEP = DRUG+"drugCompanyEmployee/getDepartmentByUserId";
     //org/signed/drugCompanyEmployee/getDepartmentSinged
     public static String SIGNEDRECORD = "signed/getDepartmentSigned2";
     public static String GETSINGINFOBYUSERID = "signed/getSignedInfoByUserId";
-    public static String GETVISITPEOPLE = DRUG+"drugCompany/dept/getAllEnterUsersByDptId";
+    public static String GETVISITPEOPLE = DRUG+"companyUser/getUserPageByOrgId";
     public static String VISITDETAIL = "visit/getDepartmentVisitDetail";
     //得到某人的医生好友列表
     public static String FRIENDLIST = DRUG+"saleFriend/search";
@@ -181,6 +190,7 @@ public class Constants {
     public static String JOIN_VISIT_GROUP = "visit/addSynergGroup";
     //取消协同拜访组(创建者)
     public static String DELETE_VISIT_GROUP = "visit/deleteSynergGroup";
+    public static String GET_ALL_VISIT = "visit/getSynergVisitGroup";
     //取消协同拜访组(成员)
     public static String CANCEL_VISIT_GROUP = "visit/cancelSynergGroup";
     //创建者确定协同组
@@ -192,4 +202,11 @@ public class Constants {
 
     //获取版本号
     public static String GET_VERSION = "appService/getVersion";
+    //Web 端查询 手机端有没有确认
+    public static final String  QR_WEB_LONIN_VERIFY = DRUG+"auth/verify";
+    //手机端确认登陆
+    public static final String  QR_WEB_LONIN_CONFIRM =DRUG+"auth/confirm";
+    //获取应用中心app
+    public static final String  GET_APPCENTER =DRUG+"lightApp/myApp";
+    public static final String  GET_SERVERTIME =DRUG+"auth/getSysTime";
 }

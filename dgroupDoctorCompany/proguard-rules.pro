@@ -63,7 +63,7 @@
     public <init>(android.content.Context, android.util.AttributeSet, int);
     public void set*(...);
 }
-
+-keep class * extends java.lang.annotation.Annotation
 #保持view的子类成员： getter setter
 -keepclassmembers public class * extends android.view.View {
    void set*(***);
@@ -75,8 +75,14 @@
 -keepclasseswithmembernames class * {
     native <methods>;
 }
-
-
+-keep class com.alipay.euler.andfix.**{
+    *;
+}
+-keep class com.taobao.hotfix.aidl.**{*;}
+-keep class com.ta.utdid2.device.**{*;}
+-keep class com.taobao.hotfix.HotFixManager{
+    public *;
+}
 
 # 避免xml里面编写onClick受影响
 -keepclassmembers class * extends android.app.Activity {

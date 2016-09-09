@@ -2,8 +2,10 @@ package com.dachen.medicine.net;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
+import com.dachen.medicine.common.utils.SystemUtils;
 import com.dachen.medicine.config.UserInfo;
 
 import java.util.HashMap;
@@ -155,6 +157,7 @@ public class Params {
 	public static Map<String,String>getList(Context context,String type,String state,int pageIndex,int pageSize){
 		Map<String, String> params = getMapInstance();
 		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
+		params.put("companyId", SharedPreferenceUtil.getString(context, "enterpriseId", ""));
 		if(!TextUtils.isEmpty(type)){
 			params.put("type",type);
 		}
@@ -165,32 +168,71 @@ public class Params {
 		params.put("pageSize",String.valueOf(pageSize));
 		return params;
 	}
-
-	public static Map<String,String>updateJobTitle(Context context,String orgId,String newTitle){
+	public static Map<String,String>getList(Context context,String type,int pageIndex,int pageSize){
 		Map<String, String> params = getMapInstance();
 		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
-		params.put("userId", SharedPreferenceUtil.getString(context, "id", ""));
+		if(!TextUtils.isEmpty(type)){
+			params.put("type",type);
+		}
+		params.put("pageIndex",String.valueOf(pageIndex));
+		params.put("pageSize",String.valueOf(pageSize));
+		Log.d("zxy :", "179 : Params : getList : access_token = " + SharedPreferenceUtil.getString(context, "session", ""));
+		Log.d("zxy :", "180 : Params : getList : type = " + type + ", " + pageIndex + ", " + pageSize);
+		return params;
+	}
+
+	public static Map<String,String>updateJobTitle(Context context,String orgId,String newTitle,String userid,String employeeId){
+		Map<String, String> params = getMapInstance();
+		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
+		params.put("userId", userid);
 		params.put("orgId", orgId);
-		params.put("newTitle", newTitle);
+		params.put("title", newTitle);
+		params.put("drugCompanyId",
+				SharedPreferenceUtil.getString(context, "enterpriseId", ""));
 		return params;
 	}
 
-	public static Map<String,String>updateOrg(Context context,String newOrgId){
+	public static Map<String,String>updateOrg(Context context,String newOrgId,String userid,String employeeId){
 		Map<String, String> params = getMapInstance();
 		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
-		params.put("userId", SharedPreferenceUtil.getString(context, "id", ""));
+		params.put("userId", userid);
+		params.put("drugCompanyId",
+				 SharedPreferenceUtil.getString(context, "enterpriseId", "") );
 		params.put("newOrgId", newOrgId);
+		params.put("employeeId",employeeId);
+		return params;
+	}
+	public static Map<String,String>updateOrgOnself(Context context,String newOrgId,String userid,String employeeId){
+		Map<String, String> params = getMapInstance();
+		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
+		params.put("userId", userid);
+		params.put("drugCompanyId",
+				SharedPreferenceUtil.getString(context, "enterpriseId", "") );
+		params.put("orgId", newOrgId);
+		params.put("employeeId",employeeId);
 		return params;
 	}
 
-	public static Map<String,String>updateUserName(Context context,String newName){
+	public static Map<String,String>updateUserName(Context context,String newName,String userId,String employeeId){
+		Map<String, String> params = getMapInstance();
+		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
+		params.put("userId", userId);
+		params.put("name", newName);
+		params.put("employeeId",employeeId);
+		params.put("drugCompanyId",
+				 SharedPreferenceUtil.getString(context, "enterpriseId", "") );
+		return params;
+	}
+	public static Map<String,String>updateUserIcon(Context context,String headPicUrl){
 		Map<String, String> params = getMapInstance();
 		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
 		params.put("userId", SharedPreferenceUtil.getString(context, "id", ""));
-		params.put("newName", newName);
+		params.put("headPicUrl", headPicUrl);
+		params.put("employeeId",SharedPreferenceUtil.getString(context, "employeeId", ""));
+		params.put("drugCompanyId",
+				SharedPreferenceUtil.getString(context, "enterpriseId", "") );
 		return params;
 	}
-
 	public static Map<String,String>getSignDetail(Context context,String id){
 		Map<String, String> params = getMapInstance();
 		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
@@ -243,6 +285,8 @@ public class Params {
 	public static Map<String, String> getInfoParams(Context context) {
 		Map<String, String> params = getMapInstance();
 		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
+		params.put("userId",SharedPreferenceUtil.getString(context, "id", ""));
+		params.put("drugCompanyId",SharedPreferenceUtil.getString(context, "enterpriseId", ""));
 		return params;
 	}
 	public static Map<String, String> getSinOftenPlace(Context context,String drugCompanyId) {
@@ -280,7 +324,7 @@ public class Params {
 
 	public static Map<String, String> getLoginoutParams(Context context, String serial) {
 		Map<String, String> params = getMapInstance();
-		params.put("userKey", ""); // 没有用userKey校验 ，但是这个参数还要传，现在 还没去掉 
+		params.put("access_context",SharedPreferenceUtil.getString(context, "context_token", "") ); // 没有用userKey校验 ，但是这个参数还要传，现在 还没去掉
 		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
 		params.put("serial", serial);
 		return params;
@@ -289,14 +333,17 @@ public class Params {
 
 	// (phone,userType,smsid,ranCode)
 	public static Map<String, String> getResetPasswordParams(String phone,
-															 String userType, String smsid, String ranCode, String password) {
+															 String userType, String smsid,
+															 String ranCode, String password,Context context) {
 		Map<String, String> params = getMapInstance();
-		params.put("phone", phone);
+		params.put("telephone", phone);
 		params.put("userType", userType);
 		params.put("smsid", smsid);
 		params.put("ranCode", ranCode);
 		params.put("password", password);
-
+		params.put("model","android");
+		params.put("serial",
+				SystemUtils.getDeviceId(context));
 		return params;
 
 	}
@@ -307,10 +354,10 @@ public class Params {
 		params.put("telephone", phoneNum);
 		params.put("password", password);
 		params.put("userType", userType);
-		params.put("serial",
-				SharedPreferenceUtil.getString(context, "mRegId", ""));
 /*		params.put("serial",
-				SystemUtils.getDeviceId(context));*/
+				SharedPreferenceUtil.getString(context, "mRegId", ""));*/
+ 		params.put("serial",
+				SystemUtils.getDeviceId(context));
 		SharedPreferenceUtil.getString(context, "mRegId", "");
 		params.put("model", "android");
 		return params;
@@ -404,8 +451,10 @@ public class Params {
 		return (HashMap<String, String>) params;
 	}
 
-	public static Map<String,String>getSelfVisitParams(Context context,String addressName,String state,String doctorId,String doctorName,String remark,String id,String coordinate,String address
-	,String deviceId,String orgId,String goodsGroupList,String urlList){
+	public static Map<String,String>getSelfVisitParams(Context context,String addressName,
+													   String state,String doctorId,String doctorName,
+													   String remark,String id,String coordinate,String address
+	,String deviceId,String orgId,String goodsGroupList,String urlList,String signedId){
 		Map<String, String> params = getMapInstance();
 		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
 		params.put("userId", SharedPreferenceUtil.getString(context, "id", ""));
@@ -424,8 +473,12 @@ public class Params {
 		params.put("remark", remark);
 		if(!TextUtils.isEmpty(id)){
 			params.put("id", id);
-		}
 
+		}
+		if(!TextUtils.isEmpty(signedId)){
+			params.put("signedId",signedId);
+
+		}
 		params.put("coordinate", coordinate);
 		params.put("address", address);
 		params.put("addressName", addressName);
@@ -449,11 +502,43 @@ public class Params {
 			params.put("id", id);
 		}
 		return params;
+
+	}
+	public static Map<String,String>getServerTime(Context context) {
+		Map<String, String> params = getMapInstance();
+		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
+		Log.d("zxy :", "494 : Params : getServerTime : access_token = "+SharedPreferenceUtil.getString(context, "session", ""));
+		return params;
 	}
 
 	public static Map<String, String> getVersionParams(Context context)  {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("appCode", context.getPackageName());
 		return params;
+	}
+	public static Map<String, String> getQRWebKeyParams(String  key)  {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("key", key);
+		return params;
+	}
+	public static Map<String, String> getQRWebLoginParams(Context context ,String  key)  {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("access_context", SharedPreferenceUtil.getString(context, "context_token", ""));
+		params.put("key", key);
+        return params;
+	}
+	public static Map<String, String> getAppCenterParams(Context context)  {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("access_context", SharedPreferenceUtil.getString(context, "context_token", ""));
+		params.put("drugCompanyId",SharedPreferenceUtil.getString(context, "enterpriseId", ""));
+		params.put("userId", SharedPreferenceUtil.getString(context, "id", ""));
+		Log.d("zxy :", "512 : Params : getAppCenterParams : drugCompanyId = "+SharedPreferenceUtil.getString(context, "enterpriseId", ""));
+		Log.d("zxy :", "513 : Params : getAppCenterParams : access_context = "+SharedPreferenceUtil.getString(context, "context_token", ""));
+		Log.d("zxy :", "514 : Params : getAppCenterParams : userId = "+SharedPreferenceUtil.getString(context, "id", ""));
+		params.put("pageIndex","0");
+		params.put("pageSize","1000");
+		params.put("from","2");//2代表android端
+
+        return params;
 	}
 }

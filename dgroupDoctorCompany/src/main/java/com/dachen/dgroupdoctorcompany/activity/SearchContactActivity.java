@@ -40,6 +40,7 @@ import com.dachen.dgroupdoctorcompany.entity.CompanyDepment;
 import com.dachen.dgroupdoctorcompany.fragment.AddressList;
 import com.dachen.dgroupdoctorcompany.im.activity.Represent2DoctorChatActivity;
 import com.dachen.dgroupdoctorcompany.utils.CommonUitls;
+import com.dachen.dgroupdoctorcompany.utils.ConditionLogic;
 import com.dachen.dgroupdoctorcompany.utils.ExitActivity;
 import com.dachen.dgroupdoctorcompany.views.HorizontalListView;
 import com.dachen.imsdk.adapter.MsgMenuAdapter;
@@ -48,6 +49,7 @@ import com.dachen.imsdk.db.dao.ChatGroupDao;
 import com.dachen.imsdk.entity.GroupInfo2Bean;
 import com.dachen.imsdk.net.SessionGroup;
 import com.dachen.imsdk.service.ImRequestManager;
+import com.dachen.medicine.common.utils.MActivityManager;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
@@ -85,7 +87,7 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
     TextView tv_noresult;
     List<CompanyContactListEntity> company;
     List<Doctor> doctors;
-    String searchText;
+    public String searchText = "";
     int partSize;
     RelativeLayout rl_search;
     boolean finish = true;
@@ -108,6 +110,7 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
     public boolean showColleague;
     public boolean showAll;
     public int  SHOWCONTENT;
+    RefreshDataInterface refreshDataInterface;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
@@ -129,9 +132,15 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
         addlistview.setAdapter(addAdapter);
       //  findViewById(R.id.rl_sure).setVisibility(View.GONE);
         if (TextUtils.isEmpty(seachdoctor)){
-            et_search.setHint("搜索姓名/手机号");
+            if (ConditionLogic.isAllow(this)){
+                et_search.setHint("搜索姓名/简拼/手机号");
+            }else {
+                et_search.setHint("搜索姓名/简拼");
+            }
+
         }else {
             et_search.setHint("输入医生姓名关键词搜索");
+            showDoctor = true;
         }
     }
 
@@ -198,14 +207,17 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
 
         company = new ArrayList<>();
         doctors = new ArrayList<>();
-        adapter = new SearchContactAdapter(this,R.layout.adapter_searchcontact,hospitals,company,doctors, new RefreshDataInterface() {
+        refreshDataInterface = new RefreshDataInterface() {
             @Override
             public void refreshData() {
-                rl_search.setVisibility(View.VISIBLE);
-                iv_search.setBackgroundResource(R.drawable.arrow_left);
-                finish = false;
+                if(null!=search&&search.size()>0){
+                    rl_search.setVisibility(View.VISIBLE);
+                    iv_search.setBackgroundResource(R.drawable.arrow_left);
+                    finish = false;
+                }
             }
-        },seachdoctor);
+        };
+        adapter = new SearchContactAdapter(this,R.layout.adapter_searchcontact,hospitals,company,doctors, refreshDataInterface,seachdoctor);
         adapter.setisShowMore(true);
         bottom_bar = (LinearLayout) findViewById(R.id.bottom_bar);
         bottom_bar.setVisibility(View.GONE);
@@ -260,44 +272,26 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
 
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                arg2 = arg2 -1;
+                arg2 = arg2 - 1;
                 if (adapter.getItem(arg2) instanceof CompanyContactListEntity) {
                     CompanyContactListEntity info = (CompanyContactListEntity) adapter.getItem(arg2);
                     // 在这里编写自己想要实现的功能
                     if (selectMode == 1) {          //新建同事对话搜索
                         Intent intent = new Intent();
                         intent.putExtra("data", adapter.getItem(arg2));
-                        setResult(RESULT_OK,intent);
+                        setResult(RESULT_OK, intent);
                         finish();
-                        /*BaseSearch contact = adapter.getItem(arg2);
-                        CompanyContactListEntity c2 = null;
-                        CompanyDepment.Data.Depaments c1 = null;
-                        if (contact instanceof CompanyContactListEntity) {
-                            c2 = (CompanyContactListEntity) (contact);
-                            if (c2.select) {
-                                c2.select = false;
-                                horizonList.remove(c2);
-                            } else {
-                                c2.select = true;
-                                if ( !groupUsers.contains(c2) &&!c2.userId.equals(SharedPreferenceUtil.getString(SearchContactActivity.this, "id", ""))) {
-                                    CommonUitls.addCompanyContactListEntity(c2);
-                                }
-                            }
-                            company.set(arg2, c2);
-                            adapter.notifyDataSetChanged();
-                            addAdapter.notifyDataSetChanged();
-                            btn_add.setText("开始(" + horizonList.size() + ")");
-                        }*/
 
-                    } else  if (selectMode != 1){
-                        Intent intent = new Intent(SearchContactActivity.this,ColleagueDetailActivity.class);
+
+                    } else if (selectMode != 1) {
+                        Intent intent = new Intent(SearchContactActivity.this, ColleagueDetailActivity.class);
                         Bundle bundle = new Bundle();
-                        bundle.putSerializable("peopledes",info);
-                        intent.putExtra("peopledes",bundle);
+                        bundle.putSerializable("peopledes", info);
+                        intent.putExtra("peopledes", bundle);
                         startActivity(intent);
                     }
 
-                }else if(adapter.getItem(arg2) instanceof Doctor){
+                } else if (adapter.getItem(arg2) instanceof Doctor) {
                     Doctor info = (Doctor) adapter.getItem(arg2);
                     // 在这里编写自己想要实现的功能
                     mDoctorId = info.userId;
@@ -315,6 +309,7 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
             }
         });
         page = 1;
+
     }
     @Override
     protected void onResume() {
@@ -344,6 +339,8 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
         SessionGroup groupTool=new SessionGroup(this);
         groupTool.setCallback(this);
         groupTool.createGroup(userIds, "3_10");
+        finish();
+        MActivityManager.getInstance().finishAppointActivity(ChoiceDoctorForChatActivity.class);
     }
 
     @Override
@@ -468,7 +465,7 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
             if (showColleague||showAll){
                 List<CompanyContactListEntity> tempCompany;
 
-                    tempCompany = dao.querySearchPage(keyword, pageNo,true);
+                    tempCompany = dao.querySearchPage(keyword, pageNo,company,true);
 
             if(pageNo == 1){
                 company = tempCompany;
@@ -515,7 +512,7 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
                         if (showColleague){
                             search.add(company.get(i));
                         }else {
-                            if (size<3){
+                            if (size<=3){
                                 search.add(company.get(i));
                             }else {
                                 break;
@@ -589,34 +586,23 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
                 }
             }
 
-            adapter = new SearchContactAdapter(this,R.layout.adapter_searchcontact,hospitals,company,doctors, new RefreshDataInterface() {
-                @Override
-                public void refreshData() {
-                    rl_search.setVisibility(View.VISIBLE);
-                    iv_search.setBackgroundResource(R.drawable.arrow_left);
-                    finish = false;
-                }
-            },seachdoctor);
+
             adapter.setContact(company);
             adapter.setDoctors(doctors);
             adapter.setPartSize(company.size());
             adapter.sethospitalSize(doctors.size());
             adapter.setisShowMore(true);
-            listview.setAdapter(adapter);
+
+            adapter.notifyDataSetChanged();
             btn_add.setText("开始(" + searches.size() + ")");
         }else {
             hospitals.clear();
-            adapter = new SearchContactAdapter(this,R.layout.adapter_searchcontact,hospitals,company,doctors, new RefreshDataInterface() {
-                @Override
-                public void refreshData() {
-
-                }
-            },seachdoctor);
+        ;
             adapter.setContact(company);
             adapter.setDoctors(doctors);
             adapter.setPartSize(company.size());
             adapter.sethospitalSize(doctors.size());
-            listview.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
             rl_noresult.setVisibility(View.VISIBLE);
             tv_noresult.setText("没有”" + keyword + "“的相关搜索结果");
             btn_add.setText("开始(" + "0)");

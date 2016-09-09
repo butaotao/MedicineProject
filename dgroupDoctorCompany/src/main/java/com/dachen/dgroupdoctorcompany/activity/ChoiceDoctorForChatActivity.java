@@ -22,15 +22,19 @@ import com.dachen.dgroupdoctorcompany.db.dbdao.DoctorDao;
 import com.dachen.dgroupdoctorcompany.db.dbentity.Doctor;
 import com.dachen.dgroupdoctorcompany.im.activity.Represent2DoctorChatActivity;
 import com.dachen.dgroupdoctorcompany.im.activity.RepresentGroupChatActivity;
+import com.dachen.dgroupdoctorcompany.utils.CallIntent;
 import com.dachen.dgroupdoctorcompany.utils.ExitActivity;
 import com.dachen.dgroupdoctorcompany.views.InputDialog;
 import com.dachen.imsdk.adapter.MsgMenuAdapter;
 import com.dachen.imsdk.archive.entity.ArchiveItem;
 import com.dachen.imsdk.db.dao.ChatGroupDao;
+import com.dachen.imsdk.db.po.ChatMessagePo;
 import com.dachen.imsdk.entity.GroupInfo2Bean.Data;
+import com.dachen.imsdk.net.MessageSenderV2;
 import com.dachen.imsdk.net.SessionGroup;
 import com.dachen.imsdk.net.SessionGroup.SessionGroupCallback;
 import com.dachen.imsdk.service.ImRequestManager;
+import com.dachen.imsdk.utils.ImUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,6 +72,7 @@ public class ChoiceDoctorForChatActivity extends BaseActivity {
     private boolean mShare;
     private String msgId;
     ArchiveItem mItem;
+    private String groupIds;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +85,7 @@ public class ChoiceDoctorForChatActivity extends BaseActivity {
         mShare = getIntent().getBooleanExtra("share", false);
         msgId = getIntent().getStringExtra(MsgMenuAdapter.INTENT_EXTRA_MSG_ID);
         mItem = (ArchiveItem) getIntent().getSerializableExtra(ArchiveUtils.INTENT_KEY_ARCHIVE_ITEM);
+        groupIds = getIntent().getStringExtra(MsgMenuAdapter.INTENT_EXTRA_GROUP_ID);
         if(null != where && "AddSignInActivity".equals(where)){
             setTitle("选择客户");
         }
@@ -185,7 +191,7 @@ public class ChoiceDoctorForChatActivity extends BaseActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ChoiceDoctorForChatActivity.this,SelectAddressActivity.class);
                 intent.putExtra("select_mode",SelectAddressActivity.MODE_SELECT_ADDRESS);
-                intent.putExtra("poi","地名地址信息|医疗保健服务|商务住宅|交通设施服务|公司企业|公共设施");
+                intent.putExtra("poi",SelectAddressActivity.POI);
                 intent.putExtra("distance",250);
                 intent.putExtra("latitude",latitude);
                 intent.putExtra("longitude",longitude);
@@ -280,15 +286,19 @@ public class ChoiceDoctorForChatActivity extends BaseActivity {
                     //转发信息
                     if (mItem!=null){
                         //   ImRequestManager.forwardMsg(mItem.po.msgId, data.gid, 0, new ShareResultListener());
-                        HashMap<String, Object> params = new HashMap<>();
+                       /* HashMap<String, Object> params = new HashMap<>();
                         params.put("share_files",mItem);
-                        RepresentGroupChatActivity.openUI(mThis, data.gname, data.gid, users, params);
+                        RepresentGroupChatActivity.openUI(mThis, data.gname, data.gid, users, params);*/
+                        ImRequestManager.sendArchive(mItem, data.gid, new ShareItemFileListener());
                     }else {
                         ImRequestManager.forwardMsg(msgId, data.gid, 0, new ShareResultListener());
                     }
+               // ImUtils.closeChat(groupIds);
             } else {
                 Represent2DoctorChatActivity.openUI(mThis, data.gname, data.gid, userId);
+               // ImUtils.closeChat(groupIds);
                 finish();
+             //   CallIntent.startMainActivity(ChoiceDoctorForChatActivity.this);
             }
         }
 
@@ -297,7 +307,18 @@ public class ChoiceDoctorForChatActivity extends BaseActivity {
             ToastUtil.showToast(mThis, "创建会话失败");
         }
     }
+    private class ShareItemFileListener implements MessageSenderV2.MessageSendCallbackV2{
 
+        @Override
+        public void sendSuccessed(ChatMessagePo msg, String groudId, String msgId, long time) {
+            CallIntent.startMainActivity(ChoiceDoctorForChatActivity.this);
+        }
+
+        @Override
+        public void sendFailed(ChatMessagePo msg, int resultCode, String resultMsg) {
+
+        }
+    }
     private class ShareResultListener implements SimpleResultListener {
 
         @Override

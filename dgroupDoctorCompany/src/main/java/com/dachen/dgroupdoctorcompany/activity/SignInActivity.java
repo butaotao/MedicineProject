@@ -33,7 +33,9 @@ import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.Params;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by weiwei on 2016/3/30.
@@ -42,8 +44,8 @@ public class SignInActivity extends BaseActivity implements HttpManager.OnHttpLi
     private TextView            mTvSignAll;
     private ImageView           mIvChecking;
     private ImageView           mIvVisit;
-    private String              POI;
-    private int                 distance = -1;
+    public String              POI;
+    public int                 distance = -1;
     private LinearLayout vSignin;
     private LinearLayout vVisit;
     private LinearLayout vTogetherVisit;
@@ -53,7 +55,7 @@ public class SignInActivity extends BaseActivity implements HttpManager.OnHttpLi
     private AMapLocationClientOption locationOption = null;
     public double                     latitude;//纬度
     public double                     longitude;//经度
-    private String                     city;//城市
+    public String                     city;//城市
     ArrayList<OftenSinPlace> pageData;
     AMapLocation aMapLocation;
     public static String address;
@@ -65,7 +67,9 @@ public class SignInActivity extends BaseActivity implements HttpManager.OnHttpLi
     LocationReceiver receiver;
     public static OftenSignPlaceDao oftenSignPlaceDao;
     GaoDeMapUtils mGaoDeMapUtils;
+    public static String allAddress = "";
     public static final String ACTION = "com.dachen.dgroupdoctorcompany.location";
+    static Map<String ,Double> distanceMap = new HashMap<>();
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,10 +77,12 @@ public class SignInActivity extends BaseActivity implements HttpManager.OnHttpLi
         showLoadingDialog();
         oftenSignPlaceDao = new OftenSignPlaceDao(this);
         lengh = -1;
-        initView();
+        initViews();
         initData();
-        Intent intent = new Intent(this,GaoDeService.class);
-        startService(intent);
+        long nowtime = getIntent().getLongExtra("nowtime",0);
+        mGaoDeMapUtils = new GaoDeMapUtils( this);
+        mGaoDeMapUtils.setNowtime(nowtime);
+        mGaoDeMapUtils.startLocation();
         //接受广播
         IntentFilter filter = new IntentFilter();
         filter.addAction("action.to.signlist");
@@ -97,9 +103,7 @@ public class SignInActivity extends BaseActivity implements HttpManager.OnHttpLi
         registerReceiver(receiver, filter);
     }
 
-    @Override
-    public void initView() {
-        super.initView();
+    public void initViews() {
         setTitle("选择签到类型");
         mTvSignAll = (TextView) findViewById(R.id.tvSignAll);
         mIvChecking = (ImageView) findViewById(R.id.ivChecking);
@@ -179,6 +183,7 @@ public class SignInActivity extends BaseActivity implements HttpManager.OnHttpLi
                     intent.putExtra("latitude",latitude);
                     intent.putExtra("longitude",longitude);
                     intent.putExtra("city",city);
+                    intent.putExtra("addressname",SignInActivity.allAddress);
                     startActivity(intent);
                 }
 
@@ -263,6 +268,9 @@ public class SignInActivity extends BaseActivity implements HttpManager.OnHttpLi
 
     }
     public boolean compareDistance(final AMapLocation aMapLocation){
+        if (null == oftenSignPlaceDao){
+            oftenSignPlaceDao = new OftenSignPlaceDao(this);
+        }
         List<OftenSinPlace> lists = oftenSignPlaceDao.queryAllByUserid();
         boolean flag = false;
         final String id = SharedPreferenceUtil.getString(this,"id","");;
@@ -275,16 +283,19 @@ public class SignInActivity extends BaseActivity implements HttpManager.OnHttpLi
 
                             address = data.simpleAddress;
                             if (lengh<=allowDistance){
-                                break;
+                                distanceMap.put(address,lengh);
                             }
                         }
                     }
                 }
-
+        getShortestAddress(distanceMap);
         return flag;
     }
 
-    public static boolean compareDistance(long longtitude,long latitude,Context context){
+    public static boolean compareDistance(double longtitude,double latitude,Context context){
+        if (null == oftenSignPlaceDao){
+            oftenSignPlaceDao = new OftenSignPlaceDao(context);
+        }
         List<OftenSinPlace> lists = oftenSignPlaceDao.queryAllByUserid();
         boolean flag = false;
         final String id = SharedPreferenceUtil.getString(context, "id", "");;
@@ -296,15 +307,31 @@ public class SignInActivity extends BaseActivity implements HttpManager.OnHttpLi
                             longtitude, latitude);
                     address = data.simpleAddress;
                     if (lengh<=allowDistance){
+                        distanceMap.put(address,lengh);
                         flag = true;
-                        break;
                     }
                 }
             }
         }
-
+        getShortestAddress(distanceMap);
         return flag;
     }
+    //得到签到最短的地点
+    private static void getShortestAddress(Map<String, Double> distanceMap) {
+        double lenth;
+        double shortestLenth = Double.MAX_VALUE;
+        for (String addressM : distanceMap.keySet()) {
+            lenth = distanceMap.get(addressM);
+            if (shortestLenth>lenth) {
+                shortestLenth = lenth;
+                address = addressM;
+            }
+        }
+        lengh = shortestLenth;
+        distanceMap.clear();
+        distanceMap = null;
+    }
+
     public void addData(final ArrayList<OftenSinPlace> pageData){
 
         final String id = SharedPreferenceUtil.getString(this,"id","");;
@@ -318,10 +345,13 @@ public class SignInActivity extends BaseActivity implements HttpManager.OnHttpLi
                         if (coord.length>1){
 
                             data.userloginid = id;
-                            pageData2.add(data);
+                            if (data.status == 0){
+                                pageData2.add(data);
+                            }
                         }
                     }
                 }
+                oftenSignPlaceDao.clearAll();
                 oftenSignPlaceDao.addCompanyContactLis(pageData2);
                 List<OftenSinPlace> lists = oftenSignPlaceDao.queryAllByUserid();
             }
@@ -338,6 +368,8 @@ public class SignInActivity extends BaseActivity implements HttpManager.OnHttpLi
                 this.aMapLocation =  aMapLocation;
                 latitude = aMapLocation.getLatitude();
                 longitude = aMapLocation.getLongitude();
+                address = aMapLocation.getPoiName();
+                allAddress = aMapLocation.getAddress();
                 compareDistance(aMapLocation);
                 city = aMapLocation.getCity();
             }

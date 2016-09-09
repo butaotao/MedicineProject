@@ -33,12 +33,13 @@ public class SomeBox extends Result{
 		public String pack_specification;
 		public String general_name;
 		public String trade_name;
-		public boolean flagOpen = false;
+		public boolean flagOpen = true;
 		public Drug drug;
 		public String title;
 		public Data1 data1;
 		public String units;
 		public String specification;
+		public String patients;
 		public class Data{
 	    	  public int bptydxsdphdjfs;
 	    	  public int qtqdxsdphdjfs;

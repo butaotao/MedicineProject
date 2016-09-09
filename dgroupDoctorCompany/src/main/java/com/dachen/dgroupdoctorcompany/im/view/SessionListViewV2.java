@@ -2,29 +2,42 @@ package com.dachen.dgroupdoctorcompany.im.view;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.HeaderViewListAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import com.dachen.common.async.SimpleResultListenerV2;
+import com.dachen.common.utils.CommonUtils;
 import com.dachen.common.utils.Logger;
+import com.dachen.common.utils.ToastUtil;
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.activity.NewFriendActivity;
 import com.dachen.dgroupdoctorcompany.adapter.BaseCustomAdapter;
 import com.dachen.dgroupdoctorcompany.im.activity.FeedbackChatActivity;
+import com.dachen.dgroupdoctorcompany.im.activity.PublicNotifyActivity;
+import com.dachen.dgroupdoctorcompany.im.adapter.ChatGroupMenuAdapter;
 import com.dachen.dgroupdoctorcompany.im.adapter.SessionListAdapterV2;
 import com.dachen.dgroupdoctorcompany.im.utils.AppImUtils;
 import com.dachen.dgroupdoctorcompany.im.utils.ChatActivityUtilsV2;
+import com.dachen.dgroupdoctorcompany.views.NetworkErrorView;
 import com.dachen.imsdk.consts.SessionGroupId;
 import com.dachen.imsdk.db.dao.ChatGroupDao;
 import com.dachen.imsdk.db.po.ChatGroupPo;
+import com.dachen.imsdk.entity.event.GroupSettingEvent;
 import com.dachen.imsdk.entity.event.NewMsgEvent;
+import com.dachen.imsdk.service.ImRequestManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,17 +47,22 @@ import de.greenrobot1.event.EventBus;
 
 /**
  * 会话列表
- *
  */
 public class SessionListViewV2 extends ListView {
 
     private static final String TAG = SessionListViewV2.class.getSimpleName();
+    public static final String ITEM_TOP="置顶";
+    public static final String ITEM_NO_TOP="取消置顶";
+    public static final String ITEM_DEL="删除";
 
     protected Context context;
     protected Activity ui = null;
     private ChatGroupDao mDao;
-    private ArrayList<ChatGroupPo> mList=new ArrayList<>();
+    private ArrayList<ChatGroupPo> mList = new ArrayList<>();
     private SessionListAdapterV2 mAdapter;
+    boolean isAddHeaderView = false;
+    private Dialog menuDialog;
+    private NetworkErrorView mNetworkErrorView;
 
     public SessionListViewV2(Context context) {
         super(context);
@@ -61,6 +79,10 @@ public class SessionListViewV2 extends ListView {
         init(context, attrs, defStyleAttr);
     }
 
+    public NetworkErrorView getNetworkErrorView() {
+        return mNetworkErrorView;
+    }
+
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
         this.context = context;
         if (isInEditMode())
@@ -73,11 +95,9 @@ public class SessionListViewV2 extends ListView {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.w(TAG, "onItemClick():position:" + position + ",id:" + id);
-                if (view == null) { //||!(view.getTag() instanceof ViewHolder)
+                if (view == null) {
                     return;
                 }
-//				ViewHolder holder=(ViewHolder)view.getTag();
-//				ChatGroupPo messageDB=(ChatGroupPo)holder.getObject();
                 ChatGroupPo po = (ChatGroupPo) getItemAtPosition(position);
                 __onItemClick(po);
 
@@ -91,9 +111,10 @@ public class SessionListViewV2 extends ListView {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.w(TAG, "onItemLongClick():position:" + position + ",id:" + id);
-                if (view == null  ) {
+                if (view == null) {
                     return true;
                 }
+                position = getHeaderViewPosition(position);
                 ChatGroupPo messageDB = mList.get(position);
                 __onLongClick(messageDB);
                 return true;
@@ -102,11 +123,15 @@ public class SessionListViewV2 extends ListView {
         });
 
         // 加入通知
-//		ObserverManager.getInstance().addLatestChatMsgListener(this);
         EventBus.getDefault().register(this);
 
+        //添加头
+        mNetworkErrorView = new NetworkErrorView(context);
+        LinearLayout ll = new LinearLayout(context);
+        ll.addView(mNetworkErrorView);
+        addHeaderView(ll);
+
         // 更新视图
-//        updateView();
         initData();
 
     }
@@ -120,17 +145,6 @@ public class SessionListViewV2 extends ListView {
         this.ui = ui;
     }
 
-    /**
-     * 设置空视图
-     * <p/>
-     * 使用步骤： 1）在xml文件加入一个与ListView同级的emtpy视图。
-     * 2）ListView控件使用方法setEmptyView(....)设置emtpy视图，
-     * 如：patientSessionListView.setEmptyView(view.findViewById(R.id.
-     * patient_frgm_empty)); 3）编写一个方法，当ListView.size() <=
-     * 0时，显示emtpy视图，否则隐藏emtpy视图。
-     *
-     * @param size
-     */
     protected void setEmptyView(int size) {
         Log.w(TAG, "setEmptyView():size:" + size);
         View emptyView = this.getEmptyView();
@@ -181,13 +195,81 @@ public class SessionListViewV2 extends ListView {
         }).show();
     }
 
+    private void showMenuDialog(ChatGroupPo po) {
+        Dialog dialog=new Dialog(context,R.style.MsgMenuDialog);
+        dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM,WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+        View v= LayoutInflater.from(context).inflate(R.layout.msg_menu,null);
+        List<String> items=new ArrayList<>();
+        if (hasTop(po)) {
+            items.add(po.top==0?ITEM_TOP:ITEM_NO_TOP);
+        }
+        items.add(ITEM_DEL);
+        ListView lv = (ListView) v.findViewById(R.id.list_view);
+        lv.setAdapter(new ChatGroupMenuAdapter(context,items));
+        lv.setOnItemClickListener(new MenuClickListener(po));
+        dialog.setContentView(v);
+        dialog.setCanceledOnTouchOutside(true);
+        menuDialog=dialog;
+        dialog.show();
+    }
+    private boolean hasTop(ChatGroupPo po){
+        if(SessionGroupId.auth_request_doctor.equals(po.groupId) )
+            return false;
+        if("pub_customer".equals(po.bizType)||"pub_org".equals(po.bizType))
+            return false;
+        return true;
+    }
+
+    private class MenuClickListener implements OnItemClickListener{
+        ChatGroupPo po;
+
+        public MenuClickListener(ChatGroupPo po) {
+            this.po = po;
+        }
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            String action = (String) parent.getItemAtPosition(position);
+            if (action == null) return;
+            if (action.equals(ITEM_DEL)) {
+                showDeleteDialog(po);
+            } else if (action.equals(ITEM_TOP)) {
+                topGroup(po,1);
+            } else if (action.equals(ITEM_NO_TOP)) {
+                topGroup(po,0);
+            }
+            menuDialog.dismiss();
+        }
+    };
+    private void topGroup(final ChatGroupPo po, final int act){
+        if(po==null)return;
+        ImRequestManager.topChatGroup(po.groupId, act, new SimpleResultListenerV2() {
+            @Override
+            public void onSuccess(String data) {
+//                ToastUtil.showToast(context,"请求成功");
+                EventBus.getDefault().post(new GroupSettingEvent(po.groupId,GroupSettingEvent.TYPE_TOP));
+                mDao.setTopFlag(po.groupId,act);
+                updateView();
+            }
+
+            @Override
+            public void onError(String msg) {
+                if(!CommonUtils.checkNetworkEnable(context)){
+                    ToastUtil.showToast(context,"网络好像不给力");
+                }else
+                    ToastUtil.showToast(context,"请求失败 "+msg);
+            }
+        });
+    }
+
     /**
      * 长按
      *
      * @param item
      */
     protected void __onLongClick(ChatGroupPo item) {
-        showDeleteDialog(item);
+//        showDeleteDialog(item);
+        showMenuDialog(item);
     }
 
     /**
@@ -201,46 +283,36 @@ public class SessionListViewV2 extends ListView {
         }
 
         Log.w(TAG, "__onItemClick():item:" + item.toString());
-
-        // +++ 会话的未读消息从WEB端取，而系统通知消息的未读消息由客户端来维护。
-        // 设置未读消息为zero
         mDao.setUnreadZero(item.groupId);
-        // 发出通知
-//		ObserverManager.getInstance().notifyNewMsg(null, true);
         EventBus.getDefault().post(new NewMsgEvent(this));
         item.unreadCount = 0;
-        BaseAdapter ada = (BaseAdapter) getAdapter();
+        BaseAdapter ada;
+        if (isAddHeaderView || getHeaderViewsCount() > 0) {
+            HeaderViewListAdapter listAdapter = (HeaderViewListAdapter) getAdapter();
+            ada = (BaseAdapter) listAdapter.getWrappedAdapter();
+            isAddHeaderView = true;
+        } else {
+            ada = (BaseAdapter) getAdapter();
+        }
         ada.notifyDataSetChanged();
 
-        // 刷新首页底部未读消息数量 (有三个地方要用到，1)业务轮询；2）刚入首页；3）点击会话列表；)
-        int doctor_unread = mDao.getUnreadCount(AppImUtils.getBizTypes());
-        // TODO: 2016/2/25
-//		BaseActivity.mObserverUtil.sendObserver(MainActivity.class, MainActivity.observer_msg_what_update_unread_doctor,
-//				doctor_unread, 0, null);
-
-        Log.w(TAG, "item.groupId:" + item.groupId);
         Log.w(TAG, "item.toString:" + item.toString());
 
         if (item.type == ChatGroupPo.TYPE_DOUBLE || item.type == ChatGroupPo.TYPE_MULTI
                 || item.type == ChatGroupPo.TYPE_GUIDE) {
             // 进入聊天界面
             ChatActivityUtilsV2.openUI(context, item);
-        } else if (item.groupId.equals(SessionGroupId.auth_request_doctor) || item.groupId.equals(SessionGroupId.auth_request_patient)) {
+        } else if (item.groupId.equals(SessionGroupId.auth_request_doctor) || item.groupId.equals(SessionGroupId
+                .auth_request_patient)) {
             // 进入好友验证请求界面
 //			SystemNotificationUI.openUI(context, item.groupId);
             Intent i = new Intent(context, NewFriendActivity.class);
             i.putExtra(NewFriendActivity.NEWFRIENDGROUPID, item.groupId);
             context.startActivity(i);
-        }
-// else if (item.groupId.equals(SessionGroupId.system_notification)) {
-//			// 进入待办通知界面。 TODO 医生端，不要从这里进，从首页进。患者端从会话列表进入“系统通知”
-//			// ToastUtil.showToast(context, "还没有界面");
-//			HomeNotificationActivity.openUI(context, item.groupId);
-//		} else if (item.bizType.equals("pub_news")) {
-//			HealthNoticeAcivity.openUI(context, item.groupId, item.name);
-//		}
-        else if (item.bizType.equals("pub_customer")) {
+        } else if (item.bizType.equals("pub_customer")) {
             FeedbackChatActivity.openUI(context, item.name, item.groupId, null);
+        } else if (item.bizType.equals("pub_org")) {
+            PublicNotifyActivity.openUI(context, item.name, item.groupId);
         }
 
     }
@@ -291,36 +363,9 @@ public class SessionListViewV2 extends ListView {
      * 更新视图
      */
     public void updateView() {
-//        Log.w(TAG, "updateView()");
-//        // 得到数据
-//        Log.w(TAG, "updateView() getData start");
-//        List<ChatGroupPo> msgList = getData();
-//        Log.w(TAG, "updateView() getData end");
-//        /**
-//         * 设置适配器
-//         */
-//        __setAdapter(msgList);
-//
-//        int size = 0;
-//        if (msgList != null) {
-//            size = msgList.size();
-//        }
-//        // 设置空视图
-//        setEmptyView(size);
-
         new GetSessionData().execute();
     }
 
-    //	@Override
-//	public void onNewMsgReceived(LatestMsgEntity msg, boolean isUpdate) {
-//		// 实现 com.dachen.im.model.ObserverManager.LatestChatMsgObserver
-//		Log.e(TAG, "ObserverManager.LatestChatMsgObserver onNewMsgReceived()");
-//		Logger.d("yehj", "onNewMsgReceived");
-//		/**
-//		 * 更新视图
-//		 */
-//		updateView();
-//	}
     public void onEventMainThread(NewMsgEvent event) {
         if (this == event.from)
             return;
@@ -331,8 +376,8 @@ public class SessionListViewV2 extends ListView {
         EventBus.getDefault().unregister(this);
     }
 
-    protected void initData(){
-        mAdapter= (SessionListAdapterV2) __getAdapter(mList);
+    protected void initData() {
+        mAdapter = (SessionListAdapterV2) __getAdapter(mList);
         setAdapter(mAdapter);
         int size = mList.size();
         setEmptyView(size);
@@ -349,12 +394,18 @@ public class SessionListViewV2 extends ListView {
         @Override
         protected void onPostExecute(List<ChatGroupPo> msgList) {
             Logger.d("yehj", "onPostExecute");
-            int size =  msgList.size();
+            int size = msgList.size();
             mList.clear();
             mList.addAll(msgList);
             mAdapter.notifyDataSetChanged();
             // 设置空视图
             setEmptyView(size);
         }
+    }
+
+    //得到去除头的position
+    private int getHeaderViewPosition(int position) {
+        int count = getHeaderViewsCount();
+        return position - count;
     }
 }

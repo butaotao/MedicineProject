@@ -2,24 +2,38 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:background="@color/background"
      >
+    <include android:layout_width="match_parent"
+        android:layout_height="wrap_content"
 
-    <RelativeLayout style="@style/ActionBar_Container"
-        android:id="@+id/rl_title">
+        layout="@layout/layout_parent_titlebar_groupcompany"
+        android:id="@+id/rl_title"></include>
+   <!-- <RelativeLayout style="@style/ActionBar_Container"
+        android:id="@+id/rl_title"
+        android:layout_marginTop="20dp">
         <RelativeLayout
             android:id="@+id/rl_back"
             android:layout_width="wrap_content"
             android:layout_height="match_parent">
-
+&lt;!&ndash;
             <ImageView
                 android:id="@+id/iv_back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
-                android:background="@drawable/icon_back" />
 
+                android:background="@drawable/icon_back" />&ndash;&gt;
+            <ImageView
+                android:id="@+id/iv_back"
+                android:layout_width="12dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="10dp"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/icon_back_base" />
             <TextView
                 android:id="@+id/tv_back"
                 android:layout_width="wrap_content"
@@ -59,9 +73,9 @@
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:background="@null"
-            android:src="@drawable/add"/>
+            android:src="@drawable/add_white"/>
     </RelativeLayout>
-
+-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -69,35 +83,36 @@
         android:layout_below="@+id/rl_title"
         android:id="@+id/ll_list"
         android:orientation="vertical">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@drawable/signinremind_bg">
-
-        <TextView
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/null_info"
-            android:id="@+id/tv_week"
-            android:layout_marginTop="58dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:textColor="@color/white"
-            android:layout_marginLeft="40dp"
-            android:textSize="29sp"/>
+            android:layout_below="@+id/layout_titlebar"
+            android:id="@+id/rl_des"
+            android:paddingBottom="20dp"
+            android:background="@color/color_3cbaff">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/null_info"
+                android:textColor="@color/white"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="10dp"
+                android:id="@+id/tv_week"
+                android:textSize="36dp"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/null_info"
-            android:id="@+id/tv_time"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:layout_marginTop="15dp"
-            android:layout_alignLeft="@+id/tv_week"
-            android:layout_below="@+id/tv_week"/>
-    </RelativeLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#e1f2fb"
+                android:textSize="14sp"
+                android:text="@string/null_info"
+                android:id="@+id/tv_time"
+
+                android:layout_below="@+id/tv_week"
+                android:layout_alignLeft="@+id/tv_week"
+                android:layout_alignStart="@+id/tv_week" />
+
+        </RelativeLayout>
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"

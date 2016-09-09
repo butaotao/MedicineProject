@@ -23,7 +23,7 @@ import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.base.UserLoginc;
 import com.dachen.dgroupdoctorcompany.entity.LoginRegisterResult;
-import com.dachen.dgroupdoctorcompany.utils.UserUtils;
+import com.dachen.dgroupdoctorcompany.utils.Umeng;
 import com.dachen.imsdk.ImSdk;
 import com.dachen.medicine.common.utils.MActivityManager;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
@@ -99,7 +99,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            //  if (!TextUtils.isEmpty(s)){
+            //  if (!TextViewUtils.isEmpty(s)){
             if (!TextUtils.isEmpty(mPhoneNumberEdit.getText())){
                 login_btn.setBackgroundResource(R.drawable.btn_blue_all_3cbaff);
                 return;
@@ -121,8 +121,8 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-         /*   if (!TextUtils.isEmpty(s)){
-                if (!TextUtils.isEmpty(mPasswordEdit.getText())){
+         /*   if (!TextViewUtils.isEmpty(s)){
+                if (!TextViewUtils.isEmpty(mPasswordEdit.getText())){
                     login_btn.setBackgroundResource(R.drawable.btn_blue_all_3cbaff);
                     return;
                 }
@@ -188,12 +188,6 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
                     .setCancelableOnTouchOutside(true).setListener(this).show();
 
 
-
-
-          /*  ActionSheet.createBuilder(this,  getSupportFragmentManager())
-                    .setCancelButtonTitle("取消")
-                    .setOtherButtonTitles("测试环境", "生产环境", "开发环境", "生产测试环境", "后台调试环境（后台用）")
-                    .setCancelableOnTouchOutside(true).setListener(this).show();*/
         }
         else {
             clickTitle++;
@@ -210,6 +204,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 
     private void loginRequest(String phoneNum, String password) {
         final String userType = Constants.USER_TYPEC+"";
+        Umeng.getLoginRequestData(phoneNum, password);
         new HttpManager().post(this, Constants.LOGIN + "", LoginRegisterResult.class,
                 Params.getLoginParams(phoneNum, password, userType, this), loginListener,
                 false, 1);
@@ -312,6 +307,8 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
         @Override
         public void onSuccess(Result entity) {
             if (entity instanceof  LoginRegisterResult){
+                LoginRegisterResult result = (LoginRegisterResult)entity;
+                Umeng.getLoginServerData(result,phoneNum);
                 if (entity.getResultCode() != 1) {
                     closeLoadingDialog();
                     if (entity.getResultCode() ==entity.CODE_ACCOUNT_REGETER){
@@ -321,17 +318,22 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
                     }else {
                         ToastUtils.showToast(mThis,entity.getResultMsg());
                     }
-
                     return;
                 }
                 CompanyApplication.setInitContactList(2);
                 LoginRegisterResult logins = (LoginRegisterResult) entity;
                 UserLoginc.setUserInfo(logins, LoginActivity.this);
-                Intent intent = new Intent(mThis, MainActivity.class);
-                intent.putExtra("login", "login");
-                mThis.startActivity(intent);
+
+                if (SplashActivity.toNoticeWeb) {
+                    startNoticeWeb();
+                }else {
+                    Intent intent = new Intent(mThis, MainActivity.class);
+                    intent.putExtra("login", "login");
+                    mThis.startActivity(intent);
+                }
             }
         }
+
         @Override
         public void onSuccess(ArrayList response) {
 
@@ -367,5 +369,12 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
     public void onBackPressed() {
         super.onBackPressed();
         MActivityManager.getInstance().finishAllActivity();
+    }
+
+    //启动notice页面
+    private void startNoticeWeb() {
+        startActivity(new Intent(getApplicationContext(),NoticeWebActivity.class));
+        SplashActivity.toNoticeWeb = false;
+        finish();
     }
 }

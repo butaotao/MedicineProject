@@ -1,14 +1,17 @@
 package com.dachen.dgroupdoctorcompany.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.dachen.dgroupdoctorcompany.R;
+import com.dachen.dgroupdoctorcompany.activity.CompanyContactListActivity;
 import com.dachen.dgroupdoctorcompany.entity.BaseSearch;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.entity.CompanyDepment;
@@ -23,14 +26,15 @@ import butterknife.Bind;
  */
 public class CompanyContactListAdapter extends BaseCustomAdapter<BaseSearch> {
     int depSize;
-
+    Activity context;
     public void setSize(int depSize) {
         this.depSize = depSize;
     }
 
-    public CompanyContactListAdapter(Context context, int resId, List<BaseSearch> objects, int depSize) {
+    public CompanyContactListAdapter(Activity context, int resId, List<BaseSearch> objects, int depSize) {
         super(context, resId, objects);
         this.depSize = depSize;
+        this.context = context;
     }
 
     @Override
@@ -39,11 +43,15 @@ public class CompanyContactListAdapter extends BaseCustomAdapter<BaseSearch> {
     }
 
     @Override
-    protected void fillValues(BaseViewHolder baseViewHolder, int position) {
+    protected void fillValues(BaseViewHolder baseViewHolder, final int position) {
         ViewHolder holder = (ViewHolder) baseViewHolder;
-        BaseSearch contact = getItem(position);
+        final BaseSearch contact = getItem(position);
         CompanyContactListEntity c2 = null;
         CompanyDepment.Data.Depaments c1 = null;
+        CompanyContactListActivity activity = null;
+        if (context instanceof CompanyContactListActivity){
+            activity = (CompanyContactListActivity) context;
+        }
         holder.view_add1.setVisibility(View.GONE);
         if (contact instanceof CompanyContactListEntity) {
             c2 = (CompanyContactListEntity) (contact);
@@ -54,14 +62,17 @@ public class CompanyContactListAdapter extends BaseCustomAdapter<BaseSearch> {
         if (position == depSize - 1 && depSize != getCount()) {
             holder.view_add.setVisibility(View.VISIBLE);
         }
+        final CompanyContactListActivity finalActivity = activity;
+        final CompanyDepment.Data.Depaments finalC = c1;
         if (c2 != null) {
-            holder.rl_people.setVisibility(View.VISIBLE);
-            holder.rl_depart.setVisibility(View.GONE);
-            if ("6".equals(c2.userStatus)) {
-                holder.mTvStatus.setVisibility(View.VISIBLE);//显示未激活
-            } else {
-                holder.mTvStatus.setVisibility(View.GONE);
+
+            if (activity.getContent()==0||activity.getContent()==1){
+                holder.rl_people.setVisibility(View.VISIBLE);
+            }else {
+                holder.rl_people.setVisibility(View.GONE);
             }
+            holder.rl_depart.setVisibility(View.GONE);
+
 
             holder.tv_name_leader.setText("" + c2.name);
             holder.leader_position.setText(c2.department);
@@ -70,24 +81,49 @@ public class CompanyContactListAdapter extends BaseCustomAdapter<BaseSearch> {
                 holder.tv_position.setVisibility(View.GONE);
             }
             holder.tv_position.setText(c2.position);
-            //  ImageLoader.getInstance().displayImage(c2.headPicFileName, holder.head_icon);
-            //CustomImagerLoader.getInstance().loadImage( holder.head_icon,c2.headPicFileName);
             CustomImagerLoader.getInstance().loadImage(holder.head_icon, c2.headPicFileName,
                     R.drawable.head_icons_company, R.drawable.head_icons_company);
+            if (activity !=null){
+                if (activity.getContent()==0){
+                    if ("2".equals(c2.userStatus)) {
+                        holder.mTvStatus.setVisibility(View.VISIBLE);//显示未激活
+                    } else {
+                        holder.mTvStatus.setVisibility(View.GONE);
+                    }
+                }else if (activity.getContent()==1){
+                    holder.mTvStatus.setVisibility(View.GONE);
+                    holder.iv_edit.setVisibility(View.VISIBLE);
+                }
+                final CompanyContactListEntity finalC1 = c2;
+
+            }
         } else if (c1 != null) {
             holder.rl_depart.setVisibility(View.VISIBLE);
             holder.rl_people.setVisibility(View.GONE);
             holder.tv_depart.setText("" + c1.name);
-            if (!TextUtils.isEmpty(c1.type) && c1.type.equals("1")) {
+            if (!TextUtils.isEmpty(c1.type) && c1.type.equals("3")) {
                 holder.view_add1.setVisibility(View.VISIBLE);
             }
-           /*  holder.tv_name_leader.setText(""+c1.username);
-           String url = contact.headPicFileName;
-            if(!TextUtils.isEmpty(url))
-            {
-                ImageLoader.getInstance().displayImage(url, holder.head_icon);
+            if (activity.getContent()==activity.editColleageDep){
+                if (c1.check){
+                    holder. btn_radio.setChecked(true);
+                }else {
+                    holder. btn_radio.setChecked(false);
+                }
+                holder.btn_radio.setVisibility(View.VISIBLE);
+
+                holder.tv_depart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (contact instanceof CompanyDepment.Data.Depaments) {
+                        finalActivity.getDepment(finalC, false);
+                    }
+                }
+            });
+
+            }else {
+                holder. btn_radio.setVisibility(View.GONE);
             }
-            holder.leader_position.setText(contact.position);*/
         }
     }
 
@@ -112,5 +148,9 @@ public class CompanyContactListAdapter extends BaseCustomAdapter<BaseSearch> {
         RelativeLayout view_add1;
         @Bind(R.id.tv_position)
         TextView tv_position;
+        @Bind(R.id.iv_edit)
+        ImageView iv_edit;
+        @Bind(R.id.btn_radio)
+        RadioButton btn_radio;
     }
 }

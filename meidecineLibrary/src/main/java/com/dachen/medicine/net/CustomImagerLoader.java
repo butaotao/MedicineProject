@@ -12,6 +12,8 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 
+
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,28 +41,31 @@ public class CustomImagerLoader {
 		return mImageLoader;
 	}
 	public void loadImage(final View viewHolder, final String imageUrl){
-		 loadImage(viewHolder,imageUrl,true);
+		 loadImage(viewHolder,imageUrl,true,10);
+	}
+	public void loadImage(final View viewHolder, final String imageUrl,boolean iscircle){
+		loadImage(viewHolder,imageUrl,true,360);
 	}
 	@SuppressWarnings("deprecation")
-	public void loadImage(final View viewHolder,final String imageUrl,boolean small) {
+	public void loadImage(final View viewHolder,final String imageUrl,boolean small,int dushu) {
 		 final DisplayImageOptions options;
 		 
 		 options =  new DisplayImageOptions.Builder()
 			.showImageOnLoading(R.drawable.image_download_fail_icon)
 			.showImageForEmptyUri(R.drawable.image_download_fail_icon)
 			.showImageOnFail(R.drawable.image_download_fail_icon)
-			 .bitmapConfig(Bitmap.Config.RGB_565)    
-			.cacheOnDisk(true)  
+			 .bitmapConfig(Bitmap.Config.RGB_565)
+				 .cacheOnDisk(true)
 			.cacheInMemory(true) 
 			.considerExifParams(true)
 			.delayBeforeLoading(1)
-			.displayer(new RoundedBitmapDisplayer(10))
+			.displayer(new RoundedBitmapDisplayer(dushu))
 			.imageScaleType(ImageScaleType.EXACTLY_STRETCHED)
 			.build();
 	    ImageSize mImageSize = new ImageSize(32, 32);
 		String image = imageUrl;
 		if (small) {
-			if (image != null && image.startsWith("http")) {
+			if (image != null && (image.startsWith("http")||image.startsWith("https"))) {
 				image += "-small1";
 			}
 		}

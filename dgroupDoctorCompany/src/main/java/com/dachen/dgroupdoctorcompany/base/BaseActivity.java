@@ -1,16 +1,21 @@
 package com.dachen.dgroupdoctorcompany.base;
 
+import android.annotation.TargetApi;
 import android.app.ProgressDialog;
+import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.dachen.dgroupdoctorcompany.R;
+import com.dachen.dgroupdoctorcompany.utils.SystemBarTintManager;
 import com.dachen.imsdk.net.ImPolling;
 import com.dachen.medicine.common.utils.MActivityManager;
 import com.umeng.analytics.MobclickAgent;
@@ -27,6 +32,9 @@ public class BaseActivity extends FragmentActivity implements View.OnClickListen
     RelativeLayout rl_back;
     private AnimationDrawable mAnimationDrawable;
     public boolean isActive=true;
+    boolean changeTitlebarColor;
+    public RelativeLayout rl_titlebar;
+    View line_titlebar;
     public void showLoadingDialog() {
         /*
         if (mLoadingView == null) {
@@ -54,7 +62,10 @@ public class BaseActivity extends FragmentActivity implements View.OnClickListen
         if (mAnimationDrawable != null) {
             mAnimationDrawable.stop();
         }*/
-        mDialog.dismiss();
+        if (null!=mDialog&&mDialog.isShowing()){
+            mDialog.dismiss();
+        }
+
     }
     @Override
     public void setContentView(View view) {
@@ -67,7 +78,9 @@ public class BaseActivity extends FragmentActivity implements View.OnClickListen
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         MActivityManager.getInstance().pushActivity(this);
         initProgressDialog();
+
     }
+
     private void initProgressDialog(){
         mDialog = new ProgressDialog(this, R.style.IMDialog);
         //		mDialog.setCancelable(true);
@@ -78,6 +91,7 @@ public class BaseActivity extends FragmentActivity implements View.OnClickListen
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mDialog = null;
         MActivityManager.getInstance().popActivity(this);
     }
 
@@ -95,6 +109,12 @@ public class BaseActivity extends FragmentActivity implements View.OnClickListen
     public void setTitle(String titles){
         if (null!=title){
             title.setText(titles + "");
+        }
+
+    }
+    public void setTitlecolor(int titleColor){
+        if (null!=title){
+            title.setTextColor(titleColor);
         }
 
     }
@@ -146,10 +166,13 @@ public class BaseActivity extends FragmentActivity implements View.OnClickListen
     protected void onResume() {
         super.onResume();
         isActive=true;
+
         MobclickAgent.onResume(this);
         ImPolling.getInstance().onResume();
     }
-
+    public void setChangeTitlebarColor(boolean changeTitlebarColor){
+        this.changeTitlebarColor = changeTitlebarColor;
+    }
     @Override
     protected void onPause() {
         super.onPause();
@@ -162,5 +185,41 @@ public class BaseActivity extends FragmentActivity implements View.OnClickListen
         super.onBackPressed();
         finish();
         // this.mApplication.getActivityManager().finishActivity(this.getClass());
+    }
+    public void changerTitleBar(){
+        rl_titlebar = (RelativeLayout) findViewById(R.id.rl_titlebar);
+        line_titlebar = findViewById(R.id.line_titlebar);
+        if (rl_titlebar!=rl_titlebar){
+            rl_titlebar.setBackgroundResource(R.color.color_3cbaff);
+        }
+        if (null!=line_titlebar){
+            line_titlebar.setVisibility(View.GONE);
+        }
+        iv_back = (ImageView) findViewById(R.id.iv_back);
+        iv_back.setBackgroundResource(R.drawable.icon_back_n);
+        setTitlecolor(getResources().getColor(R.color.white));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            setTranslucentStatus(true);
+        }
+        TextView tv_back = (TextView) findViewById(R.id.tv_back);
+        tv_back.setTextColor(Color.WHITE);
+
+        SystemBarTintManager tintManager = new SystemBarTintManager(this);
+        tintManager.setStatusBarTintEnabled(true);
+        tintManager.setStatusBarTintResource(R.color.color_3cbaff);
+
+
+    }
+    @TargetApi(19)
+    private void setTranslucentStatus(boolean on) {
+        Window win = getWindow();
+        WindowManager.LayoutParams winParams = win.getAttributes();
+        final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+        if (on) {
+            winParams.flags |= bits;
+        } else {
+            winParams.flags &= ~bits;
+        }
+        win.setAttributes(winParams);
     }
 }

@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
@@ -29,9 +30,11 @@ import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.app.CompanyApplication;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
+import com.dachen.dgroupdoctorcompany.base.UserLoginc;
 import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
 import com.dachen.dgroupdoctorcompany.db.dbdao.RoleDao;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
+import com.dachen.dgroupdoctorcompany.entity.LoginRegisterResult;
 import com.dachen.dgroupdoctorcompany.entity.Role;
 import com.dachen.dgroupdoctorcompany.entity.UserInfo;
 import com.dachen.gallery.CustomGalleryActivity;
@@ -74,42 +77,38 @@ public class MyInfoDetailActivity extends BaseActivity implements HttpManager.On
     private File mCurrentFile;
     private MyHandler mMyHandler ;
     com.dachen.dgroupdoctorcompany.views.DialogGetPhote dialog;
-
+    CompanyContactListEntity entity = new CompanyContactListEntity();
     TextView tv_name;
     TextView tv_contactmethod;
     TextView tv_company;
     TextView tv_part;
     TextView tv_position;
+    String url = "";
     CompanyContactDao companyContactDao;
     RoleDao roleDao;
     private String mStrOrgId="";
-
     private class MyHandler extends Handler{
         @Override
         public void handleMessage(Message msg){
             super.handleMessage(msg);
             switch(msg.what){
                 case MSG_UPDATE_INFO:
-                    UserInfo userInfo = (UserInfo) msg.obj;
-                    if(null == userInfo){
-                        return;
-                    }
-                    if(null == userInfo.data){
-                        return;
-                    }
-                    mStrOrgId = userInfo.data.id;
-                    tv_name.setText(userInfo.data.name);
-                    tv_contactmethod.setText(userInfo.data.telephone);
-                    tv_company.setText(userInfo.data.companyName);
-                    tv_part.setText(userInfo.data.department);
-                    SharedPreferenceUtil.putString(MyInfoDetailActivity.this,"department",userInfo.data.department);
-                    tv_position.setText(userInfo.data.position);
-                    if(!TextUtils.isEmpty(userInfo.data.headPicFileName))
+
+                    mStrOrgId = entity.id;
+                    tv_name.setText(entity.name);
+                    tv_contactmethod.setText(entity.telephone);
+
+                    tv_company.setText(SharedPreferenceUtil.getString
+                            (CompanyApplication.getInstance(),"enterpriseName",""));
+                    tv_part.setText(entity.department);
+                    SharedPreferenceUtil.putString(MyInfoDetailActivity.this,"department",entity.department);
+                    tv_position.setText(entity.position);
+                    if(!TextUtils.isEmpty(entity.headPicFileName))
                     {
 //                        ImageLoader.getInstance().displayImage(userInfo.data.headPicFileName, head_icon);
-                        CustomImagerLoader.getInstance().loadImage(head_icon,userInfo.data.headPicFileName);
+                        CustomImagerLoader.getInstance().loadImage(head_icon,entity.headPicFileName);
                         String loginUserId = SharedPreferenceUtil.getString(MyInfoDetailActivity.this,"id", "");
-                        SharedPreferenceUtil.putString(MyInfoDetailActivity.this,loginUserId+"head_url", userInfo.data.headPicFileName);
+                        SharedPreferenceUtil.putString(MyInfoDetailActivity.this,loginUserId+"head_url", entity.headPicFileName);
                     }
                     else head_icon.setImageResource(R.drawable.head_icon);
 
@@ -132,7 +131,7 @@ public class MyInfoDetailActivity extends BaseActivity implements HttpManager.On
         tv_company = (TextView) findViewById(R.id.tv_company);
         tv_part = (TextView) findViewById(R.id.tv_part);
         tv_position = (TextView) findViewById(R.id.tv_position);
-
+        findViewById(R.id.rl_contactmethod).setOnClickListener(this);
         tv_contactmethod.setText(telephones+"");
         companyContactDao = new CompanyContactDao(this);
         roleDao = new RoleDao(this);
@@ -183,16 +182,22 @@ public class MyInfoDetailActivity extends BaseActivity implements HttpManager.On
                 startActivity(intent);
                 break;
             case R.id.rl_part:
-                intent.setClass(MyInfoDetailActivity.this,OrgActivity.class);
+                intent.setClass(MyInfoDetailActivity.this, OrgActivity.class);
+                intent.putExtra("user",entity);
                 startActivity(intent);
                 break;
+            case R.id.rl_contactmethod:
+                intent = new Intent(this,EditTelActivity.class);
+                startActivity(intent);
+                break;
+         //
         }
     }
 
     private void getInfo(){
         //获取个人信息
         showLoadingDialog();
-        new HttpManager().get(this, Constants.GET_INFO, UserInfo.class,
+        new HttpManager().get(this, Constants.GET_INFO, LoginRegisterResult.class,
                 Params.getInfoParams(MyInfoDetailActivity.this),this,false,1);
     }
 
@@ -208,7 +213,7 @@ public class MyInfoDetailActivity extends BaseActivity implements HttpManager.On
 				String userId = user.getUserId();
 				String headPicFileName = user.getHeadPicFileName();
 				String avatarUrl = StringUtils.getAvatarUrl(userId, headPicFileName);
-				if(!TextUtils.isEmpty(avatarUrl))
+				if(!TextViewUtils.isEmpty(avatarUrl))
 				{
 					ImageLoader.getInstance().displayImage(avatarUrl, head_icon);
 				}
@@ -268,130 +273,14 @@ public class MyInfoDetailActivity extends BaseActivity implements HttpManager.On
         UploadEngine7Niu.uploadFileCommon(fileCompress.getPath(), listener, QiNiuUtils.BUCKET_AVATAR);
     }
     private void setHeadPicToServer(final String url){
-        Response.Listener<String> listener=new Response.Listener<String>() {
-            @Override
-            public void onResponse(String s) {
-                ResultTemplate<Object> res= JSON.parseObject(s, new TypeReference<ResultTemplate<Object>>() {
-                });
-                if(res.resultCode==1){
-                    mDialog.dismiss();
-                    final String loginUserId = SharedPreferenceUtil.getString(MyInfoDetailActivity.this,"id", "");
-                    ImSdk.getInstance().changeAvatar(url);
-//                    ImageLoader.getInstance().displayImage(mNewPhotoUri.toString(), head_icon);
-                    CustomImagerLoader.getInstance().loadImage(head_icon,mNewPhotoUri.toString());
-                    ToastUtil.showToast(MyInfoDetailActivity.this, R.string.upload_avatar_success);
-                    if (mNewPhotoUri != null&& !mNewPhotoUri.toString().isEmpty()) {
-                        SharedPreferenceUtil.putString(MyInfoDetailActivity.this,loginUserId+"head_url", url);
-                    }
 
-                    // 发出observer
-                   // BaseActivity.mObserverUtil.sendObserver(MeFragment.class,observer_update_image,mNewPhotoUri);
-                }else if(res.resultCode==Result.CODE_TOKEN_ERROR||res.resultCode==Result.CODE_NO_TOKEN){
-                    Intent intent  = new Intent(MyInfoDetailActivity.this,LoginActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                }else{
-                    mDialog.dismiss();
-                    ToastUtil.showToast(MyInfoDetailActivity.this,R.string.upload_avatar_failed);
-                }
-            }
-        };
-        Response.ErrorListener errorListener=new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                mDialog.dismiss();
-                ToastUtil.showToast(MyInfoDetailActivity.this,R.string.upload_avatar_failed);
-            }
-        };
-        String urls =AppConfig.getUrl(Constants.USER_UPDATE, 1);
-        StringRequest request=new StringRequest(Request.Method.POST,urls,listener,errorListener){
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                String access_token = SharedPreferenceUtil.getString(MyInfoDetailActivity.this,"session", "");
-                Map<String, String> map = new HashMap<String, String>();
-                map.put("access_token", access_token);
-                map.put("headPicFileName", url);
-                return map;
-            }
-        };
-        RequestQueue queue = VolleyUtil.getQueue(mThis);
-        request.setRetryPolicy(new DefaultRetryPolicy(5000, 0, 1));
-        request.setTag(this);
-        queue.add(request);
+        this.url = url;
+
+        new HttpManager().post(this, Constants.UPDATE_USER_NAME, Result.class, Params
+                .updateUserIcon(this,url), this, false, 1);
     }
 
 
-
-
-
-
-    /**
-     * 执行上传用户头像任务
-     *
-     * @param
-     */
-    /*private void executeUploadAvatarTask(File file) {
-        if (!file.exists()) {// 文件不存在
-            return;
-        }
-        // 显示正在上传的ProgressDialog
-        RequestParams params = new RequestParams();
-        final String loginUserId = SharedPreferenceUtil.getString(MyInfoDetailActivity.this,"id", "");
-        String access_token = SharedPreferenceUtil.getString(MyInfoDetailActivity.this,"session", "");
-        String oldAvatarName = SharedPreferenceUtil.getString(MyInfoDetailActivity.this,loginUserId+"head_url","");
-
-        params.put("access_token", access_token);
-        params.put("userId", loginUserId);
-        if(!TextUtils.isEmpty(oldAvatarName))
-            params.put("oldAvatarName", oldAvatarName);
-        try {
-            params.put("file", file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        AsyncHttpClient client = new AsyncHttpClient();
-        String fullurl = "";
-        fullurl = AppConfig.getuploadUrl(Constants.UploadAvatarServlet, 1);
-        LogUtils.burtLog("fullurl===" + fullurl);
-        client.post(AppConfig.getuploadUrl(Constants.UploadAvatarServlet, 1), params, new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int arg0, Header[] arg1, byte[] arg2) {
-
-                UploadAvatar2Bean bean = GJson.parseObject(new String(arg2), UploadAvatar2Bean.class);
-                if (bean != null) {
-                    if (bean.resultCode == 1) {
-                        // web会返回一个头像地址，保存到sp文件。
-                        UploadAvatar2Bean.Data data = bean.data;
-                        if (data != null) {
-                            //UserSp.getInstance(context).setValue(UserSp.key_user_avatar, data.tUrl);
-                            File file = new File(data.tUrl);
-                            ImageLoader.getInstance().displayImage(mNewPhotoUri.toString(), head_icon);
-                            ToastUtils.showToast(MyInfoDetailActivity.this, R.string.upload_avatar_success);
-
-                            if (mNewPhotoUri != null && !mNewPhotoUri.toString().isEmpty()) {
-
-                                //	MeFragment.instance.updateAvatar(mNewPhotoUri.toString());
-                                SharedPreferenceUtil.putString(MyInfoDetailActivity.this, loginUserId + "head_url", mNewPhotoUri.toString());
-                                ImSdk.getInstance().changeAvatar(data.tUrl);
-                            }
-                        }
-                    } else {
-                        ToastUtils.showToast(MyInfoDetailActivity.this, R.string.upload_avatar_failed);
-                    }
-                } else {
-                    ToastUtils.showToast(MyInfoDetailActivity.this, R.string.upload_avatar_failed);
-                }
-            }
-
-            @Override
-            public void onFailure(int arg0, Header[] arg1, byte[] arg2, Throwable arg3) {
-
-                //				ProgressDialogUtil.dismiss(mProgressDialog);
-                ToastUtils.showToast(MyInfoDetailActivity.this, R.string.upload_avatar_failed);
-            }
-
-        });
-    }*/
     private void selectPhoto() {
 //        CameraUtil.pickImageSimple(this, REQUEST_CODE_PICK_CROP_PHOTO);
         CustomGalleryActivity.openUi(this, false, REQUEST_CODE_PICK_CROP_PHOTO);
@@ -465,35 +354,56 @@ public class MyInfoDetailActivity extends BaseActivity implements HttpManager.On
     public void onSuccess(Result response) {
         if(null != response){
             if(response.getResultCode() == 1){
-                if(response instanceof UserInfo){
+                if(response instanceof LoginRegisterResult){
                     closeLoadingDialog();
                     String userID = SharedPreferenceUtil.getString(CompanyApplication.context, "id", "");
-                    UserInfo userInfo = (UserInfo) response;
-                    if (null!=userInfo&&null!=((UserInfo) response).data){
+                    LoginRegisterResult userInfo = (LoginRegisterResult) response;
+                    if (null!=userInfo&&null!=((LoginRegisterResult) response).data){
                         Message msg = Message.obtain();
                         msg.what = MSG_UPDATE_INFO;
                         msg.obj = userInfo;
-                        CompanyContactListEntity entity = new CompanyContactListEntity();
-                        entity.userId = userInfo.data.userId+"";
-                        entity.id = userInfo.data.id;
-                        entity.department = userInfo.data.department;
-                        entity.headPicFileName = userInfo.data.headPicFileName;
-                        entity.position = userInfo.data.position;
-                        entity.status = userInfo.data.status;
-                        entity.telephone = userInfo.data.telephone;
-                        entity.userStatus = userInfo.data.status;
-                        entity.userloginid = userID;
-                        entity.name = userInfo.data.name;
-
-                        if (null != userInfo.data.role && userInfo.data.role.size() > 0) {
-                            for (int j = 0; j < userInfo.data.role.size(); j++) {
-                                Role role = new Role();
-                                role.companycontact = entity;
-                                roleDao.addRole(role);
-                            }
+                        if (userInfo.data==null||null==userInfo.data.majorUser){
+                            return;
                         }
-                        companyContactDao.addCompanyContact(entity);
+                        LoginRegisterResult logins = (LoginRegisterResult) response;
+                        UserLoginc.setUserInfo(logins, MyInfoDetailActivity.this);
+                        entity = companyContactDao.queryByUserid(userInfo.data.userId+"");
+                        if (null ==entity){
+                            entity = new CompanyContactListEntity();
+                        }
+                        entity.userId = userInfo.data.userId+"";
+                        entity.id = userInfo.data.majorUser.id;
+                        entity.department = userInfo.data.majorUser.orgName;
+
+                        entity.headPicFileName = userInfo.data.majorUser.headPic;
+                        entity.position = userInfo.data.majorUser.title;
+                        entity.telephone = userInfo.data.majorUser.telephone;
+                        entity.userloginid = userID;
+                        entity.name = userInfo.data.majorUser.name;
+
                         mMyHandler.sendMessage(msg);
+                    }
+                }else {
+                    if(response.resultCode==1){
+                        mDialog.dismiss();
+                        final String loginUserId = SharedPreferenceUtil.getString(MyInfoDetailActivity.this,"id", "");
+                        ImSdk.getInstance().changeAvatar(url);
+//                    ImageLoader.getInstance().displayImage(mNewPhotoUri.toString(), head_icon);
+                        CustomImagerLoader.getInstance().loadImage(head_icon,mNewPhotoUri.toString());
+                        ToastUtil.showToast(MyInfoDetailActivity.this, R.string.upload_avatar_success);
+                        if (mNewPhotoUri != null&& !mNewPhotoUri.toString().isEmpty()) {
+                            SharedPreferenceUtil.putString(MyInfoDetailActivity.this,loginUserId+"head_url", url);
+                        }
+
+                        // 发出observer
+                        // BaseActivity.mObserverUtil.sendObserver(MeFragment.class,observer_update_image,mNewPhotoUri);
+                    }else if(response.resultCode==Result.CODE_TOKEN_ERROR||response.resultCode==Result.CODE_NO_TOKEN){
+                        Intent intent  = new Intent(MyInfoDetailActivity.this,LoginActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                    }else{
+                        mDialog.dismiss();
+                        ToastUtil.showToast(MyInfoDetailActivity.this,R.string.upload_avatar_failed);
                     }
                 }
             }else{

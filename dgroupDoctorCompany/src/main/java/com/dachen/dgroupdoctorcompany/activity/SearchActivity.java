@@ -151,7 +151,7 @@ public class SearchActivity extends BaseActivity implements OnClickListener, OnH
                                     long arg3) {
                 if (adapter.getItem(arg2) instanceof SearchRecords) {
                     SearchRecords info = (SearchRecords) adapter.getItem(arg2);
-                    //                    if (!TextUtils.isEmpty(info.searchresult)) {
+                    //                    if (!TextViewUtils.isEmpty(info.searchresult)) {
                     // 在这里编写自己想要实现的功能
                     searchText = info.searchresult;
                     forSearchHistory(info.searchresult);
@@ -364,7 +364,7 @@ public class SearchActivity extends BaseActivity implements OnClickListener, OnH
         maps.put("type", 0 + "");
         maps.put("keyword", keyword);
         maps.put("pageIndex", "1");
-        maps.put("pageSize", "100");
+        maps.put("pageSize", "1000");
         new HttpManager().post(this, Constants.SEARCHHOSPITALS, HospitalList.class,
                 maps, this,
                 false, 1);

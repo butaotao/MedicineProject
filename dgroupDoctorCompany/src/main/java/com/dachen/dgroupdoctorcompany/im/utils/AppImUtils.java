@@ -4,6 +4,7 @@ import com.dachen.common.DCommonSdk;
 import com.dachen.common.toolbox.CommonUiTools;
 import com.dachen.common.toolbox.OnCommonRequestListener;
 import com.dachen.dgroupdoctorcompany.activity.MainActivity;
+import com.dachen.dgroupdoctorcompany.entity.event.ChatGroupEvent;
 import com.dachen.dgroupdoctorcompany.im.service.VChatFloatService;
 import com.dachen.imsdk.ImSdk;
 import com.dachen.imsdk.activities.ImBaseActivity;
@@ -54,7 +55,9 @@ public class AppImUtils {
         ImSdk.getInstance().setImSdkListener(new OnImSdkListener() {
             @Override
             public void onGroupList(List<ChatGroupPo> list) {
-
+                for(ChatGroupPo po:list){
+                    EventBus.getDefault().post(new ChatGroupEvent(po));
+                }
                 EventBus.getDefault().post(new NewMsgEvent());
             }
 
@@ -73,13 +76,13 @@ public class AppImUtils {
             @Override
             public boolean onUpdateVersionErr(String msg) {
                 if(MainActivity.getInstance()!=null){
-                    CommonUiTools.appVersionUpdate(MainActivity.getInstance(),msg);
+                    CommonUiTools.getInstance().appVersionUpdate(MainActivity.getInstance(),msg);
                 }
                 return true;
             }
         });
     }
     public static String[] getBizTypes(){
-        return  new String[]{"3_3","3_10","10","pub_customer"};
+        return  new String[]{"3_3","3_10","10","pub_customer","pub_org"};
     }
 }

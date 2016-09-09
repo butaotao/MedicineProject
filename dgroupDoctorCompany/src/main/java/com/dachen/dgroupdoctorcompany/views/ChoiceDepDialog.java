@@ -57,10 +57,22 @@ public class ChoiceDepDialog extends Dialog implements View.OnClickListener,Scro
         managerDao = new DepAdminsListDao(mActivity);
         this.record = record;
         contactDao = new CompanyContactDao(activity);
-        List<CompanyContactListEntity> entities =  contactDao.queryByTelephone
-                (SharedPreferenceUtil.getString(activity, "telephone", ""));
+        DepAdminsListDao dao = new DepAdminsListDao(activity);
+        List<DepAdminsList> entities = dao.queryManager();
         if (entities.size()>0){
-            select = entities.get(0).department;
+            select = entities.get(0).orgName;
+            if (!TextUtils.isEmpty(select)&&select.length()>0&&select.contains("/")){
+                if (select.endsWith("/")){
+                    if (select.length()>2){
+                        select = select.substring(0,select.length()-2);
+                    }
+                }
+              int p= select.lastIndexOf("/");
+                if (select.length()>(p+1)){
+                    select=  select.substring(p+1);
+                }
+
+            }
             departdes.setText(select);
         }
 

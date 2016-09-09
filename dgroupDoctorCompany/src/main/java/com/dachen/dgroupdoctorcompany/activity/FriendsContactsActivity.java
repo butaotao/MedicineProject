@@ -92,7 +92,7 @@ public class FriendsContactsActivity extends BaseActivity implements AdapterView
         //        allFriends = dao.queryAll(SharedPreferenceUtil.getString(this, "id", ""));
         //如果是健康关怀分享
         from = getIntent().getStringExtra("from");
-        deptid = AddressList.deptId;
+        deptid = getIntent().getStringExtra("deptid");
         initViews();
         enableBack();
         showLoadingDialog();
@@ -204,7 +204,9 @@ public class FriendsContactsActivity extends BaseActivity implements AdapterView
                 startActivity(new Intent(this, SearchActivity.class));
                 break;*/
             case R.id.btn_addbyphonenum:
-                startActivityForResult( (new Intent(this, AddFriendByPhone.class)),200);
+                Intent intent = new Intent(this,AddFriendByPhone.class);
+                intent.putExtra("deptid",deptid);
+                startActivityForResult( intent,200);
                 break;
         }
     }

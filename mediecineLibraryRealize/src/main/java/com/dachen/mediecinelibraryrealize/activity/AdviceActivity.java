@@ -41,7 +41,7 @@ public class AdviceActivity extends BaseActivity  implements OnClickListener, On
 	RelativeLayout rl_back;
 	TextView tv_title;
 	Button open;
-	boolean flagOpen;
+	boolean flagOpen = true;
 	View view;
 	ViewStub stub;
 	String patientid;
@@ -167,6 +167,7 @@ public class AdviceActivity extends BaseActivity  implements OnClickListener, On
 					p.title = uses.title;
 					p.general_name = uses.goodsGenralName;
 					p.specification = uses.goodsSpecification;
+					p.patients = uses.patients;
 					p.pack_specification = uses.goodsPackSpecification;
 					p.unitname = uses.goodsPackUnit;
 					SomeBox.patientSuggest.Unit unit = p.new Unit();
@@ -194,7 +195,7 @@ public class AdviceActivity extends BaseActivity  implements OnClickListener, On
 					u.doseUnitName = uses.doseUnitName;
 					u.quantity = uses.doseQuantity;
 					u.times =  uses.periodTimes;
-
+					u.patients = uses.patients;
 					period.number = uses.periodNum;
 					period.text = uses.periodNum+uses.periodUnit;
 					period.unit = uses.periodUnit;

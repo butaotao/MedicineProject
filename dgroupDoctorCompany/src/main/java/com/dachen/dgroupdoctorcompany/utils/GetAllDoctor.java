@@ -30,7 +30,10 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Created by Burt on 2016/3/5.
@@ -38,7 +41,7 @@ import java.util.List;
 public class GetAllDoctor {
     public static final int DATALENGTH = 3;
     public static GetAllDoctor doctors;
-
+    public static Set<CompanyContactListEntity> changeContact=new HashSet<>();
     public static GetAllDoctor getInstance() {
         if (null == doctors) {
             doctors = new GetAllDoctor();
@@ -73,11 +76,11 @@ public class GetAllDoctor {
         final String userId = com.dachen.dgroupdoctorcompany.utils.UserInfo.getInstance(CompanyApplication.context).getId();
         final String update = SharedPreferenceUtil.getString(CompanyApplication.context,
                 userId + "_update", "0");
-        if (update.equals("0")) {
+        if (!update.equals("3")) {
             SharedPreferenceUtil.putString(CompanyApplication.context,
                     userId + "_time", "0");
             SharedPreferenceUtil.putString(CompanyApplication.context,
-                    userId + "_update", "1");
+                    userId + "_update", "3");
         }
         final String time = SharedPreferenceUtil.getString(CompanyApplication.context,
                 userId + "_time", "0");
@@ -90,19 +93,16 @@ public class GetAllDoctor {
         maps.put("drugCompanyId", companyId);
         maps.put("updateTime", time);
         HashMap<String, String> interfaces = new HashMap<>();
-        interfaces.put("interface1", Constants.COMPANYCONTACTLIST + "");
+        interfaces.put("interface1", Constants.COMPANYCONTACTLISTNet + "");
 
         new HttpManager().post(CompanyApplication.context, interfaces, CompanyContactListEntity.class,
                 maps, new HttpManager.OnHttpListener<Result>() {
                     @Override
                     public void onSuccess(final Result response) {
-
-
-
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                Logger.d("yehj","begin---add---"+ TimeUtils.getTime());
+                                Logger.d("yehj", "begin---add---" + TimeUtils.getTime());
                                 String time = SharedPreferenceUtil.getString(CompanyApplication.context,
                                         userId + "_time", "0");
                                 if (time.equals("0")) {
@@ -114,39 +114,51 @@ public class GetAllDoctor {
 
                                 final Gson mGson = new Gson();
                                 String userID = SharedPreferenceUtil.getString(CompanyApplication.context, "id", "");
-
+                               boolean times = time.equals("0");
                                 //add by yehj
-                                ArrayList<CompanyContactListEntity>  addCompanyContactListEntity=new ArrayList<CompanyContactListEntity>();
-                                ArrayList<CompanyContactListEntity>  deleteCompanyContactListEntity=new ArrayList<CompanyContactListEntity>();
+                                ArrayList<CompanyContactListEntity> addCompanyContactListEntity = new ArrayList<CompanyContactListEntity>();
+                                ArrayList<CompanyContactListEntity> deleteCompanyContactListEntity = new ArrayList<CompanyContactListEntity>();
                                 if (userinfo.length >= DATALENGTH) {
                                     for (int i = DATALENGTH; i < userinfo.length; i++) {
                                         CompanyContactListEntity entity1 = new CompanyContactListEntity();
                                         entity1 = mGson.fromJson(userinfo[i], CompanyContactListEntity.class);
-                                        if (entity1.userId.equals(userID)) {
+                                        if (!times&&!TextUtils.isEmpty(entity1.userId)&&entity1.userId.equals(userID)) {
                                             String url = entity1.headPicFileName;
                                             SharedPreferenceUtil.putString(CompanyApplication.context, "head_url", url);
                                             SharedPreferenceUtil.putString(CompanyApplication.context, userID + "head_url", url);
                                         }
                                         entity1.userloginid = userID;
+                                        if (null!=entity1.bizRoleConfig){
+                                            entity1.ispresent = entity1.bizRoleConfig.drugSales;
+                                        }
+
                                         if (!TextUtils.isEmpty(entity1.status) && entity1.status.equals("1")) {
                                             addCompanyContactListEntity.add(entity1);
-                                        }else{
+                                        } else {
                                             deleteCompanyContactListEntity.add(entity1);
                                         }
                                     }
                                 }
-                                if(time.equals("0")){
-                                    if(addCompanyContactListEntity.size()>0){
+                                if (times) {
+                                    if (addCompanyContactListEntity.size() > 0) {
                                         companyContactDao.addCompanyContactLis(addCompanyContactListEntity);
                                     }
-                                }else{
-                                    if(addCompanyContactListEntity.size()>0){
-                                        for (CompanyContactListEntity entity: addCompanyContactListEntity){
+                                } else {
+                                    if (addCompanyContactListEntity.size() > 0) {
+                                        for (CompanyContactListEntity entity : addCompanyContactListEntity) {
+                                            if (changeContact.contains(entity)) {
+                                                changeContact.remove(entity);
+                                            }
+                                            changeContact.add(entity);
                                             companyContactDao.addCompanyContact(entity);
                                         }
                                     }
-                                    if(deleteCompanyContactListEntity.size()>0){
-                                        for (CompanyContactListEntity entity: deleteCompanyContactListEntity){
+                                    if (deleteCompanyContactListEntity.size() > 0) {
+                                        for (CompanyContactListEntity entity : deleteCompanyContactListEntity) {
+                                            if (changeContact.contains(entity)) {
+                                                changeContact.remove(entity);
+                                            }
+                                            changeContact.add(entity);
                                             companyContactDao.deleteByid(entity.userId);
                                         }
                                     }
@@ -157,21 +169,20 @@ public class GetAllDoctor {
                                 if (handler != null) {
                                     handler.sendEmptyMessage(1100);
                                 }
-                               if (null != activity && activity instanceof AddFriendByPhone) {
+                                if (null != activity && activity instanceof AddFriendByPhone) {
                                     Intent intent = new Intent();
                                     activity.setResult(200, intent);
-                                   MActivityManager.getInstance().popTos(activity);
+                                    MActivityManager.getInstance().popTos(activity);
                                     ((BaseActivity) activity).closeLoadingDialog();
                                 }
 
-                                if (userinfo.length >= 2) {
+                                if (userinfo.length > 2) {
                                     String updatetime = userinfo[2];
                                     updatetime = updatetime.replace(" ", "").replace("ts=", "");
                                     SharedPreferenceUtil.putString(CompanyApplication.context,
                                             com.dachen.dgroupdoctorcompany.utils.UserInfo.getInstance(CompanyApplication.context).getId() + "_time", updatetime);
                                 }
                                 CompanyApplication.setInitContactList(3);
-                                Logger.d("yehj", "add---finish--" + TimeUtils.getTime());
                             }
                         }).start();
 

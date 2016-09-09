@@ -18,6 +18,7 @@ import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.db.dbdao.RemindDao;
 import com.dachen.dgroupdoctorcompany.db.dbentity.Reminder;
 import com.dachen.dgroupdoctorcompany.db.dbentity.SearchRecords;
+import com.dachen.dgroupdoctorcompany.utils.TitleManager;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,27 +40,44 @@ public class SigninRemindActivity extends BaseActivity implements OnClickListene
     SignInRemindAdapter adapter;
     RelativeLayout rl_empty;
     LinearLayout ll_list;
+    View view;
+    RelativeLayout rl_title;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signin_remind);
+        view = View.inflate(this,R.layout.activity_signin_remind,null);
+        setContentView(view);
 
+        setTitle("签到提醒");
+        rl_titlebar = (RelativeLayout) findViewById(R.id.rl_titlebar);
+        rl_titlebar.setBackgroundColor(getResources().getColor(R.color.color_3cbaff));
+        TitleManager.showImage(this, view, new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SigninRemindActivity.this, AddSigninRemindActivity.class);
+                startActivity(intent);
+            }
+        }, "签到提醒", R.drawable.add_white);
+        changerTitleBar();
     }
 
     private void initViews() {
-        tv_week = getViewById(R.id.tv_week);
-        tv_time = getViewById(R.id.tv_time);
-        remind_list = getViewById(R.id.remind_list);
-        btn_add = getViewById(R.id.btn_add);
-        ll_list = (LinearLayout) findViewById(R.id.ll_list);
-        rl_empty = (RelativeLayout) findViewById(R.id.rl_empty);
+        tv_week = (TextView) view.findViewById(R.id.tv_week);
+        tv_time = (TextView) view.findViewById(R.id.tv_time);
+        /*rl_title = (RelativeLayout) view.findViewById(R.id.rl_title);//color_3cbaff
+        rl_title.setBackgroundColor(getResources().getColor(R.color.color_3cbaff));*/
+
+        remind_list = (ListView) view.findViewById(R.id.remind_list);
+      //  btn_add = (ImageButton) view.findViewById(R.id.btn_add);
+        ll_list = (LinearLayout) view.findViewById(R.id.ll_list);
+        rl_empty = (RelativeLayout) view.findViewById(R.id.rl_empty);
         rl_empty.setVisibility(View.GONE);
         long curTime = System.currentTimeMillis();
         Calendar c = Calendar.getInstance();
         c.setTime(new Date(curTime));
         int dayInWeek = c.get(Calendar.DAY_OF_WEEK);
         tv_week.setText("星期" + TimeUtils.getWeekStr(dayInWeek));
-        String time = com.dachen.medicine.common.utils.TimeUtils.getTimeDay3(curTime);
+        String time = com.dachen.medicine.common.utils.TimeUtils.getTimeDay(curTime);
         tv_time.setText(time);
         List<Reminder> lists = new ArrayList<>();
         RemindDao dao = new RemindDao(this);
@@ -85,7 +103,8 @@ public class SigninRemindActivity extends BaseActivity implements OnClickListene
             ll_list.setVisibility(View.VISIBLE);
         }
 //        link_service.setOnClickListener(this);
-        btn_add.setOnClickListener(this);
+       // btn_add.setOnClickListener(this);
+        changerTitleBar();
     }
 
     @Override

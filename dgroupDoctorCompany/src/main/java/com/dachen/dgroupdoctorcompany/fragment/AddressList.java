@@ -1,8 +1,11 @@
 package com.dachen.dgroupdoctorcompany.fragment;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +21,7 @@ import com.dachen.dgroupdoctorcompany.activity.ColleagueDetailActivity;
 import com.dachen.dgroupdoctorcompany.activity.CompanyContactListActivity;
 import com.dachen.dgroupdoctorcompany.activity.DoctorDetailActivity;
 import com.dachen.dgroupdoctorcompany.activity.DoctorFriendActivity;
-import com.dachen.dgroupdoctorcompany.activity.EidtColleagueActivity;
+import com.dachen.dgroupdoctorcompany.activity.ManagerColleagueActivity;
 import com.dachen.dgroupdoctorcompany.activity.SearchContactActivity;
 import com.dachen.dgroupdoctorcompany.adapter.AdapterOftenContact;
 import com.dachen.dgroupdoctorcompany.adapter.DepManagerAdapter;
@@ -31,11 +34,14 @@ import com.dachen.dgroupdoctorcompany.entity.BaseSearch;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.im.activity.MyFavChatGroupActivity;
 import com.dachen.dgroupdoctorcompany.im.utils.ChatActivityUtilsV2;
+import com.dachen.dgroupdoctorcompany.receiver.ChangeReceiver;
 import com.dachen.dgroupdoctorcompany.utils.CompareDatalogic;
+import com.dachen.dgroupdoctorcompany.utils.ConditionLogic;
 import com.dachen.dgroupdoctorcompany.utils.UserInfo;
 import com.dachen.imsdk.consts.SessionType;
 import com.dachen.imsdk.db.dao.ChatGroupDao;
 import com.dachen.imsdk.db.po.ChatGroupPo;
+import com.dachen.imsdk.entity.event.GroupSettingEvent;
 import com.dachen.imsdk.entity.event.NewMsgEvent;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.common.utils.ToastUtils;
@@ -67,6 +73,7 @@ public class AddressList extends BaseFragment implements View.OnClickListener{
 	View listviewheader;
 	View vContract;
 	ListView listviewmanagerdepartment;
+	public static final  String action = "changedata";
 	DepAdminsListDao depDao ;
 	public static String deptId = "-1";
 	List<DepAdminsList> lists;
@@ -76,7 +83,7 @@ public class AddressList extends BaseFragment implements View.OnClickListener{
 	public static final int SHOWCOLLEAG = 1;
 	public static final int SHOWDOCTOR = 2;
 	public static final String SHOWCONTENT = "showcontent";
-
+	ChangeReceiver receiver ;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -84,7 +91,7 @@ public class AddressList extends BaseFragment implements View.OnClickListener{
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mRootView = LayoutInflater.from(mActivity).inflate(R.layout.activity_addresslist, null);
 		depDao = new DepAdminsListDao(mActivity);
 		lists = new ArrayList<>();
@@ -109,9 +116,15 @@ public class AddressList extends BaseFragment implements View.OnClickListener{
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				if (CompareDatalogic.isInitContact()) {
+					showLoadingDialog();
 					DepAdminsList dept = (DepAdminsList) depManagerAdapter.getItem(position);
 					deptId = dept.orgId;
-					Intent intent = new Intent(mActivity, EidtColleagueActivity.class);
+					/*Intent intent = new Intent(mActivity, EidtColleagueActivity.class);
+					startActivityForResult(intent, 200);*/
+				  	Intent intent = new Intent(mActivity, ManagerColleagueActivity.class);
+					if (!TextUtils.isEmpty(dept.orgName)) {
+						intent.putExtra("depName",getDepName(dept.orgName));//传递部门信息
+					}
 					startActivityForResult(intent, 200);
 				}else{
 					ToastUtils.showToast(mActivity,"通讯录初始化中...");
@@ -150,6 +163,30 @@ public class AddressList extends BaseFragment implements View.OnClickListener{
 		layout_search1.setOnClickListener(this);
 		et_search = (TextView) listviewheader.findViewById(R.id.et_search);
 		et_search.setOnClickListener(this);
+		if (ConditionLogic.isAllow(mActivity)){
+			et_search.setText("搜索姓名/简拼/手机号");
+		}else {
+			et_search.setText("搜索姓名/简拼");
+		}
+
+		receiver = new ChangeReceiver(){
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				super.onReceive(context, intent);
+				lists.clear();
+				if (depDao.queryManager()==null||depDao.queryManager().size()==0){
+					listviewmanagerdepartment.setVisibility(View.GONE);
+				}else {
+					listviewmanagerdepartment.setVisibility(View.VISIBLE);
+					lists.addAll(depDao.queryManager());
+				}
+
+				depManagerAdapter.notifyDataSetChanged();
+			}
+		};;
+		IntentFilter filters= new IntentFilter();
+		filters.addAction(action);
+		mActivity.registerReceiver(receiver, filters);
 		return mRootView;
 	}
 
@@ -161,6 +198,16 @@ public class AddressList extends BaseFragment implements View.OnClickListener{
 
 
 	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (null!=receiver){
+			mActivity.unregisterReceiver(receiver);
+		}
+
+	}
+
 	/**
 	 * ListView根据项数的大小自动改变高度
 	 */
@@ -182,6 +229,7 @@ public class AddressList extends BaseFragment implements View.OnClickListener{
 		((ViewGroup.MarginLayoutParams)params).setMargins(0, 0, 0, 0);
 		listviewmanagerdepartment.setLayoutParams(params);
 	}
+
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -268,6 +316,8 @@ public class AddressList extends BaseFragment implements View.OnClickListener{
 				if (CompareDatalogic.isInitContact()) {
 					showLoadingDialog();
 					deptId = "-1";
+					/*intent = new Intent(mActivity, CompanyContactListActivity.class);
+					startActivity(intent);*/
 					intent = new Intent(mActivity, CompanyContactListActivity.class);
 					startActivity(intent);
 				} else {
@@ -330,4 +380,16 @@ public class AddressList extends BaseFragment implements View.OnClickListener{
     public void onEventMainThread(NewMsgEvent event) {
         refreshOftenContact();
     }
+    public void onEventMainThread(GroupSettingEvent event) {
+		if(event.type==GroupSettingEvent.TYPE_TOP){
+			refreshOftenContact();
+		}
+    }
+
+
+	private String  getDepName(String orgName) {
+		Log.d("zxy", "getDepName: orgName = "+orgName+"~~~~~~");
+		String[] strings = orgName.split("/");
+		return strings[strings.length-1];
+	}
 }

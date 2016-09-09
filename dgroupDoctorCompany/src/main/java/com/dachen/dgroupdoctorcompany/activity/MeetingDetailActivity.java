@@ -68,7 +68,8 @@ public class MeetingDetailActivity extends BaseActivity implements View.OnClickL
         setTitle(mMeeting.subject);
         mMeetingTitle.setText(mMeeting.subject);
         mMeetingDate.setText(TimeUtils.s_long_2_str(mMeeting.startDate));
-        mMeetingTime.setText(TimeUtils.chat_long_2_str(mMeeting.startTime) + "-" + TimeUtils.chat_long_2_str(mMeeting.endTime));
+        mMeetingTime.setText(TimeUtils.chat_long_2_str(mMeeting.startTime) + "-" +
+                TimeUtils.chat_long_2_str(mMeeting.endTime));
         mMeetingCount.setText(mMeeting.attendeesCount + "人");
         mMeetingExpensesReal.setText("¥" + StringUtils.convertPrice(mMeeting.price) + "元");
         mMeetingExpenses.setText("¥" + mMeeting.attendeesCount * CreateAndEditMeetingActivity.EACH_PRICE + "元");
@@ -88,12 +89,32 @@ public class MeetingDetailActivity extends BaseActivity implements View.OnClickL
 
     public void initViews() {
         mEdit = getViewById(R.id.edit);
+        long nowTime = System.currentTimeMillis();
+
         mEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 editMeeting();
             }
         });
+        if (mMeeting.status!=1){
+            mEdit.setTextColor(getResources().getColor(R.color.gray_888888));
+            mEdit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+        }else {
+            mEdit.setTextColor(getResources().getColor(R.color.color_3cbaff));
+            mEdit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    editMeeting();
+                }
+            });
+        }
+
         mMeetingTitle = getViewById(R.id.meeting_title);
         mMeetingDate = getViewById(R.id.meeting_date);
         mMeetingTime = getViewById(R.id.meeting_time);
@@ -265,7 +286,7 @@ public class MeetingDetailActivity extends BaseActivity implements View.OnClickL
         });
         mPasswordLayout = getViewById(R.id.password_layout);
         String userId = SharedPreferenceUtil.getString(mThis, "id", "");
-        if (mMeeting != null && mMeeting.createUserId != null && mMeeting.createUserId.equals(userId) && mMeeting.status == 1) {//是会议创建者,并且会议未开始
+        if (mMeeting != null && mMeeting.createUserId != null && mMeeting.createUserId.equals(userId) && mMeeting.isMyCreate == 1) {//是会议创建者,并且会议未开始
             mPasswordLayout.setVisibility(View.VISIBLE);
             mEdit.setVisibility(View.VISIBLE);
         }

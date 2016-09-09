@@ -22,6 +22,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.dachen.common.toolbox.DCommonRequest;
 import com.dachen.common.utils.Logger;
 import com.dachen.common.utils.TimeUtils;
 import com.dachen.common.utils.ToastUtil;
@@ -277,7 +278,7 @@ public class CreateAndEditMeetingActivity extends BaseActivity {
         RequestQueue queue = VolleyUtil.getQueue(mThis);
         queue.cancelAll(reqTag);
         String interfaceName = isCreate ? Constants.MEETING_CREATE : Constants.MEETING_UPDATE;
-        StringRequest request = new StringRequest(Request.Method.POST, AppConfig.getUrl(interfaceName, 3), new Response.Listener<String>() {
+        StringRequest request = new DCommonRequest(Request.Method.POST, AppConfig.getUrl(interfaceName, 3), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Logger.d(TAG, "response=" + response);
@@ -333,7 +334,7 @@ public class CreateAndEditMeetingActivity extends BaseActivity {
         final String reqTag = "stopMeeting";
         RequestQueue queue = VolleyUtil.getQueue(mThis);
         queue.cancelAll(reqTag);
-        StringRequest request = new StringRequest(Request.Method.POST, AppConfig.getUrl(Constants.MEETING_STOP, 3), new Response.Listener<String>() {
+        StringRequest request = new DCommonRequest(Request.Method.POST, AppConfig.getUrl(Constants.MEETING_STOP, 3), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Logger.d(TAG, "response=" + response);
@@ -401,7 +402,10 @@ public class CreateAndEditMeetingActivity extends BaseActivity {
             }
 
         } else {
-            ToastUtil.showToast(mThis, "发布失败");
+            if (null!=result&&!TextUtils.isEmpty(result.getResultMsg())){
+                ToastUtil.showToast(mThis, result.getResultMsg());
+            }
+
         }
 
 
@@ -480,7 +484,7 @@ public class CreateAndEditMeetingActivity extends BaseActivity {
             return false;
         }
 
-//        if (TextUtils.isEmpty(mMeetingExpenses.getText().toString())) {
+//        if (TextViewUtils.isEmpty(mMeetingExpenses.getText().toString())) {
 //            ToastUtil.showToast(mThis, "会议费用不能为空");
 //            return false;
 //        }

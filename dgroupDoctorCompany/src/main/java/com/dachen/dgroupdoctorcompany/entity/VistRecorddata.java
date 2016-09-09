@@ -12,5 +12,6 @@ public class VistRecorddata {
     public ArrayList<String> headPicList;
     public String type;
     public String addressName;
+    public String visitId;
     public long time;
 }

@@ -9,8 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dachen.dgroupdoctorcompany.R;
+import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.entity.OrgEntity;
-import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,15 +20,17 @@ import java.util.List;
  */
 public abstract class OrgSelectAdapter extends android.widget.BaseAdapter {
     private Context mContext;
-    private List<OrgEntity.Data>mDepamentsList = new ArrayList<>();
+    private List<OrgEntity.Data> mDepamentsList = new ArrayList<>();
+    CompanyContactListEntity entity;
 
-    public OrgSelectAdapter(Context context,List<OrgEntity.Data>data){
+    public OrgSelectAdapter(Context context, List<OrgEntity.Data> data, CompanyContactListEntity entity) {
         this.mContext = context;
         this.mDepamentsList.clear();
+        this.entity = entity;
         this.mDepamentsList.addAll(data);
     }
 
-    public void update(List<OrgEntity.Data>data){
+    public void update(List<OrgEntity.Data> data) {
         mDepamentsList.clear();
         mDepamentsList.addAll(data);
         notifyDataSetChanged();
@@ -52,39 +54,36 @@ public abstract class OrgSelectAdapter extends android.widget.BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
-        if(null == convertView){
+        if (null == convertView) {
             viewHolder = new ViewHolder();
-            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_select_org,null);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_select_org, null);
             viewHolder.mCheckBox = (CheckBox) convertView.findViewById(R.id.checkBox);
             viewHolder.mTvOrgName = (TextView) convertView.findViewById(R.id.tvOrgName);
             viewHolder.mIvFlag = (ImageView) convertView.findViewById(R.id.ivFlag);
             convertView.setTag(viewHolder);
-        }else{
+        } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-
         final OrgEntity.Data depaments = mDepamentsList.get(position);
-        if(null!=depaments){
+        if (null != depaments) {
             String name = depaments.name;
             viewHolder.mTvOrgName.setText(name);
             ArrayList<OrgEntity.Data> arrayList = depaments.subList;
-            if(arrayList.size() == 0){
+            if (arrayList.size() == 0) {
                 viewHolder.mIvFlag.setVisibility(View.GONE);
-            }else{
+            } else {
                 viewHolder.mIvFlag.setVisibility(View.VISIBLE);
             }
-
-            String department = SharedPreferenceUtil.getString(mContext,"department","");
-            if(department.equals(depaments.name)){
+            if (entity.id.equals(depaments.id)) {//设定默认中
                 viewHolder.mCheckBox.setChecked(true);
                 viewHolder.mCheckBox.setBackgroundResource(R.drawable.icon_pay_disable);
                 viewHolder.mCheckBox.setClickable(false);
                 viewHolder.mCheckBox.setOnCheckedChangeListener(null);
-            }else{
+            } else {
                 viewHolder.mCheckBox.setChecked(depaments.isCheck);
-                if(depaments.isCheck){
+                if (depaments.isCheck) {
                     viewHolder.mCheckBox.setBackgroundResource(R.drawable.icon_pay_selected);
-                }else{
+                } else {
                     viewHolder.mCheckBox.setBackgroundResource(R.drawable.icon_pay_unselect);
                 }
                 viewHolder.mCheckBox.setClickable(true);
@@ -94,14 +93,12 @@ public abstract class OrgSelectAdapter extends android.widget.BaseAdapter {
                         onCheckBoxCheck(depaments);
                     }
                 });
-
             }
         }
-
         return convertView;
     }
 
-    private class ViewHolder{
+    private class ViewHolder {
         private CheckBox mCheckBox;
         private TextView mTvOrgName;
         private ImageView mIvFlag;

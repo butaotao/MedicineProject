@@ -3,8 +3,8 @@ package com.dachen.dgroupdoctorcompany.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.location.LocationManager;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -46,6 +46,9 @@ import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.entity.JoinVisitGroup;
 import com.dachen.dgroupdoctorcompany.utils.DataUtils.GetUserDepId;
+import com.dachen.dgroupdoctorcompany.utils.DataUtils.SinUtils;
+import com.dachen.medicine.common.utils.MActivityManager;
+import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.Params;
@@ -68,7 +71,8 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
     public static final int MODE_SELECT_ADDRESS = 11;//选择地点之后当前页面finish，返回地点
     public static final int MODE_SELECT = 12;//选择地点之后，跳到添加签到页面
     private int mSelectedMode;
-    public  String POI = "地名地址信息|医疗保健服务|商务住宅|交通设施服务|公司企业|公共设施";//poi搜索类型
+    public static int singmode;
+    public static  String POI = "地名地址信息|医疗保健服务|商务住宅|交通设施服务|公司企业|生活服务";//poi搜索类型
     private ClearEditText et_search;
     private PullToRefreshListView lvAddress;
     private AMap                        mAMap;
@@ -104,14 +108,44 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
     private int mSelectType;
     private String address_name;
     private String fromActivity;
+    private String tabid;
+    long nowtime;
+    private long mTime;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_address);
         mMapView = (MapView) findViewById(R.id.map);
         mMapView.onCreate(savedInstanceState);// 此方法必须重写
+
         initViews();
         initData();
+        startSignActivity();
+    }
+    public void startSignActivity(){
+        String latitude = SharedPreferenceUtil.getString(this, "nowtimelatitude",  "");
+        String longitude = SharedPreferenceUtil.getString(this, "nowtimelongitude",  "");
+        long nowtime = SharedPreferenceUtil.getLong(this, "nowtime", 0);
+        long servceTime = getIntent().getLongExtra("nowtime",0);
+        if ((nowtime !=0)&&(nowtime==servceTime)&&!TextUtils.isEmpty(latitude)&&!TextUtils.isEmpty(longitude)){
+            double la = Double.parseDouble(latitude);
+            double lo = Double.parseDouble(longitude);
+            if (SignInActivity.compareDistance(lo,la,SelectAddressActivity.this)){
+                Intent intent = new Intent(this, AddSignInActivity.class);
+
+                intent.putExtra("name", SignInActivity.address);
+                intent.putExtra("longitude", longitude);
+                intent.putExtra("latitude", latitude);
+                intent.putExtra("time", mTime);
+                intent.putExtra("addressname",SignInActivity.allAddress);
+                intent.putExtra("mode", AddSignInActivity.MODE_WORKING);
+                intent.putExtra("allow",true);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+            }
+        }
     }
 
     public void initViews() {
@@ -134,6 +168,7 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
     }
 
    private void  initData(){
+       mTime = getIntent().getLongExtra("time", 0);
        mMode = this.getIntent().getIntExtra("mode",AddSignInActivity.MODE_WORKING);
        mSelectedMode = this.getIntent().getIntExtra("select_mode",MODE_SELECT);
        type = this.getIntent().getStringExtra("type");
@@ -145,8 +180,10 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
        if(ndistance>0){
            distance = ndistance;
        }
-       mlatitude = this.getIntent().getDoubleExtra("latitude",0);
-       mlongitude = this.getIntent().getDoubleExtra("longitude",0);
+       singmode = this.getIntent().getIntExtra("singmode",-1);
+       mlatitude = this.getIntent().getDoubleExtra("latitude", 0);
+       mlongitude = this.getIntent().getDoubleExtra("longitude", 0);
+       tabid = this.getIntent().getStringExtra("tabid");
        lp = new LatLonPoint(mlatitude,mlongitude);
        city = this.getIntent().getStringExtra("city");
        mAdapter = new AddressListAdapter(SelectAddressActivity.this,new ArrayList<PoiItem>());
@@ -169,71 +206,81 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
                }
                mAdapter.notifyDataSetChanged();
                PoiItem poiItem = (PoiItem) parent.getAdapter().getItem(position);
+               String name = poiItem.getTitle();
+               double longitude = poiItem.getLatLonPoint().getLongitude();
+               double latitude = poiItem.getLatLonPoint().getLatitude();
+               String  coordinate = latitude+","+longitude;
 
                if(mSelectType==1){
-                   String name = poiItem.getTitle();
-                   double longitude = poiItem.getLatLonPoint().getLongitude();
-                   double latitude = poiItem.getLatLonPoint().getLatitude();
+                    name = poiItem.getTitle();
+                    longitude = poiItem.getLatLonPoint().getLongitude();
+                    latitude = poiItem.getLatLonPoint().getLatitude();
                    String city = poiItem.getCityName();
                    String address = poiItem.getAdName();
                    String snippet = poiItem.getSnippet();
                    Intent intent = new Intent();
                    intent.putExtra("name", name);
+                   intent.putExtra("time", mTime);
                    intent.putExtra("longitude", longitude);
                    intent.putExtra("latitude", latitude);
                    setResult(RESULT_OK,intent);
                    finish();
                }else {
                    if (mSelectedMode == MODE_SELECT) {
-                       String name = poiItem.getTitle();
-                       double longitude = poiItem.getLatLonPoint().getLongitude();
-                       double latitude = poiItem.getLatLonPoint().getLatitude();
+                        name = poiItem.getTitle();
+                        longitude = poiItem.getLatLonPoint().getLongitude();
+                        latitude = poiItem.getLatLonPoint().getLatitude();
                        String city = poiItem.getCityName();
                        String address = poiItem.getAdName();
                        String snippet = poiItem.getSnippet();
                        if (mMode == AddSignInActivity.MODE_VISIT) {
                            if ("signle".equals(type)) {
-                               Intent intent = new Intent(SelectAddressActivity.this, SelfVisitActivity.class);
-                               intent.putExtra("address", name);
-                               intent.putExtra("longitude", longitude);
-                               intent.putExtra("latitude", latitude);
-                               intent.putExtra("addressname", city + address + snippet);
-                               intent.putExtra("mode", CustomerVisitActivity.MODE_FROM_SIGN);
-                               intent.putExtra("city", city);
-                               startActivity(intent);
+                               SinUtils.signDefaultvisit(SelectAddressActivity.this,name,
+                                       longitude ,latitude, city,city + address + snippet, "拜访", true,3);
                            } else if ("together".equals(type)) {
                                startVisitGroup(latitude, longitude, (city + address + snippet), name);
-//                           Intent intent = new Intent(SelectAddressActivity.this,TogetherVisitActivity.class);
-//                           intent.putExtra("address",name);
-//                           intent.putExtra("longitude",longitude);
-//                           intent.putExtra("latitude",latitude);
-//                           intent.putExtra("addressname",city+address+snippet);
-//                           intent.putExtra("mode",TogetherVisitActivity.MODE_FROM_SIGN);
-//                           intent.putExtra("city",city);
-//                           startActivity(intent);
                            }else if ("selectVisitPeopleposition".equals(type)){
                                startVisitGroup(latitude, longitude, (city + address + snippet), name);
                            }
 
                        } else {
-                           Intent intent = new Intent(SelectAddressActivity.this, AddSignInActivity.class);
-                           intent.putExtra("name", name);
-                           intent.putExtra("longitude", longitude);
-                           intent.putExtra("latitude", latitude);
-                           intent.putExtra("mode", mMode);
-                           startActivity(intent);
+                           if (singmode!=-1){
+                               String orgId = GetUserDepId.getUserDepId(SelectAddressActivity.this);
+                               TelephonyManager TelephonyMgr = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
+                               String deviceId = TelephonyMgr.getDeviceId();
+                               new HttpManager().post(SelectAddressActivity.this, Constants.CREATE_OR_UPDATA_SIGIN_IN, Result.class,
+                                       Params.getWorkingParams(SelectAddressActivity.this, deviceId, "", "",
+                                               coordinate, name, tabid, orgId),
+                                       SelectAddressActivity.this, false, 4);
+                           }else {      //更多
+                               Intent intent = new Intent(SelectAddressActivity.this, AddSignInActivity.class);
+                               intent.putExtra("name", name);
+                               intent.putExtra("longitude", longitude);
+                               intent.putExtra("latitude", latitude);
+                               intent.putExtra("mode", mMode);
+                               intent.putExtra("city",city);
+                               intent.putExtra("time", mTime);
+                               intent.putExtra("snippet",city+address+snippet);
+                               intent.putExtra("addressname",city+address+snippet);
+                               intent.putExtra("singmode",singmode);
+                               intent.putExtra("tabid",tabid);
+                               startActivity(intent);
+                           }
+
+
                        }
 
                    } else if (mSelectedMode == MODE_SELECT_ADDRESS) {
                        Intent intent = new Intent();
-                       String name = poiItem.getTitle();
+                        name = poiItem.getTitle();
                        String city = poiItem.getCityName();
                        String address = poiItem.getAdName();
                        String snippet = poiItem.getSnippet();
-                       double longitude = poiItem.getLatLonPoint().getLongitude();
-                       double latitude = poiItem.getLatLonPoint().getLatitude();
+                        longitude = poiItem.getLatLonPoint().getLongitude();
+                        latitude = poiItem.getLatLonPoint().getLatitude();
                        intent.putExtra("longitude", longitude);
                        intent.putExtra("latitude", latitude);
+                       intent.putExtra("time", mTime);
                        intent.putExtra("floor", name);
                        intent.putExtra("address", city + address + snippet);
                        setResult(RESULT_OK, intent);
@@ -405,6 +452,7 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
             intent.putExtra("time",data.dataList.remainTime);
             intent.putExtra("from",TogetherVisitActivity.MODE_FROM_SIGN);
             startActivity(intent);
+            finish();
         }
     }
 
@@ -418,6 +466,19 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
                 if(null != data){
                     openVisitGroup(data);
                 }
+            }else{
+                if(response.getResultCode() == 1){
+                        ToastUtil.showToast(SelectAddressActivity.this,"签到成功");
+                        Intent intent = new Intent(SelectAddressActivity.this,MenuWithFABActivity.class);
+                        startActivity(intent);
+                        finish();
+                        MActivityManager.getInstance().finishActivity(SelectAddressActivity.class);
+
+
+                }else{
+                    ToastUtil.showErrorData(SelectAddressActivity.this);
+
+                }
             }
         }else{
             if(null != response){
@@ -425,7 +486,7 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
                 if(TextUtils.isEmpty(msg)){
                     msg = "数据异常";
                 }
-                ToastUtil.showToast(this,msg);
+                ToastUtil.showToast(this, msg);
             }
         }
     }
@@ -617,7 +678,7 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
                     List<PoiItem> poiItems = poiResult.getPois();// 取得第一页的poiitem数据，页数从数字0开始
                     List<SuggestionCity> suggestionCities = poiResult.getSearchSuggestionCitys();// 当搜索不到poiitem数据时，会返回含有搜索关键字的城市信息
                     if(null != poiItems && poiItems.size()>0){
-//                        if(!TextUtils.isEmpty(keyWord)){
+//                        if(!TextViewUtils.isEmpty(keyWord)){
 //                            mAMap.clear();// 清理之前的图标
 //                            PoiOverlay poiOverlay = new PoiOverlay(mAMap,poiItems);
 //                            poiOverlay.removeFromMap();

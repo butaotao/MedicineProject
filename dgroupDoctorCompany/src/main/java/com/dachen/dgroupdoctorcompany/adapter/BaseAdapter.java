@@ -3,16 +3,16 @@ package com.dachen.dgroupdoctorcompany.adapter;
 /**
  * Created by Burt on 2016/2/23.
  */
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 
 import com.dachen.dgroupdoctorcompany.R;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * [适配器基类]

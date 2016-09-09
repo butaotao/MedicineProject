@@ -24,6 +24,7 @@ import com.dachen.dgroupdoctorcompany.db.dbentity.Reminder;
 import com.dachen.dgroupdoctorcompany.db.dbentity.WeekSinger;
 import com.dachen.dgroupdoctorcompany.service.GaoDeService;
 import com.dachen.dgroupdoctorcompany.service.PlayMusicService;
+import com.dachen.dgroupdoctorcompany.utils.DataUtils.AlarmBusiness;
 import com.dachen.medicine.common.utils.Alarm;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.common.utils.ToastUtils;
@@ -105,31 +106,38 @@ public class AlarmReceivers extends BroadcastReceiver {
         calendar.setTimeInMillis(time);
         int dayInWeek = calendar.get(Calendar.DAY_OF_WEEK);
         RemindDao dao = new RemindDao(context);
+        dayInWeek = dayInWeek-1;
+        if (dayInWeek==0){
+            dayInWeek = 7;
+        }
         Reminder reminder = dao.queryByUserCreateTime(alarm2.createTime);
         boolean show = false;
         String session = SharedPreferenceUtil.getString(context,"session","");
-        if (null==reminder||TextUtils.isEmpty(session)||reminder.isOpen==0&& !SharedPreferenceUtil.getString(context,"id","").equals(alarm2.userloginid)){
+        if (null==reminder||TextUtils.isEmpty(session)||reminder.isOpen==0||
+                !SharedPreferenceUtil.getString(context,"id","").equals(alarm2.userloginid)){
             return;
         }
-
-
-            if (!TextUtils.isEmpty(reminder.weekday) &&reminder.weekday.contains(""+dayInWeek)){
+            if (!TextUtils.isEmpty(reminder.weekday) &&reminder.weekday.contains(""+dayInWeek)
+                    &&AlarmBusiness.getNextAlarmTimeInMillis3(alarm2)){
                 show = true;
             }
 
         if (show==false){
-            if (reminder.times==0){
+            if (reminder.times==0&& AlarmBusiness.getNextAlarmTimeInMillis2(alarm2)){
                 show = true;
+                reminder.isOpen = 0;
+                dao.addRemind(reminder);
             }
         }
         if (show){
-            Intent intent = new Intent(context,GaoDeService.class);
-            context.startService(intent);
-            showNotification(context, reminder);
+            /* Intent intent = new Intent(context,GaoDeService.class);
+            intent.putExtra("nowtime",time);
+            context.startService(intent);*/
+            showNotification(context, reminder,time);
         }
     }
 
-    private void showNotification(Context context, Reminder alarm) {
+    private void showNotification(Context context, Reminder alarm,long time) {
         Intent service = new Intent(context, PlayMusicService.class);
         Bundle bundle = new Bundle();
         bundle.putSerializable("alarm",  alarm);
@@ -148,6 +156,7 @@ public class AlarmReceivers extends BroadcastReceiver {
         }
         Intent intent2 = new Intent(context, clazz);
         intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent2.putExtra("nowtime",time);
         intent2.putExtra("alarm", alarm);
         if (!islock){
             context.startActivity(intent2);
@@ -166,6 +175,7 @@ public class AlarmReceivers extends BroadcastReceiver {
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(alarm._id);
         notificationManager.notify(alarm._id, builder.build());
+
     }
 
     private WakeLock getWakeLock(Context context) {

@@ -1,4 +1,4 @@
-include ':meidecineLibrary'
+include ':meidecineLibrary', ':greendaogenerator'
 include ':mediecineLibraryRealizeDoctor'
 include ':mediecineLibraryRealize'
 include ':medicineDaChen'
@@ -11,6 +11,7 @@ include ':pickerView_Library'
 include ':dgroupDoctorCompany'
 include ':dCommonLibrary'
 include ':ImSdk'
+include ':ionLibrary'
 include ':vitamioLibrary'
 include ':rTRoutineLib'
 include ':cmsLiveLibrary'
@@ -18,6 +19,8 @@ include ':rtmpResourceLib'
 include ':vitamioLibrary'
 include ':ImVideo'
 include ':videoConferencingLibrary'
+include ':teleconference'
+include ':cordovaLib'
 
 project(':actionSheetLibrary').projectDir = new File(rootDir, "../CommonLibraryProject/actionSheetLibrary")
 project(':barcodeScannerCore').projectDir = new File(rootDir, "../CommonLibraryProject/barcodeScannerCore")
@@ -26,6 +29,7 @@ project(':pullToRefreshViewsLibrary').projectDir = new File(rootDir, "../CommonL
 project(':numberPickerLibrary').projectDir = new File(rootDir, "../CommonLibraryProject/numberPickerLibrary")
 project(':pickerView_Library').projectDir = new File(rootDir, "../CommonLibraryProject/pickerView_Library")
 project(':ImSdk').projectDir = new File(rootDir, "../ImSdkProject/ImSdk")
+project(':ionLibrary').projectDir = new File(rootDir, "../ImSdkProject/ionLibrary")
 project(':dCommonLibrary').projectDir = new File(rootDir, "../CommonLibraryProject/dCommonLibrary")
 project(':rTRoutineLib').projectDir = new File(rootDir, "../CommonLibraryProject/rTRoutineLib")
 project(':cmsLiveLibrary').projectDir = new File(rootDir, "../CommonLibraryProject/cmsLiveLibrary")
@@ -33,3 +37,5 @@ project(':rtmpResourceLib').projectDir = new File(rootDir, "../CommonLibraryProj
 project(':vitamioLibrary').projectDir = new File(rootDir, "../CommonLibraryProject/vitamioLibrary")
 project(':ImVideo').projectDir = new File(rootDir, "../CommonLibraryProject/ImVideo")
 project(':videoConferencingLibrary').projectDir = new File(rootDir, "../CommonLibraryProject/videoConferencingLibrary")
+project(':teleconference').projectDir = new File(rootDir, "../CommonLibraryProject/teleconference")
+project(':cordovaLib').projectDir = new File(rootDir, "../CommonLibraryProject/cordovaLib")

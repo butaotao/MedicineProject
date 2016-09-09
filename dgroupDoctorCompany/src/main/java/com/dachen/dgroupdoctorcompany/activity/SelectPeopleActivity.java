@@ -4,6 +4,7 @@ package com.dachen.dgroupdoctorcompany.activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -18,6 +19,7 @@ import com.dachen.common.utils.ToastUtil;
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.adapter.CircleCreateGroupAdapter;
 import com.dachen.dgroupdoctorcompany.adapter.CompanySelectPeopleListAdapter;
+import com.dachen.dgroupdoctorcompany.app.CompanyApplication;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.archive.ArchiveUtils;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
@@ -31,16 +33,19 @@ import com.dachen.dgroupdoctorcompany.fragment.AddressList;
 import com.dachen.dgroupdoctorcompany.im.activity.RepresentGroupChatActivity;
 import com.dachen.dgroupdoctorcompany.im.events.AddGroupUserEvent;
 import com.dachen.dgroupdoctorcompany.im.utils.ChatActivityUtilsV2;
+import com.dachen.dgroupdoctorcompany.utils.CallIntent;
 import com.dachen.dgroupdoctorcompany.utils.CommonUitls;
 import com.dachen.dgroupdoctorcompany.utils.CompareDatalogic;
-import com.dachen.dgroupdoctorcompany.utils.ExitActivity;
 import com.dachen.dgroupdoctorcompany.utils.GetAllDoctor;
+import com.dachen.dgroupdoctorcompany.views.GuiderHListView;
 import com.dachen.dgroupdoctorcompany.views.HorizontalListView;
 import com.dachen.imsdk.adapter.MsgMenuAdapter;
 import com.dachen.imsdk.archive.entity.ArchiveItem;
 import com.dachen.imsdk.consts.SessionType;
 import com.dachen.imsdk.db.dao.ChatGroupDao;
+import com.dachen.imsdk.db.po.ChatMessagePo;
 import com.dachen.imsdk.entity.GroupInfo2Bean.Data;
+import com.dachen.imsdk.net.MessageSenderV2;
 import com.dachen.imsdk.net.SessionGroup;
 import com.dachen.imsdk.net.SessionGroup.SessionGroupCallback;
 import com.dachen.imsdk.service.ImRequestManager;
@@ -64,11 +69,12 @@ import de.greenrobot1.event.EventBus;
 /**
  * Created by Burt on 2016/2/26.
  */
-public class SelectPeopleActivity extends BaseActivity implements HttpManager.OnHttpListener, AdapterView.OnItemLongClickListener, View.OnClickListener {
+public class SelectPeopleActivity extends BaseActivity implements HttpManager.OnHttpListener, AdapterView.OnItemLongClickListener, View.OnClickListener, AdapterView.OnItemClickListener {
     public static final String INTENT_EXTRA_GROUP_USERS = "groupUsers";
     public static final String INTENT_EXTRA_GROUP_TYPE = "groupType";
     public static final String INTENT_EXTRA_GROUP_ID = "groupId";
     public static final int REQUEST_SEARCH = 1001;
+   public Data data;
     CompanySelectPeopleListAdapter adapter;//R.layout.adapter_companycontactlist
     ListView listview;
     ArrayList<BaseSearch> list;
@@ -84,10 +90,11 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
     RadioButton btn_radio_addall;
     boolean selectall;
     SessionGroup groupTool;
-    String pareid;
+    private String pareid;
     ArrayList<CompanyContactListEntity> groupUsers;
     private String groupId;
-    public String partname;
+    private String partName;
+    private String partId;
     Button btn_add;
     private boolean inWork;
 
@@ -101,21 +108,31 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
     private boolean mShare;
     private String msgId;
     ArchiveItem mItem;
+    private String groupIds;
+    private GuiderHListView mListGuider;
+    private TextView mTvDes;
+    private  final  int LISTVIEWITEMCLICK = 1;
+    private  final  int GUIDERITEMCLICK = 2;
+    private  final  int BACKCLICK = 3;
+    private int from;
+    private int currentPosition = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selectpeople);
-
-
         mShare = getIntent().getBooleanExtra("share", false);
         msgId = getIntent().getStringExtra(MsgMenuAdapter.INTENT_EXTRA_MSG_ID);
         mItem = (ArchiveItem) getIntent().getSerializableExtra(ArchiveUtils.INTENT_KEY_ARCHIVE_ITEM);
         mPullToRefreshScrollView = (PullToRefreshScrollView) findViewById(R.id.refresh_scroll_view);
         mPullToRefreshScrollView.setMode(PullToRefreshBase.Mode.DISABLED);
-
+        groupIds = getIntent().getStringExtra(MsgMenuAdapter.INTENT_EXTRA_GROUP_ID);
         layout_search = getViewById(R.id.layout_search);
         mSearch = getViewById(R.id.et_search);
         btn_add = (Button) findViewById(R.id.btn_add);
+        mTvDes = (TextView) findViewById(R.id.tv_des);
+        mTvDes.setVisibility(View.VISIBLE);
+        mTvDes.setOnClickListener(this);
         btn_add.setOnClickListener(this);
         mSearch.setOnClickListener(this);
         layout_search.setOnClickListener(this);
@@ -166,7 +183,25 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
         addAdapter = new CircleCreateGroupAdapter(this, listsHorizon);
         addlistview = getViewById(R.id.addlistview);
         addlistview.setAdapter(addAdapter);
+        addlistview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                BaseSearch  baseSearch= (BaseSearch) addAdapter.getItem(position);
+                listsHorizon.remove(baseSearch);
+                int baseSearchlist=0;
+                if (list!=null&&list.size()>0){
+                     baseSearchlist=list.indexOf(baseSearch);
+                }
+                if (baseSearchlist>0){
+                    CompanyContactListEntity entity = (CompanyContactListEntity) list.get(baseSearchlist);
+                    entity.select = false;
+                    list.set(baseSearchlist,entity);
+                }
 
+                addAdapter.notifyDataSetChanged();
+                adapter.notifyDataSetChanged();
+            }
+        });
 
         adapter = new CompanySelectPeopleListAdapter(this, R.layout.adapter_selectpeoplelist, list, 0);
         listview.setAdapter(adapter);
@@ -217,10 +252,14 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                     btn_add.setText("开始(" + listsHorizon.size() + ")");
                 } else if (contact instanceof CompanyDepment.Data.Depaments) {
                     c1 = (CompanyDepment.Data.Depaments) (contact);
-                    //   listsTitle.put(c1.id, c1.parentId);
                     listsTitle.put(c1.id, c1);
                     if (c1 != null) {
+                        partName= c1.name;
                         idDep = c1.id;
+                        from = LISTVIEWITEMCLICK;
+                        /*mListGuider.addTask(partName,idDep);//数据请求成功后加载
+                        mListGuider.setOldPosition();
+                        mListGuider.notifyDataSetChanged();*/
                         getOrganization();
                     }
                 }
@@ -250,8 +289,31 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                 mPullToRefreshScrollView.onRefreshComplete();
             }
         });
-
-
+        mListGuider = (GuiderHListView) findViewById(R.id.org_listguilde);
+        mListGuider.setOnItemClickListener(this);
+        String companyName = SharedPreferenceUtil.getString(CompanyApplication.getInstance(), "enterpriseName", "");
+        mListGuider.addTask(companyName,idDep);
+        mListGuider.setAdapter();
+        mListGuider.notifyDataSetChanged();
+        getOrganization();
+    }
+/*
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if(hasFocus){
+            mListGuider.setSelection(mListGuider.getAdapter().getCount()-1);
+        }
+    }*/
+    //水平导航条目点击事件
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (position == mListGuider.getListGuide().size() - 1) {
+            return;
+        }
+        from = GUIDERITEMCLICK;
+        currentPosition = position;
+        idDep = mListGuider.addBackTaskId(position);
         getOrganization();
     }
 
@@ -265,37 +327,61 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                         departments.set(i, entity);
                         break;
                     }
-
                 }
             }
         return departments;
-
     }
 
     void backtofront() {
-        if (list != null && list.size() > 0 && list.get(0) instanceof CompanyDepment.Data.Depaments) {
-            CompanyDepment.Data.Depaments entity = (CompanyDepment.Data.Depaments) list.get(0);
-            // idDep = entity.parentId;
-            if (null != listsTitle.get(entity.parentId) && null != listsTitle.get(entity.parentId).parentId) {
-                idDep = listsTitle.get(entity.parentId).parentId;
-            } else {
-                idDep = null;
-                setTitle("选择联系人");
-            }
+        from = BACKCLICK;
 
-            // setTitle(entity.name);
-        } else {
-            idDep = pareid;
-            setTitle("选择联系人");
-        }
-        if (idDep == null) {
-            idDep = "0";
+        int position = mListGuider.getCurrentPosition()-1;//当前任务栈id数
+        if (position == 0) {   //只剩联系人了,直接返回,  清空数据释放缓存
             finish();
             return;
+        }else{//返回
+            idDep = mListGuider.reMoveTaskId();
         }
+        /*mListGuider.setOldPosition();
+        mListGuider.notifyDataSetChanged();*/
         getOrganization();
     }
 
+    public ArrayList<CompanyDepment.Data.Depaments> checkUndefine(ArrayList<CompanyDepment.Data.Depaments> departments) {
+        for (CompanyDepment.Data.Depaments depament : departments) {
+            if (!TextUtils.isEmpty(depament.name) && depament.name.equals("未分配")) {
+                List<CompanyContactListEntity> entities = companyContactDao.queryByDepID(depament.id);
+                if (entities == null || entities.size() == 0) {
+                    list.remove(depament);
+                }else {
+                    int p = -1;
+                    for (int i =0;i<departments.size();i++){
+                        if (!TextUtils.isEmpty( departments.get(i).type)&&
+                                departments.get(i).type.equals("3")){
+                            p = i;
+                            break;
+                        }
+                    }
+                    if (p!=-1){
+                        CompanyDepment.Data.Depaments depamen1 = departments.get(p);
+                        CompanyDepment.Data.Depaments depamen2 = departments.get(departments.size()-1);
+                        CompanyDepment d= new CompanyDepment();
+                        CompanyDepment.Data data = d.new Data();
+
+                        CompanyDepment.Data.Depaments depaments3 = data.new Depaments();
+                        depaments3 = depamen1;
+                        departments.set(p,depamen2);
+                        departments.set(departments.size()-1, depaments3);
+                        list.clear();
+                        list.addAll(departments);
+                    }
+                }
+                break;
+            }
+
+        }
+        return departments;
+    }
     void selectall() {
         boolean ispeople = false;
         if (list != null && list.size() > 0) {
@@ -355,9 +441,7 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
 
     @Override
     public void onClick(View v) {
-       /* if (v.getId()!=R.id.rl_back){
-            super.onClick(v);
-        }*/
+
         switch (v.getId()) {
             case R.id.btn_add:
                 if (inWork) return;
@@ -369,7 +453,18 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
 //                CallIntent.getSelectData.getData(listsHorizon);
                 int groupType = getIntent().getIntExtra(INTENT_EXTRA_GROUP_TYPE, 0);
                 showLoadingDialog();
+                    /*groupTool.setCallback(new SessionGroupCallback() {
 
+                        @Override
+                        public void onGroupInfo(Data data, int what) {
+                            CallIntent.startMainActivity(SelectPeopleActivity.this);
+                        }
+
+                        @Override
+                        public void onGroupInfoFailed(String msg) {
+
+                        }
+                    });*/
                 if (groupUsers.size() == 0)
                     groupTool.createGroup(getIdsList(false), "10");
                 else {
@@ -378,7 +473,6 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                     } else{
                         groupTool.addGroupUser(getIdsList(false), getIntent().getStringExtra(INTENT_EXTRA_GROUP_ID));
                     }
-
                 }
 
                 break;
@@ -396,6 +490,10 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                 } else {
                     ToastUtils.showToast(this, "通讯录初始化中...");
                 }
+                break;
+
+            case R.id.tv_des:
+                finish();
                 break;
         }
     }
@@ -427,13 +525,16 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
         }
         showLoadingDialog();
         HashMap<String, String> maps = new HashMap<>();
+    /*    maps.put("access_token", UserInfo.getInstance(this).getSesstion());
+        maps.put("drugCompanyId", SharedPreferenceUtil.getString(this, "enterpriseId", ""));
+        maps.put("id", idDep);*/
+
         maps.put("access_token", UserInfo.getInstance(this).getSesstion());
         maps.put("drugCompanyId", SharedPreferenceUtil.getString(this, "enterpriseId", ""));
-        maps.put("id", idDep);
+        maps.put("orgId", idDep);
+        maps.put("hideUnassign","1");
         //"org/enterprise/dept/getDepartmentsByParentIdAndEId"
-        new HttpManager().get(this, Constants.DEPSTRUCT, CompanyDepment.class,
-                maps, this,
-                false, 1);
+        new HttpManager().get(this, Constants.DEPSTRUCT, CompanyDepment.class, maps, this, false, 1);
     }
 
     @Override
@@ -442,91 +543,44 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
         boolean haveDep = false;
         if (response != null && response.resultCode == 1) {
             if (response instanceof CompanyDepment) {
+                switch (from) {
+                    case LISTVIEWITEMCLICK://ListView点击请求数据成功
+                        mListGuider.addTask(partName,idDep);
+                    break;
+                    case GUIDERITEMCLICK:   //导航listView
+                        mListGuider.addBackTask(currentPosition);
+                    break;
+                    case BACKCLICK:         //返回
+                        mListGuider.reMoveTask();
+                    break;
+                }
+                mListGuider.setOldPosition();
+                mListGuider.notifyDataSetChanged();
+                mListGuider.setSelection(mListGuider.getAdapter().getCount()-1);
                 CompanyDepment companyDepment = (CompanyDepment) (response);
                 if (null != companyDepment.data && null != companyDepment.data.departments && companyDepment.data.departments.size() > 0) {
                     list.clear();
                     haveDep = true;
                     list.addAll(companyDepment.data.departments);
                     pareid = companyDepment.data.departments.get(0).parentId;
-                    //List<CompanyContactListEntity> lists = companyContactDao.queryByDepID(idDep);
-                    //addHaveAdd(lists);
-
+                    checkUndefine(companyDepment.data.departments);
                     if (list != null && list.size() > 0 && list.get(0) instanceof CompanyDepment.Data.Depaments) {
                         CompanyDepment.Data.Depaments entity = (CompanyDepment.Data.Depaments) list.get(0);
                         if (null != listsTitle && listsTitle.size() > 0 && null != entity && entity.parentId != null && null != listsTitle.get(entity.parentId)
                                 && null != listsTitle.get(entity.parentId).name) {
-                            setTitle(listsTitle.get(entity.parentId).name + "");
+                           // setTitle(listsTitle.get(entity.parentId).name + "");
                         } else {
                             setTitle("选择联系人");
                         }
                     }
-                    //adapter = new CompanySelectPeopleListAdapter(this, R.layout.adapter_selectpeoplelist, list, 0);
-                    //listview.setAdapter(adapter);
-
                     adapter.setSize(companyDepment.data.departments.size());
                     adapter.notifyDataSetChanged();
-
                 } else {
                     haveDep = false;
                     adapter.setSize(0);
-                   /* List<CompanyContactListEntity> lists = companyContactDao.queryByDepID(idDep);
-                    if (lists != null && lists.size() > 0) {
-                        list.clear();
-                        lists = addHaveAdd(lists);
-                        for (int i = 0; i < lists.size(); i++) {
-                            for (int j = 0; j < listsHorizon.size(); j++) {
-                                if (lists.get(i).equals(listsHorizon.get(j))) {
-                                    CompanyContactListEntity entity = lists.get(i);
-                                    entity.select = true;
-                                    lists.set(i, entity);
-                                    break;
-                                }
-                            }
-                        }
-                        setTitle(lists.get(0).department);
-                        list.addAll(lists);
-                        adapter.setSize(0);
-                        adapter.notifyDataSetChanged();
-                    } else {
-
-                    }*/
                     closeLoadingDialog();
                 }
-
                 if (null != companyDepment.data && null != companyDepment.data.users && companyDepment.data.users.size() > 0) {
-
-                   /* List<CompanyContactListEntity> lists = new ArrayList<>();
-                    for (int i = 0; i < companyDepment.data.users.size(); i++) {
-                        List<CompanyContactListEntity> entities = companyContactDao.queryByUserId(companyDepment.data.users.get(i).toString());
-                        if (entities != null && entities.size() > 0) {
-                            lists.add((CompanyContactListEntity) entities.get(0));
-                        }
-                    }
-
-
-                    if (lists != null && lists.size() > 0) {
-                        if (!haveDep) {
-                            adapter.setSize(0);
-                            list.clear();
-                        }
-                        lists = addHaveAdd(lists);
-                        for (int i = 0; i < lists.size(); i++) {
-                            for (int j = 0; j < listsHorizon.size(); j++) {
-                                if (lists.get(i).equals(listsHorizon.get(j))) {
-                                    CompanyContactListEntity entity = lists.get(i);
-                                    entity.select = true;
-                                    lists.set(i, entity);
-                                    break;
-                                }
-                            }
-                        }
-                        list.addAll(lists);
-                        adapter.notifyDataSetChanged();
-                    } else {
-
-                    }*/
-
-
                     if (companyDepment.data.users.size() > mPageSize) {
                         mPullIndex = 0;
                         mUserIdList = companyDepment.data.users;
@@ -544,7 +598,6 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                         adapter.notifyDataSetChanged();
                     }
                 }
-
             }
         }
     }
@@ -552,12 +605,10 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
 
     @Override
     public void onSuccess(ArrayList response) {
-
     }
 
     @Override
     public void onFailure(Exception e, String errorMsg, int s) {
-
     }
 
     public void back() {
@@ -579,6 +630,7 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
             if (what == SessionGroup.CREATE) {
                 String gname = data.gname;
                 String gid = data.gid;
+                SelectPeopleActivity.this.data = data;
 //				ArrayList<UserInfo> uids = CommonUitls.getGroupUserIds(res.getData().getUserList());
                 ArrayList<Data.UserInfo> uids = new ArrayList<>(Arrays.asList(data.userList));
                 ChatGroupDao dao = new ChatGroupDao();
@@ -594,18 +646,21 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                     //转发信息
                     if (mItem!=null){
                      //   ImRequestManager.forwardMsg(mItem.po.msgId, data.gid, 0, new ShareResultListener());
-                        HashMap<String, Object> params = new HashMap<>();
-                        params.put("share_files",mItem);
-                        RepresentGroupChatActivity.openUI(mThis, data.gname, data.gid, users,params);
+//                        HashMap<String, Object> params = new HashMap<>();
+//                        params.put("share_files",mItem);
+//                        RepresentGroupChatActivity.openUI(mThis, data.gname, data.gid, users, params);
+                        ImRequestManager.sendArchive(mItem, data.gid,new ShareItemFileListener());
                     }else {
                         ImRequestManager.forwardMsg(msgId, data.gid, 0, new ShareResultListener());
-                        RepresentGroupChatActivity.openUI(mThis, data.gname, data.gid,users);
                     }
                 } else {
                     ChatActivityUtilsV2.openUI(mThis, gid, "10");
+                    finish();
+                   // CallIntent.startMainActivity(SelectPeopleActivity.this);
                 }
+                EventBus.getDefault().post(new AddGroupUserEvent(groupId));
                 setResult(RESULT_OK);
-                finish();
+               // ImUtils.closeChat(groupIds);
             } else {
                 ArrayList<Data.UserInfo> users = null;
                 if (data.userList != null)
@@ -613,21 +668,23 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                 if (mShare) {
                     //转发信息
                     if (mItem!=null){
-                        HashMap<String, Object> params = new HashMap<>();
-                        params.put("share_files",mItem);
-                        RepresentGroupChatActivity.openUI(mThis, data.gname, data.gid, users,params);
+//                        HashMap<String, Object> params = new HashMap<>();
+//                        params.put("share_files",mItem);
+//                        RepresentGroupChatActivity.openUI(mThis, data.gname, data.gid, users, params);
+                        ImRequestManager.sendArchive(mItem, data.gid, new ShareItemFileListener());
                     }else {
                         ImRequestManager.forwardMsg(msgId, data.gid, 0, new ShareResultListener());
                     }
                 } else {
                     RepresentGroupChatActivity.openUI(mThis, data.gname, data.gid, users);
+                    finish();
                 }
                 EventBus.getDefault().post(new AddGroupUserEvent(groupId));
                 setResult(RESULT_OK);
-                finish();
+                //ImUtils.closeChat(groupIds);
+               // CallIntent.startMainActivity(SelectPeopleActivity.this);
             }
         }
-
         @Override
         public void onGroupInfoFailed(String msg) {
             closeLoadingDialog();
@@ -635,14 +692,33 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
             ToastUtil.showToast(mThis, msg);
         }
     };
+    private class ShareItemFileListener implements MessageSenderV2.MessageSendCallbackV2{
 
+        @Override
+        public void sendSuccessed(ChatMessagePo msg, String groudId, String msgId, long time) {
+
+            CallIntent.startMainActivity(SelectPeopleActivity.this);
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("share_files", mItem);
+            if (data!=null){
+                ArrayList<Data.UserInfo>  users = new ArrayList<>(Arrays.asList(data.userList));
+                RepresentGroupChatActivity.openUI(SelectPeopleActivity.this, data.gname, data.gid, users);
+            }
+
+        }
+
+        @Override
+        public void sendFailed(ChatMessagePo msg, int resultCode, String resultMsg) {
+
+        }
+    }
     private class ShareResultListener implements SimpleResultListener {
 
         @Override
         public void onSuccess() {
-            ToastUtil.showToast(mThis,"转发成功");
-            finish();
-            ExitActivity.getInstance().exit();
+            CallIntent.startMainActivity(SelectPeopleActivity.this);
+            ToastUtil.showToast(mThis, "转发成功");
+
         }
 
         @Override
@@ -714,7 +790,6 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                             }
                         }
                     }
-//            list.set(position, c2);
                         adapter.notifyDataSetChanged();
                     addAdapter.notifyDataSetChanged();
                         btn_add.setText("开始(" + listsHorizon.size() + ")");
@@ -725,4 +800,15 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        backtofront();
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void onDestroy() {
+        mListGuider.clearData();
+        super.onDestroy();
+    }
 }

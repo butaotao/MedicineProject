@@ -3,7 +3,6 @@ package com.dachen.dgroupdoctorcompany.activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -13,7 +12,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
@@ -24,14 +22,9 @@ import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.MapView;
 import com.amap.api.maps.UiSettings;
 import com.amap.api.maps.model.CameraPosition;
-import com.amap.api.maps.model.CircleOptions;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
-import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyTrafficStyle;
-import com.amap.api.services.core.PoiItem;
-import com.amap.api.services.poisearch.PoiResult;
-import com.amap.api.services.poisearch.PoiSearch;
 import com.dachen.common.utils.ToastUtil;
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.app.CompanyApplication;
@@ -43,16 +36,17 @@ import com.dachen.dgroupdoctorcompany.entity.VisitPeople;
 import com.dachen.dgroupdoctorcompany.utils.CommonUitls;
 import com.dachen.dgroupdoctorcompany.utils.DataUtils.GetUserDepId;
 import com.dachen.dgroupdoctorcompany.utils.JsonMananger;
+import com.dachen.dgroupdoctorcompany.utils.UserInfo;
 import com.dachen.dgroupdoctorcompany.views.RadarViewGroup;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.Params;
 import com.dachen.medicine.view.CustomDialog;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -108,6 +102,8 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
     double mlongitude = 0;
     private MyTrafficStyle mMyTrafficStyle;
     private Marker locationMarker; // 选择的点
+    int nTime = -1;
+    boolean cancel;
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
 
@@ -163,7 +159,7 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
             switch (msg.what){
                 case MSG_UPDATE_TIME:
                     String strTime = tvTimeCount.getText().toString().trim();
-                    int nTime = Integer.valueOf(strTime);
+                    nTime = Integer.valueOf(strTime);
                     if(nTime>0){
                         nTime--;
                         tvTimeCount.setText(nTime+"");
@@ -190,6 +186,7 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_select_visit_people);
+        cancel = false;
         mMapView = (MapView) findViewById(R.id.map);
         mMapView.onCreate(savedInstanceState);// 此方法必须重写
         instance = this;
@@ -199,6 +196,7 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
             mAMap = mMapView.getMap();
             setUpMap();
         }
+        getAllVisit(id);
     }
     private void setUpMap(){
         mMyTrafficStyle = new MyTrafficStyle();
@@ -410,6 +408,7 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
                     }, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            cancel = true;
                             dialog.dimissDialog();
                             deleteVisitGroup();
                         }
@@ -425,6 +424,7 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
                     }, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            cancel = true;
                             dialog.dimissDialog();
                             cancelVisitGroup();
                         }
@@ -446,44 +446,104 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
         showLoadingDialog();
         new HttpManager().get(this, Constants.DELETE_VISIT_GROUP, Result.class,
                 Params.deleteVisitGroup(SelectVisitPeople.this, id),
-                this,false,4);
+                this, false, 4);
+    }
+    //拜访创建者取消拜访
+    private void getAllVisit(final String id){
+        if (TextUtils.isEmpty(id)){
+            return;
+        }
+       // showLoadingDialog();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (nTime==-1){
+                    nTime = 120;
+                }
+                while (nTime>1&&!cancel){
+                    try {
+                        Thread.sleep(3*1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    HashMap<String,String> map = new HashMap<>();
+                    map.put("access_token", UserInfo.getInstance(SelectVisitPeople.this).getSesstion());
+                    map.put("synergVisitGroupId",id);
+                    new HttpManager().post(SelectVisitPeople.this, Constants.GET_ALL_VISIT, AddVisitGroup.class,
+                            map,
+                            SelectVisitPeople.this, false, 4);
+                }
+
+            }
+        }).start();
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        cancel = true;
     }
 
     @Override
     public void onSuccess(Result response) {
         closeLoadingDialog();
-        if(!isPressCancel){
-            finish();
-        }
+
         if(null!=response){
-            if(response.getResultCode() == 1){
+
                 if(response instanceof ConfirmVisit){//确定协同拜访
-                    ToastUtil.showToast(this,"请求成功");
+                    if(response.getResultCode() == 1) {
+                        ToastUtil.showToast(this, "请求成功");
+                    }else{
+                        String msg = response.getResultMsg();
+                        ToastUtil.showToast(this, msg);
+                    }
                 }else if(response instanceof AddVisitGroup){
+                        AddVisitGroup group = (AddVisitGroup) response;
 //                    mBtSure.setText("确定选择(1)人");
-                    btn_choiceposition.setVisibility(View.GONE);
+                 /*   btn_choiceposition.setVisibility(View.GONE);
                     for(int i=0;i<mVisitPeopleList.size();i++){
                         VisitPeople visitPeople = mVisitPeopleList.get(i);
                         mRadarViewGroup.removeCircleView(visitPeople);
                     }
-                    mVisitPeopleList.clear();
                     tvTimeCount.setText(120+"");
-                    mMyHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME,1000);
-                }else {
-                    if (cancelVistitTogetter!=1){
-                        ToastUtil.showToast(this,"取消协同拜访成功");
-                        if(isPressCancel){
-                            onExit();
+                    mMyHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME,1000);*/
+                        ArrayList<VisitPeople> mVisitPeopleLists = new ArrayList<>();
+                        if (null != group.data && group.data.groupDetails != null) {
+                            for (int i = 0; i < group.data.groupDetails.size(); i++) {
+                                AddVisitGroup.Data.GoodsGroups visitPeople = group.data.groupDetails.get(i);
+                                VisitPeople people = new VisitPeople();
+                                people.headPic = visitPeople.headPic;
+                                people.id = visitPeople.id;
+                                people.name = visitPeople.name;
+                                mVisitPeopleLists.add(people);
+                            }
                         }
-                    }else {
-                        choicePlace();
+                        addVisitPeopleFromServer(mVisitPeopleLists);
+
+                   //mMyHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME,1000);
+                }else {
+                    if(response.getResultCode() == 1) {
+                        if (cancelVistitTogetter!=1){
+                            ToastUtil.showToast(this, "取消协同拜访成功");
+                          //  if(isPressCancel){
+                                onExit();
+                           // }
+                        }else {
+                            choicePlace();
+                        }
+                    }else{
+                        String msg = response.getResultMsg();
+                        ToastUtil.showToast(this, msg);
                     }
 
                 }
-            }else{
-                String msg = response.getResultMsg();
-                ToastUtil.showToast(this,msg);
-            }
         }else{
             ToastUtil.showErrorData(this);
         }
@@ -523,6 +583,7 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
                 @Override
                 public void onClick(View v) {
                     dialog.dimissDialog();
+                    cancel = true;
                     deleteVisitGroup();
                 }
             });
@@ -538,6 +599,7 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
                 @Override
                 public void onClick(View v) {
                     dialog.dimissDialog();
+                    cancel = true;
                     cancelVisitGroup();
                 }
             });
@@ -577,7 +639,36 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
             tvSure.setVisibility(View.VISIBLE);
         }
     }
+    public void addVisitPeopleFromServer(ArrayList<VisitPeople> visitPeoples){
+        mVisitPeopleList.clear();
+        mVisitPeopleList.addAll(visitPeoples);
+        if(null != visitPeoples){
+            for (int i=0;i<visitPeoples.size();i++){
+                if (!isAddPeople(visitPeoples.get(i))){
+                    SparseArray<VisitPeople> sparseArray = new SparseArray<>();
+                    sparseArray.put(0, visitPeoples.get(i));
+                    mRadarViewGroup.setDatas(sparseArray);
+                }
+            }
 
+
+                Set<VisitPeople> set = new HashSet<>();
+                set.addAll(mVisitPeopleList);
+                int size = set.size();
+                if (size>=2){
+                    mBtSure.setText("确定" + size + "人");
+                    btn_choiceposition.setVisibility(View.GONE);
+                }else {
+                    mBtSure.setText("确定拜访");
+                    btn_choiceposition.setVisibility(View.VISIBLE);
+                }
+                tvSure.setVisibility(View.GONE);
+        }
+        if(mMode == MODE_JOIN){
+            tvSure.setText("等待" + initatorName + "确认...");
+            tvSure.setVisibility(View.VISIBLE);
+        }
+    }
     private boolean isAddPeople(VisitPeople people){
         boolean isAdd = false;
         for(int i=0;i<mVisitPeopleList.size();i++){
@@ -606,11 +697,15 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
     public void onExit(){
         Intent intent;
         if(TogetherVisitActivity.MODE_FROM_VIST_LIST == from){
-            intent = new Intent(this,VisitListActivity.class);
-            startActivity(intent);
+          /*  intent = new Intent(this,VisitListActivity.class);
+            startActivity(intent);*/
         }else if(TogetherVisitActivity.MODE_FROM_SIGN == from){
-            intent = new Intent(this,SignInActivity.class);
-            startActivity(intent);
+            /*intent = new Intent(this,SignInActivity.class);
+            startActivity(intent);*/
+        }
+
+        if (MODE_ADD == mMode){
+            //MActivityManager.getInstance().finishAppointActivity(VisitListActivity.class);
         }
         finish();
     }
@@ -623,7 +718,6 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
                     mVisitPeopleList.remove(item);
                 }
             }
-
             Set<VisitPeople> set = new HashSet<>();
             set.addAll(mVisitPeopleList);
             int size = set.size()+1;

@@ -17,5 +17,6 @@ public class TogetherVisit {
     public long longTime;
     public String headPic;
     public String signedId;
+    public String visitId;
     public ArrayList<String> tag;
 }
