@@ -105,7 +105,7 @@ public class SingnTodayAdapter extends android.widget.BaseAdapter{
            // childHolder.rl_des.setVisibility(View.GONE);
         }else {
             childHolder.tvName.setBackgroundResource(R.drawable.btn_leftcorgreen_all);
-            childHolder.tvName.setText("其\n他");
+            childHolder.tvName.setText("签\n到");
         }
        if (!TextUtils.isEmpty(listVisitVo.remark)){
             childHolder.tvdes.setText(listVisitVo.remark);
