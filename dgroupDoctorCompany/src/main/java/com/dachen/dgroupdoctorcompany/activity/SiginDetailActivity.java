@@ -153,9 +153,23 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
         super.onClick(v);
         switch (v.getId()){
             case R.id.btSubmit:
-                Intent intent = new Intent(SiginDetailActivity.this, VisitDetailActivity.class);
+               /* Intent intent = new Intent(SiginDetailActivity.this, VisitDetailActivity.class);
                 intent.putExtra("id", id+"");
                 startActivity(intent);
+*/
+
+                Intent  intent = new Intent(SiginDetailActivity.this, SelfVisitActivity.class);
+                    intent.putExtra("mode",SelfVisitActivity.MODE_FROM_VIST_LIST_ITEM);
+
+                intent.putExtra("id", id+"");
+
+                startActivity(intent);
+
+
+
+
+
+
                 break;
         }
     }

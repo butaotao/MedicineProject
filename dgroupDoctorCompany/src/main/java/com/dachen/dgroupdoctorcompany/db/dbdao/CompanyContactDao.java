@@ -339,7 +339,10 @@ public class CompanyContactDao {
         }
         return new ArrayList<>();
     }
-    public List<CompanyContactListEntity> querySearchPage(String name, int pageNo,List<CompanyContactListEntity> company,boolean limit) {
+    public List<CompanyContactListEntity> querySearchPage(String name,
+                                                          int pageNo,
+                                                          List<CompanyContactListEntity> company,
+                                                          boolean limit) {
         QueryBuilder<CompanyContactListEntity, Integer> builder = articleDao.queryBuilder();
         String loginid = SharedPreferenceUtil.getString(context, "id", "");
         boolean ispinyin = false;

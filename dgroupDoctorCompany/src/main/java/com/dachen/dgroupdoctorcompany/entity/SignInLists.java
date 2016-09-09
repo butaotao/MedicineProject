@@ -54,6 +54,7 @@ public class SignInLists extends Result {
             public String headPic;
             public String signedId;
             public String coordinate;
+            public String visitId;
             public List<String> tag;
         }
     }

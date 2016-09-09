@@ -2,6 +2,7 @@ package com.dachen.dgroupdoctorcompany.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -224,7 +225,7 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
         String type = dataBean.tag.get(0);
         if("拜访".equals(type)||"协同拜访".equals(type)){
             Intent intent = null;
-            if("拜访".equals(type)){
+            /*if("拜访".equals(type)){
                 intent = new Intent(SignListActivity.this, AddSignInActivity.class);
                 intent.putExtra("mode",AddSignInActivity.MODE_FROM_SIGN_LIST);
             }else if("协同拜访".equals(type)){
@@ -258,6 +259,26 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
             intent.putExtra("time", time);
            // intent.putExtra("mode",AddSignInActivity.MODE_VISIT);
             intent.putExtra("doctorid", doctorid);
+            startActivity(intent);*/
+
+
+
+
+
+             intent = new Intent(SignListActivity.this, SiginDetailActivity.class);
+            intent.putExtra("day", "");
+            intent.putExtra("hour","");
+            intent.putExtra("remark",dataBean.remark);
+            intent.putExtra("address", dataBean.address);
+            intent.putExtra("longTime", dataBean.longTime);
+            intent.putExtra("signedid",dataBean.signedId);
+            intent.putExtra("id",dataBean.visitId);
+            if (null != dataBean.tag && dataBean.tag.size() > 0 && !TextUtils.isEmpty(dataBean.tag
+                    .get(0))) {
+                intent.putExtra("tag", dataBean.tag.get(0));
+            } else {
+                intent.putExtra("tag", "");
+            }
             startActivity(intent);
         }else {
             String strId = dataBean.signedId;

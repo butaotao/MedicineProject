@@ -147,8 +147,7 @@ public class MainActivity extends BaseActivity implements OnHttpListener,
 
         setContentView(R.layout.activity_main);
         instance = this;
-        ToastUtil.showToast(this,"=====================patchtest=====================");
-        mDao = new ChatGroupDao();
+          mDao = new ChatGroupDao();
         ButterKnife.bind(this);
         if (fragments == null) {
             fragments = new ArrayList<Fragment>();

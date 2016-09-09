@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewStub;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -78,7 +80,7 @@ public class ColleagueDetailActivity extends BaseActivity implements View.OnClic
     private SessionGroup groupTool;
     String manager;
     private String mId;
-
+    ImageView iv_lock;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +88,7 @@ public class ColleagueDetailActivity extends BaseActivity implements View.OnClic
         ButterKnife.bind(this);
         manager = getIntent().getStringExtra("manager");
         Bundle bundle = getIntent().getBundleExtra("peopledes");
+        iv_lock = (ImageView) findViewById(R.id.iv_lock);
         if (!TextUtils.isEmpty(manager)){
             ViewStub vstub_title = (ViewStub) findViewById(R.id.vstub_title);
             RelativeLayout rl = (RelativeLayout) this.findViewById(R.id.ll_sub);
@@ -159,7 +162,14 @@ public class ColleagueDetailActivity extends BaseActivity implements View.OnClic
             ll_phone.setVisibility(View.VISIBLE);
         }
         if (!ConditionLogic.isAllow(this)){
-            //tv_phone.set
+           tv_phone.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+            if (null!=entity&&!TextUtils.isEmpty(entity.telephone)&&entity.telephone.length()>=6){
+                tv_phone.setText(entity.telephone.substring(0,6));
+            }
+            iv_lock.setVisibility(View.VISIBLE);
+        }else {
+            iv_lock.setVisibility(View.GONE);
         }
     }
     @Nullable

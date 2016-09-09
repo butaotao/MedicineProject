@@ -270,20 +270,31 @@
                         android:id="@+id/tv_phonedes"
                         android:textColor="@color/color_cccccc"
                         android:textSize="13sp" />
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginRight="7dp"
+                        android:id="@+id/iv_lock"
+                        android:layout_marginTop="3dp"
 
+                        android:layout_below="@id/tv_phonedes"
+                        android:layout_alignParentLeft="true"
+                        android:background="@drawable/lock"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/tv_phonedes"
+                        android:layout_toRightOf="@+id/iv_lock"
                         android:layout_centerVertical="true"
                         android:layout_gravity="center_vertical"
                         android:contentDescription="@null"
                         android:singleLine="true"
                         android:maxEms="12"
                         android:textSize="16sp"
+
                         android:textColor="@color/color_333333"
                         android:ellipsize="end"
-                        android:layout_marginTop="1dp"
+                        android:layout_marginTop="3dp"
                         android:id="@+id/tv_phone"
                         android:text="@string/null_info"/>
                     <ImageView
@@ -302,6 +313,7 @@
                         android:layout_marginTop="7dp"
                         android:layout_toLeftOf="@+id/iv_messagesend"
                         android:background="@drawable/phonecall"/>
+
                 </RelativeLayout>
             </LinearLayout>
             <LinearLayout

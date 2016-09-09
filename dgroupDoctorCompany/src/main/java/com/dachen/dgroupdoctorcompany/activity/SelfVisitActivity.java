@@ -463,7 +463,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                 if (editEnable.data!=null) {
                     boolean etRemarkEnable = editEnable.data.editStatus;
                     Log.d("zxy :", "506 : SelfVisitActivity : onSuccess : editEnable = "+editEnable.data.editStatus);
-                   // setRemarkEnable(etRemarkEnable);
+                    setRemarkEnable(etRemarkEnable);
                 }
             }else if (response instanceof ServerTimeBean) {
                 ServerTimeBean time = (ServerTimeBean) response;
@@ -480,7 +480,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                         tv_time_location.setText(strTime + " " + mStrFloor);
                     }
                     if (MODE_FROM_VIST_LIST_ITEM == mMode || MODE_FROM_SIGN_LIST==mMode) {//拜访列表,签到列表,根据时间判断是否可以编辑
-                        setRemarkEnable(serviceTime < presentTime + 24 * 60 * 60 * 1000);
+                      //  setRemarkEnable(serviceTime < presentTime + 24 * 60 * 60 * 1000);
                     }
                 }
             } else if (response instanceof Result) {

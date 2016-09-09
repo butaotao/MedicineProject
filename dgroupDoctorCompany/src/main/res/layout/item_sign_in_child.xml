@@ -12,7 +12,7 @@
         android:background="#dddddd"
         android:gravity="center_vertical"
         android:paddingLeft="10dp"
-        android:text="6月24日"
+        android:text="@string/null_info"
         android:visibility="gone"/>
 
     <LinearLayout
@@ -54,19 +54,29 @@
                         android:layout_marginTop="8dp"
                         android:singleLine="true"
                         android:text="班"
+                        android:visibility="gone"
                         android:textColor="@color/color_333333"
                         android:textSize="16sp"/>
+                    <TextView
+                        android:id="@+id/tvLable"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginRight="8dp"
+                        android:background="@drawable/corner_blue_bg"
+                        android:gravity="center"
+                        android:minWidth="40dp"
+                        android:paddingBottom="2dp"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:paddingTop="2dp"
+                        android:text="上班"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        />
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tvTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginRight="15dp"
-                    android:gravity="right|center"
-                    android:text="10:00"
-                    android:textColor="@color/gray_999999"
-                    android:textSize="12sp"/>
+
             </LinearLayout>
 
             <LinearLayout
@@ -89,11 +99,22 @@
                         android:layout_marginTop="3dp"
                         android:singleLine="true"
                         android:text="kexing"
+                        android:layout_marginRight="30dp"
                         android:textColor="@color/gray_999999"
                         android:textSize="14sp"/>
-                </LinearLayout>
 
+                </LinearLayout>
                 <TextView
+                    android:id="@+id/tvTime"
+                    android:layout_marginTop="3dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="10dp"
+                    android:gravity="right|center"
+                    android:text="00:00"
+                    android:textColor="@color/gray_999999"
+                    android:textSize="12sp"/>
+                <!--<TextView
                     android:id="@+id/tvLable"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -109,7 +130,7 @@
                     android:text="上班"
                     android:textColor="@color/white"
                     android:textSize="12sp"
-                    />
+                    />-->
             </LinearLayout>
 
         </LinearLayout>

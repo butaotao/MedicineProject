@@ -12,12 +12,12 @@ public class ConditionLogic {
        if (SharedPreferenceUtil.getString(context, "enterpriseId", "").equals("577e2c24f509e2557056a184")){
            return false;
        };
-        return  false;
+        return  true;
     }
     public static boolean isAllowCall(String userId){
         if (userId.equals("19833")){
             return false;
         }
-        return false;
+        return true;
     }
 }

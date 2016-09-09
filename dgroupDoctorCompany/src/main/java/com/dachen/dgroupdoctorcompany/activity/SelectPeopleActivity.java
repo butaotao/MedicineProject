@@ -36,6 +36,7 @@ import com.dachen.dgroupdoctorcompany.im.utils.ChatActivityUtilsV2;
 import com.dachen.dgroupdoctorcompany.utils.CallIntent;
 import com.dachen.dgroupdoctorcompany.utils.CommonUitls;
 import com.dachen.dgroupdoctorcompany.utils.CompareDatalogic;
+import com.dachen.dgroupdoctorcompany.utils.ConditionLogic;
 import com.dachen.dgroupdoctorcompany.utils.GetAllDoctor;
 import com.dachen.dgroupdoctorcompany.views.GuiderHListView;
 import com.dachen.dgroupdoctorcompany.views.HorizontalListView;
@@ -116,7 +117,6 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
     private  final  int BACKCLICK = 3;
     private int from;
     private int currentPosition = 0;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -254,7 +254,7 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                     c1 = (CompanyDepment.Data.Depaments) (contact);
                     listsTitle.put(c1.id, c1);
                     if (c1 != null) {
-                        partName= c1.name;
+                        partName = c1.name;
                         idDep = c1.id;
                         from = LISTVIEWITEMCLICK;
                         /*mListGuider.addTask(partName,idDep);//数据请求成功后加载
@@ -292,9 +292,14 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
         mListGuider = (GuiderHListView) findViewById(R.id.org_listguilde);
         mListGuider.setOnItemClickListener(this);
         String companyName = SharedPreferenceUtil.getString(CompanyApplication.getInstance(), "enterpriseName", "");
-        mListGuider.addTask(companyName,idDep);
+        mListGuider.addTask(companyName, idDep);
         mListGuider.setAdapter();
         mListGuider.notifyDataSetChanged();
+        if (ConditionLogic.isAllow(this)){
+            mSearch.setText("搜索姓名/简拼/手机号");
+        }else {
+            mSearch.setText("搜索姓名/简拼");
+        }
         getOrganization();
     }
 /*
