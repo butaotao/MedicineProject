@@ -26,6 +26,7 @@ import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.entity.ServerTimeBean;
 import com.dachen.dgroupdoctorcompany.entity.SignLable;
+import com.dachen.dgroupdoctorcompany.entity.SignResult;
 import com.dachen.dgroupdoctorcompany.entity.WorkingDetail;
 import com.dachen.dgroupdoctorcompany.utils.CommonUitls;
 import com.dachen.dgroupdoctorcompany.utils.DataUtils.GetUserDepId;
@@ -394,7 +395,7 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
         if (TextUtils.isEmpty(signLable)){
             signLable = "";
         }
-        new HttpManager().post(this, Constants.CREATE_OR_UPDATA_SIGIN_IN, Result.class,
+        new HttpManager().post(this, Constants.CREATE_OR_UPDATA_SIGIN_IN, SignResult.class,
                 Params.getWorkingParams(AddSignInActivity.this, deviceId, remark, mId, coordinate, address, signLable, orgId),
                 this, false, 4);
     }
@@ -442,6 +443,14 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
                 }
             }else{
                 if(response.getResultCode() == 1){
+                    String signedId = "";
+                    if (response instanceof  SignResult){
+                        SignResult results =(SignResult)response;
+                        if(null!=results.data&&null!=results.data.signed){
+                            signedId = results.data.signed.id;
+                        }
+
+                    }
                     playAddSign();
                     if(TextUtils.isEmpty(mId)){
                         ToastUtil.showToast(AddSignInActivity.this, "签到成功");
@@ -456,6 +465,7 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
                                     intent.putExtra("longitude", longitude);
                                     intent.putExtra("latitude", latitude);
                                     intent.putExtra("addressname", addressname);
+                                    intent.putExtra("signedId",signedId);
                                     intent.putExtra("mode", CustomerVisitActivity.MODE_FROM_SIGN);
                                     intent.putExtra("city", city);
                                     startActivity(intent);
