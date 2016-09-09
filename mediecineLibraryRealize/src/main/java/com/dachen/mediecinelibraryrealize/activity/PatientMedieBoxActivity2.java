@@ -1,21 +1,6 @@
 package com.dachen.mediecinelibraryrealize.activity;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
@@ -27,7 +12,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewStub;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -45,19 +29,29 @@ import com.dachen.medicine.config.UserInfo;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
-import com.dachen.medicine.net.Params;
 import com.dachen.mediecinelibraryrealize.R;
 import com.dachen.mediecinelibraryrealize.activity.MyDialog.Dialogcallback;
 import com.dachen.mediecinelibraryrealize.adapter.BoxImageGalleryAdapter;
-import com.dachen.mediecinelibraryrealize.adapter.ImageGalleryAdapter;
-import com.dachen.mediecinelibraryrealize.entity.AlarmsTime;
 import com.dachen.mediecinelibraryrealize.entity.AlarmsTime.AlarmsTimeInfo;
-import com.dachen.mediecinelibraryrealize.entity.PatientBox;
 import com.dachen.mediecinelibraryrealize.entity.PatientBoxsData;
 import com.dachen.mediecinelibraryrealize.entity.Patients;
 import com.dachen.mediecinelibraryrealize.entity.Patients.patient;
 import com.dachen.mediecinelibraryrealize.utils.AlarmData;
 import com.dachen.mediecinelibraryrealize.utils.JsonUtils.BoxTransLate;
+
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 @SuppressLint("ResourceAsColor")
 @SuppressWarnings("deprecation")
@@ -197,7 +191,7 @@ public class PatientMedieBoxActivity2 extends BaseActivity implements  OnHttpLis
 
 	//http://192.168.3.7:9002/web/api/invoke/f6cf5b72a45e489c9305182c4653d22d/c_Recipe.get_user_patient_list
 	public void getPatient(){
-		String s = "org/drugReminder/getTodayDoseRecordLegendList";
+		String s = "drug/drugReminder/getTodayDoseRecordLegendList";
 		HashMap<String,String> interfaces = new HashMap<String,String>();
 		interfaces.put("userId", UserInfo.getInstance(this).getId());
 		interfaces.put("access_token", UserInfo.getInstance(this).getSesstion());
