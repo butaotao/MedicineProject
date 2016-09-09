@@ -147,6 +147,7 @@ public class SingnTodayAdapter extends android.widget.BaseAdapter{
                 intent.putExtra("address", listVisitVo.address);
                 intent.putExtra("longTime", listVisitVo.longTime);
                 intent.putExtra("signedid",listVisitVo.signedId);
+                intent.putExtra("id",listVisitVo.visitId);
                 if (null != listVisitVo.tag && listVisitVo.tag.size() > 0 && !TextUtils.isEmpty(listVisitVo.tag
                         .get(0))) {
                     intent.putExtra("tag", listVisitVo.tag.get(0));

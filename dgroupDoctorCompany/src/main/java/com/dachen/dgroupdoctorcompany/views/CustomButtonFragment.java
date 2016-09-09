@@ -223,7 +223,7 @@ public class CustomButtonFragment  extends Fragment {
         }
     }
     public void workOrOff(){
-        boolean haveworksignall = haveSignWork();
+        boolean haveworksignall = haveWork();
         if (haveworksignall) {
             works =false;
             d.setBackgroundResource(R.drawable.class_icon);

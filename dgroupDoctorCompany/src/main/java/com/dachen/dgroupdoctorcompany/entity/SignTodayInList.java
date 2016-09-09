@@ -28,6 +28,7 @@ public class SignTodayInList extends Result {
             public ArrayList<String> tag;
             public String headPic;
             public String signedId;
+            public String visitId;
             }
     }
 

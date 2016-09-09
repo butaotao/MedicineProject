@@ -97,7 +97,7 @@ public class MeetingDetailActivity extends BaseActivity implements View.OnClickL
                 editMeeting();
             }
         });
-        if (mMeeting.startTime<=nowTime&&nowTime<=mMeeting.endTime){
+        if (mMeeting.status!=1){
             mEdit.setTextColor(getResources().getColor(R.color.gray_888888));
             mEdit.setOnClickListener(new View.OnClickListener() {
                 @Override

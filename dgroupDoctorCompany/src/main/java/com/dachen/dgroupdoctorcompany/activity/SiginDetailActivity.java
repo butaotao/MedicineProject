@@ -1,12 +1,15 @@
 package com.dachen.dgroupdoctorcompany.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.dachen.common.utils.ToastUtil;
@@ -38,12 +41,16 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
     LinearLayout ll_state;
     LinearLayout ll_sign_tag;
     String signedid;
+    String tag;
+    Button btSubmit;
+    public String id;
+    RelativeLayout rl_btnsmit;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         View v = View.inflate(this,R.layout.activity_signed_detailactiviy,null);
         setContentView(v);
-
+        rl_btnsmit = (RelativeLayout) findViewById(R.id.rl_btnsmit);
         ll_state = (LinearLayout) findViewById(R.id.ll_state);
         ll_sign_tag = (LinearLayout) findViewById(R.id.ll_sign_tag);
         enableBack();
@@ -57,9 +64,12 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
         remark = getIntent().getStringExtra("remark");
         String day = getIntent().getStringExtra("day");
         String hour = getIntent().getStringExtra("hour");
-        String tag = getIntent().getStringExtra("tag");
+        tag = getIntent().getStringExtra("tag");
         String address = getIntent().getStringExtra("address");
         long longTime = getIntent().getLongExtra("longTime",0);
+        btSubmit = (Button) findViewById(R.id.btSubmit);
+
+        btSubmit.setVisibility(View.GONE);
         if(!TextUtils.isEmpty(day) && !TextUtils.isEmpty(hour)){
             tvDate.setText(day);
             tvTime.setText(hour);
@@ -80,7 +90,7 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
 //        etRemark.setEnabled(false);
         tvFlag1.setText(tag);
         ll_sign_tag.setVisibility(View.VISIBLE);
-        if(!TextUtils.isEmpty(tag)&&tag.equals("拜访")){
+        if(isVisit()){
             ll_sign_tag.setVisibility(View.GONE);
         }
         if (!TextUtils.isEmpty(tag)&&!tag.equals("拜访")){
@@ -111,15 +121,45 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
 
                    public void run()
                     {
+                        if (etRemark.getVisibility()==View.VISIBLE){
                             InputMethodManager inputManager =
-                                         (InputMethodManager)etRemark.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    (InputMethodManager)etRemark.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                             inputManager.showSoftInput(etRemark, 0);
+                        }
+
                          }
 
                  },
                 998);
 
     }
+    private boolean isVisit(){
+        if(!TextUtils.isEmpty(tag)&&tag.equals("拜访")){
+            id = getIntent().getStringExtra("id");
+            if (!TextUtils.isEmpty(id)){
+                btSubmit.setVisibility(View.VISIBLE);
+                rl_btnsmit.setVisibility(View.VISIBLE);
+                btSubmit.setText("查看/编辑拜访详情");
+                btSubmit.setOnClickListener(this);
+            }
+
+           return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onClick(View v) {
+        super.onClick(v);
+        switch (v.getId()){
+            case R.id.btSubmit:
+                Intent intent = new Intent(SiginDetailActivity.this, VisitDetailActivity.class);
+                intent.putExtra("id", id+"");
+                startActivity(intent);
+                break;
+        }
+    }
+
     public void upDate(String id,String des){
         showLoadingDialog();
         HashMap<String,String> maps = new HashMap<>();

@@ -54,12 +54,10 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            Intent intent = new Intent(DeleteColleActivity.this, ManagerColleagueActivity.class);
-            intent.putExtra("position", mPosition);
-            setResult(1001, intent);
-            finish();
+            setData();
         }
     };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,43 +102,53 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
     }
 
     @Override
+    public void finish() {
+        Intent intent = new Intent(DeleteColleActivity.this, ManagerColleagueActivity.class);
+        intent.putExtra("position", mPosition);
+        setResult(1001, intent);
+        super.finish();
+    }
+    public void setData(){
+        if (GetAllDoctor.changeContact!=null&&GetAllDoctor.changeContact.size()>0){
+            Iterator<CompanyContactListEntity> entityIterator =GetAllDoctor.changeContact.iterator();
+            while (entityIterator.hasNext()){
+                CompanyContactListEntity entitye =entityIterator.next();
+                if ((entity.userId+"").equals(entitye.userId)){
+                    tv_namedes.setText(entitye.name);
+                    tv_departdes.setText(entitye.department);
+                    tv_positiondes.setText(entitye.position);
+                    tv_phonedes.setText(entitye.telephone);
+                    entity = entitye;
+                    if (entityMySelf!=null&&!TextUtils.isEmpty(entityMySelf.treePath)&&
+                            !entity.treePath.startsWith(entityMySelf.treePath)){
+                        rl_editname.setOnClickListener(null);
+                        rl_editdept.setOnClickListener(null);
+                        rl_position.setOnClickListener(null);
+                        findViewById(R.id.arrow1).setVisibility(View.GONE);
+                        findViewById(R.id.arrow2).setVisibility(View.GONE);
+                        findViewById(R.id.arrow3).setVisibility(View.GONE);
+                        btn_delete.setBackgroundColor(getResources().getColor(R.color.red_88f95442));
+                        btn_setrepresent.setBackgroundColor(getResources().getColor(R.color.color_8839cf78));
+                        btn_setmanager.setBackgroundColor(getResources().getColor(R.color.color_9ddcff));
+
+                        btn_setmanager.setFocusable(false);
+                        btn_setmanager.setClickable(false);
+
+                        btn_delete.setFocusable(false);
+                        btn_delete.setClickable(false);
+
+                        btn_setrepresent.setFocusable(false);
+                        btn_setrepresent.setClickable(false);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    @Override
     protected void onResume() {
         super.onResume();
-        if (GetAllDoctor.changeContact!=null&&GetAllDoctor.changeContact.size()>0){
-                Iterator<CompanyContactListEntity> entityIterator =GetAllDoctor.changeContact.iterator();
-                while (entityIterator.hasNext()){
-                    CompanyContactListEntity entitye =entityIterator.next();
-                    if ((entity.userId+"").equals(entitye.userId)){
-                        tv_namedes.setText(entitye.name);
-                        tv_departdes.setText(entitye.department);
-                        tv_positiondes.setText(entitye.position);
-                        tv_phonedes.setText(entitye.telephone);
-                        entity = entitye;
-                        if (entityMySelf!=null&&!TextUtils.isEmpty(entityMySelf.treePath)&&
-                                !entity.treePath.startsWith(entityMySelf.treePath)){
-                            rl_editname.setOnClickListener(null);
-                            rl_editdept.setOnClickListener(null);
-                            rl_position.setOnClickListener(null);
-                            findViewById(R.id.arrow1).setVisibility(View.GONE);
-                            findViewById(R.id.arrow2).setVisibility(View.GONE);
-                            findViewById(R.id.arrow3).setVisibility(View.GONE);
-                            btn_delete.setBackgroundColor(getResources().getColor(R.color.red_88f95442));
-                            btn_setrepresent.setBackgroundColor(getResources().getColor(R.color.color_8839cf78));
-                            btn_setmanager.setBackgroundColor(getResources().getColor(R.color.color_9ddcff));
-
-                            btn_setmanager.setFocusable(false);
-                            btn_setmanager.setClickable(false);
-
-                            btn_delete.setFocusable(false);
-                            btn_delete.setClickable(false);
-
-                            btn_setrepresent.setFocusable(false);
-                            btn_setrepresent.setClickable(false);
-                        }
-                        break;
-                    }
-                }
-        }
+        setData();
 
     }
 
