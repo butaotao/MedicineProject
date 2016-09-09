@@ -152,6 +152,7 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
 //                childHolder.tvRemark.setText(remark);
             Date date = new Date(time);
             String strDate = TimeFormatUtils.china_format_date(date);//格式化日期X月X日
+            childHolder.tvSinginDate.setVisibility(View.GONE);
             if (position == 0) {//第一条目显示日期
                 childHolder.tvSinginDate.setVisibility(View.VISIBLE);
                 childHolder.tvSinginDate.setText(strDate);
