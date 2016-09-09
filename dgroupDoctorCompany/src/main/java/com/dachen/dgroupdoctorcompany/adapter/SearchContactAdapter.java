@@ -14,6 +14,7 @@ import com.dachen.dgroupdoctorcompany.activity.SearchContactActivity;
 import com.dachen.dgroupdoctorcompany.db.dbentity.Doctor;
 import com.dachen.dgroupdoctorcompany.entity.BaseSearch;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
+import com.dachen.dgroupdoctorcompany.utils.ConditionLogic;
 import com.dachen.dgroupdoctorcompany.utils.HtmlTextViewEdit;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.common.utils.StringUtils;
@@ -88,8 +89,8 @@ public class SearchContactAdapter extends BaseCustomAdapter<BaseSearch>{
                 Spanned spanned = HtmlTextViewEdit.showkeywordContent(people.name,activity.searchText,context);
                 if (activity!=null/*&&activity.showColleague*/){
                     boolean isNum = StringUtils.isNumeric(activity.searchText.toLowerCase());
-                    if (people.name.toLowerCase().contains(activity.searchText.toLowerCase())&&!(
-                            isNum&&people.telephone.contains(activity.searchText)
+                    if (people.name.toLowerCase().contains(activity.searchText.toLowerCase())&&(!(
+                            isNum&&people.telephone.contains(activity.searchText))|| !ConditionLogic.isAllow(context)
                             )){
                         holder.tv_name_leader.setText(spanned);
                         show = false;

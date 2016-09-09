@@ -13,6 +13,7 @@ import com.dachen.dgroupdoctorcompany.entity.BaseSearch;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.entity.CompanyDepment;
 import com.dachen.dgroupdoctorcompany.fragment.AddressList;
+import com.dachen.dgroupdoctorcompany.utils.TextUtils;
 import com.dachen.dgroupdoctorcompany.utils.UserInfo;
 
 import java.util.List;
@@ -22,7 +23,7 @@ import java.util.List;
  */
 public class ManagerColleagueActivity extends CompanyContactListActivity implements View.OnClickListener{
     CompanyContactDao companyContactDao;
-    String idDep;
+   // String idDep;
     String companyId;
     CompanyContactListEntity entity;
     RelativeLayout rl_addpeople;
@@ -48,7 +49,7 @@ public class ManagerColleagueActivity extends CompanyContactListActivity impleme
         rl_addpeople.setVisibility(View.VISIBLE);
         companyContactDao = new CompanyContactDao(ManagerColleagueActivity.this);
         List<CompanyContactListEntity> lists = companyContactDao.queryAll();
-        idDep = AddressList.deptId;
+      //  idDep = AddressList.deptId;
         companyId = UserInfo.getInstance(this).getCompanyId();
         String depName = getIntent().getStringExtra("depName");
         setBaseDepartName(depName);
@@ -83,6 +84,11 @@ public class ManagerColleagueActivity extends CompanyContactListActivity impleme
        switch (v.getId()){
             case R.id.rl_addpeople:
                 Intent intent = new Intent(this, FriendsContactsActivity.class);
+                if (!android.text.TextUtils.isEmpty(idDep)){
+                    intent.putExtra("deptid",idDep);
+                }else {
+                    intent.putExtra("deptid",AddressList.deptId);
+                }
                 startActivityForResult(intent, 200);
                 break;
         }

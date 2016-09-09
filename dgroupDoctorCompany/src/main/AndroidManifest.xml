@@ -91,6 +91,15 @@
             android:name="com.amap.api.v2.apikey"
             android:value="616a3cd8652207b8b71dce8d5c83b34e"/><!--//高德Key-->
 
+        <meta-data
+            android:name="com.taobao.android.hotfix.APPSECRET"
+            android:value="785bc8ee16c53ae07e98951be94fa194" />
+        <meta-data
+            android:name="com.taobao.android.hotfix.RSASECRET"
+            android:value="MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCtylFc1QJx420t+m2jDZiUJ6IVYjGASRauU23Jaq4OgwGBVsTPdFpCe3Hq2BVrSJMJUyN0kF+vkCx9kHnmtKknTvbmmCX92iJd1J7AaxDlCuXFNlDyLW3gpa6njTeFfdMPhDWjtUAU3FI++owiaSx6fyMN+5TZ66DQ9i7IhG70JrKsL0lrMqwOe6y+t2xBylzAAM4M5pJU7QCpzx3hqRpcsJFtReJHhkg8UvgA4na8HNaRVmEOvQ5Y/IqWA1EDNwRymGcBw6Jl3LTlfIvIIVjILanSXgjy/zOzANCWliAGU7NCdy7NnnVUVPc2wIpTe9r410iQT7m3YB/HnA/k+Tu9AgMBAAECggEAR8amYdvLvbO7NOEYBN6ppI7V31UFssD88BSe5C/+IRo0NfHbKP8aBBktzFtgRUXdDF3c59h03HKEHXvdDM6SihyP1l8CWdyMkwosYrYVbTNaAGBVgCAJIF3tS2AEjUqRL/hfmvRRugvgoAgkdlXPu+vkU3MTYAl0CrmSSth/ZrAhj3zZmlBm1GXhgkKyela2/2/GaW+z9R6OPipfZuJzCQ/oupIvcyqMvhT7JS3BKzGcDrTWeHu7kzmKI8AboZnFIwvXSIZLGGm8F/QQeugmAJeuNTzd4eL/oeMpS6IBgCdM+zJskS8DaiGx3gYEs/arQcA3PbuskGznQ38qKtAEQQKBgQDrq0n2JJhcFQcanniXszCj11orCDK8blFfUmN6zWsYm+1e+eIOjywDXgNZWTGKOOFKZ6nTB+Tka8fpsqFOuorHv5rFQOBLJiOVp7DM3uEVAFSxwfRGBKzadqIMG7qkVzXwwuOtf7Ic0jglsKAp6tcq/Qi4Tobulu2sxEQxBotFkQKBgQC8yHJOOUHqnWTQjCjOGMyTKRJTv6+wcHaKvU5IkD9jcwvpiM2/QlXmeLJeYudof4lgB1oWtfxlmPscYPRbzBj4CSdIJRJBku1HNsHz3eepuLe8RXZglsBGLdNiD9F01b6hOtTfJBqW+h/OpFO1MzO4B0ZlhrI7uTLxEM6x28BNbQKBgQC5VwOazdr5CByHJbwnaehF4jZqg08LfCMIuU29JVIlj3OV7yWGV7jAiS5PFWNtliAwGOipK5sqvU0CkNZliTVdtGVu3f/Heh4gMzpLVLllf9Yb2jJW4pRiV0xIA4K8fk3QpCTUrQmRuw4nLgo4DRXdHBTAhhl+CDqxVcVfXQso0QKBgCUjlgE3mHUsg7HXcQuiq1RkJxvcwRaH+Xov5d+2qRHKh1RpOnje9wFBS23wLTBMrtz6dUm0gbQHFZeup0QL8fmR621xBZdq7U0uQ5fTVwj3swXR8Ijt/2OPDl/jVsSSbE9RwKEpfCWpjWpcv68NJKaWn83HYvcG5zOvp8orvjg9AoGBAOIL4WIVnyfvra/ALJLC8i8y7gQz63F/ol9UvMtjxlk7etyvNn6GIvUqFNOb0AvshiFEKdRQqK1j3KFjfGaImnU5H7yBsxgX5kQdlGNAUp8BhT+6dtSjp8ZMNYE6gvIOqjpVrXkKMN4ukEQ5vYOYrZcHQpwHSHpnFUIAMEM6iEgV6iEgV" />
+
+
+
         <service android:name="com.amap.api.location.APSService"></service>
 
         <service

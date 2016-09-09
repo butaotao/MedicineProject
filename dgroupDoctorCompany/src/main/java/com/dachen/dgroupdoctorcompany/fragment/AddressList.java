@@ -36,6 +36,7 @@ import com.dachen.dgroupdoctorcompany.im.activity.MyFavChatGroupActivity;
 import com.dachen.dgroupdoctorcompany.im.utils.ChatActivityUtilsV2;
 import com.dachen.dgroupdoctorcompany.receiver.ChangeReceiver;
 import com.dachen.dgroupdoctorcompany.utils.CompareDatalogic;
+import com.dachen.dgroupdoctorcompany.utils.ConditionLogic;
 import com.dachen.dgroupdoctorcompany.utils.UserInfo;
 import com.dachen.imsdk.consts.SessionType;
 import com.dachen.imsdk.db.dao.ChatGroupDao;
@@ -162,6 +163,12 @@ public class AddressList extends BaseFragment implements View.OnClickListener{
 		layout_search1.setOnClickListener(this);
 		et_search = (TextView) listviewheader.findViewById(R.id.et_search);
 		et_search.setOnClickListener(this);
+		if (ConditionLogic.isAllow(mActivity)){
+			et_search.setText("搜索姓名/简拼/手机号");
+		}else {
+			et_search.setText("搜索姓名/简拼");
+		}
+
 		receiver = new ChangeReceiver(){
 			@Override
 			public void onReceive(Context context, Intent intent) {

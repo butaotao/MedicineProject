@@ -42,6 +42,7 @@ public class AddFriendByPhone extends BaseActivity implements HttpManager.OnHttp
     Button btn_sure;
     @Bind(R.id.rl_back)
     RelativeLayout rl_back;
+    public String deptid;
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -54,6 +55,7 @@ public class AddFriendByPhone extends BaseActivity implements HttpManager.OnHttp
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addfriend_byphone);
         ButterKnife.bind(this);
+        deptid = getIntent().getStringExtra("deptid");
         setTitle("手机号码添加");
      //   enableBack();
         phone_numer_edit.addTextChangedListener(new TextWatcher() {
@@ -131,6 +133,7 @@ public class AddFriendByPhone extends BaseActivity implements HttpManager.OnHttp
         maps.put("drugCompanyId", SharedPreferenceUtil.getString(this, "enterpriseId", ""));
         maps.put("id",""+ AddressList.deptId);
         maps.put("telephone",phoneNumber);
+        maps.put("orgId",""+deptid);
         //1表示移动端添加
         maps.put("addSource","1");
         String userName = "";

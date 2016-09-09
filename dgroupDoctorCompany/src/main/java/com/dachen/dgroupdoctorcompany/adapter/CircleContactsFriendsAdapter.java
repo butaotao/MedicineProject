@@ -166,7 +166,7 @@ public class CircleContactsFriendsAdapter extends BaseAdapter<ContactsInfo>imple
         HashMap<String ,String > maps = new HashMap<>();
         maps.put("access_token", UserInfo.getInstance(mContext).getSesstion());
         maps.put("drugCompanyId", SharedPreferenceUtil.getString(mContext, "enterpriseId", ""));
-        maps.put("orgId",""+ AddressList.deptId);
+        maps.put("orgId",""+ activity.deptid);
         maps.put("telephone",finalPhone);
         maps.put("addSource","1");
         String userName = "";

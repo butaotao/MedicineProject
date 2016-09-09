@@ -40,6 +40,7 @@ import com.dachen.dgroupdoctorcompany.entity.CompanyDepment;
 import com.dachen.dgroupdoctorcompany.fragment.AddressList;
 import com.dachen.dgroupdoctorcompany.im.activity.Represent2DoctorChatActivity;
 import com.dachen.dgroupdoctorcompany.utils.CommonUitls;
+import com.dachen.dgroupdoctorcompany.utils.ConditionLogic;
 import com.dachen.dgroupdoctorcompany.utils.ExitActivity;
 import com.dachen.dgroupdoctorcompany.views.HorizontalListView;
 import com.dachen.imsdk.adapter.MsgMenuAdapter;
@@ -131,7 +132,12 @@ public class SearchContactActivity extends BaseActivity implements OnClickListen
         addlistview.setAdapter(addAdapter);
       //  findViewById(R.id.rl_sure).setVisibility(View.GONE);
         if (TextUtils.isEmpty(seachdoctor)){
-            et_search.setHint("搜索姓名/简拼/手机号");
+            if (ConditionLogic.isAllow(this)){
+                et_search.setHint("搜索姓名/简拼/手机号");
+            }else {
+                et_search.setHint("搜索姓名/简拼");
+            }
+
         }else {
             et_search.setHint("输入医生姓名关键词搜索");
             showDoctor = true;

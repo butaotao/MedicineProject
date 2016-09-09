@@ -12,6 +12,8 @@ import android.graphics.Bitmap.Config;
 import android.os.Build;
 import android.os.Environment;
 import android.support.multidex.MultiDexApplication;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.dachen.common.DCommonSdk;
 import com.dachen.common.media.SoundPlayer;
@@ -44,6 +46,8 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 import com.xiaomi.mipush.sdk.MiPushClient;
+import com.taobao.hotfix.HotFixManager;
+import com.taobao.hotfix.NewPatchListener;
 
 import java.io.File;
 import java.util.List;
@@ -71,11 +75,16 @@ public class CompanyApplication extends MultiDexApplication{
     public static Map<String, String> CHINESE_MAP;
     public static int initContactList = 1;
     public static SoundPlayer player;
+    String appVersion;
+    String appId;
+    CompanyApplication application;
     @Override
     public void onCreate() {
         // TODO Auto-generated method stub
         super.onCreate();
         context = this;
+        initApp();
+        initHotfix();
         mAppConfig = ContextConfig.getInstance();
         ReminderReminder.getReminderReminder().setReminders(this);
         PINYIN_TABLE = PinyinResource.getPinyinResource(this);
@@ -328,4 +337,28 @@ public class CompanyApplication extends MultiDexApplication{
             return "";
         }
     }
+    private void initApp() {
+        this.appId = "70912-1";
+        this.application = this;
+        try {
+            this.appVersion = this.getPackageManager().getPackageInfo(this.getPackageName(), 0).versionName;
+        } catch (Exception e) {
+            this.appVersion = "1.0.0";
+        }
+    }
+
+    private void initHotfix() {
+        //初始化
+        HotFixManager hotFixManager = HotFixManager.getInstance().initialize(application, appVersion, appId, mNewPatchListener);
+        //查询最新patch
+        hotFixManager.queryNewHotPatch();
+    }
+
+    NewPatchListener mNewPatchListener = new NewPatchListener() {
+        @Override
+        public void handlePatch(int patchVersion) {
+            // TODO do something
+            Toast.makeText(CompanyApplication.this, "请重启应用进行更新", Toast.LENGTH_SHORT).show();
+        }
+    };
 }

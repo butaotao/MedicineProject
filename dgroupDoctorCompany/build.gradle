@@ -97,12 +97,16 @@ repositories {
     maven {
         url  "https://dl.bintray.com/mcp98252302/maven"
     }
+    flatDir {
+        dirs 'libs'
+    }
 }
 dependencies {
     compile 'com.android.support:multidex:1.0.1'
-    /*  compile fileTree(dir: 'libs', include: ['*.jar'])
-                                                                                    testCompile 'junit:junit:4.12'
-                                                                                    compile 'com.android.support:appcompat-v7:23.1.1'*/
+   /*   compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'*/
+     /* testCompile 'junit:junit:4.12'
+     compile 'com.android.support:appcompat-v7:23.1.1'*/
     compile project(':actionSheetLibrary')
     compile 'com.jakewharton:butterknife:7.0.1'
     compile files('libs/MiPush_SDK_Client_3_0_3.jar')
@@ -121,6 +125,9 @@ dependencies {
     compile project(':meidecineLibrary')
     compile project(':teleconference')
     compile project(':cordovaLib')
+    compile files('libs/alisdk-utdid-0.0.1.jar')
+    //如果项目中已经依赖过alisdk-utdid，则不需要再次依赖
+    compile(name: 'alisdk-hotfix-armeabi-1.1.0', ext: 'aar')
 }
 
 apply plugin: 'eclipse'

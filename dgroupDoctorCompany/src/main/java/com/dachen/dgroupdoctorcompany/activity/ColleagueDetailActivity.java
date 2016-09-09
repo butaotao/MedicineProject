@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -17,6 +18,7 @@ import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.im.activity.Represent2RepresentChatActivity;
+import com.dachen.dgroupdoctorcompany.utils.ConditionLogic;
 import com.dachen.dgroupdoctorcompany.utils.UserInfo;
 import com.dachen.imsdk.db.dao.ChatGroupDao;
 import com.dachen.imsdk.entity.GroupInfo2Bean.Data;
@@ -71,6 +73,7 @@ public class ColleagueDetailActivity extends BaseActivity implements View.OnClic
     @Nullable
     @Bind(R.id.tv_back)
     TextView tv_back;
+    LinearLayout ll_phone;
     private CompanyContactListEntity entity;
     private SessionGroup groupTool;
     String manager;
@@ -113,7 +116,8 @@ public class ColleagueDetailActivity extends BaseActivity implements View.OnClic
             phonenum = entity.telephone;
             findViewById(R.id.btn_sendinfo).setOnClickListener(this);
             findViewById(R.id.btn_oftencontact).setOnClickListener(this);
-            findViewById(R.id.ll_phone).setOnClickListener(this);
+            ll_phone = (LinearLayout) findViewById(R.id.ll_phone);
+                    ll_phone.setOnClickListener(this);
             String url = "";
             if (!TextUtils.isEmpty(entity.headPicFileName)){
                 CustomImagerLoader.getInstance().loadImage( head_icon, entity.headPicFileName,
@@ -131,7 +135,8 @@ public class ColleagueDetailActivity extends BaseActivity implements View.OnClic
                 phonenum = entity.telephone;
                 findViewById(R.id.btn_sendinfo).setOnClickListener(this);
                 findViewById(R.id.btn_oftencontact).setOnClickListener(this);
-                findViewById(R.id.ll_phone).setOnClickListener(this);
+                ll_phone = (LinearLayout) findViewById(R.id.ll_phone);
+                ll_phone.setOnClickListener(this);
                 String url = "";
                 if (!TextUtils.isEmpty(entity.headPicFileName)){
                     CustomImagerLoader.getInstance().loadImage( head_icon, entity.headPicFileName,
@@ -148,7 +153,14 @@ public class ColleagueDetailActivity extends BaseActivity implements View.OnClic
             groupTool=new SessionGroup(this);
             groupTool.setCallback(this);
         }
-
+        if (entity!=null&&!ConditionLogic.isAllowCall(entity.userId)){
+            ll_phone.setVisibility(View.GONE);
+        }else {
+            ll_phone.setVisibility(View.VISIBLE);
+        }
+        if (!ConditionLogic.isAllow(this)){
+            //tv_phone.set
+        }
     }
     @Nullable
     @OnClick(R.id.iv_phonecall)

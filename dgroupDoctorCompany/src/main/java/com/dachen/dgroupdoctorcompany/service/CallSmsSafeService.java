@@ -54,6 +54,7 @@ import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.utils.CommonUitls;
+import com.dachen.dgroupdoctorcompany.utils.ConditionLogic;
 import com.dachen.dgroupdoctorcompany.utils.UserInfo;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.net.CustomImagerLoader;
@@ -330,7 +331,10 @@ public class CallSmsSafeService extends Service {
 		}else {
 			params.type = WindowManager.LayoutParams.TYPE_PRIORITY_PHONE;
 		}
-		wm.addView(view, params);
+		if (ConditionLogic.isAllow(this)){
+			wm.addView(view, params);
+		}
+
 	}
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {

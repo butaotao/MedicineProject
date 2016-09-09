@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import com.dachen.dgroupdoctorcompany.db.SQLiteHelper;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
+import com.dachen.dgroupdoctorcompany.utils.ConditionLogic;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.common.utils.StringUtils;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
@@ -368,17 +369,20 @@ public class CompanyContactDao {
                             phones.add(company.get(i).userId);
                         }
                     }
-                    where.and(where.and(where.eq("userloginid", loginid), where.like("telephone", name)),
-                            where.notIn("userId", phones));
-                    if (null != where.query()) {
-                        entities.addAll(builder.distinct().query());
-                    }
+                    if (ConditionLogic.isAllow(context)){
+                        where.and(where.and(where.eq("userloginid", loginid), where.like("telephone", name)),
+                                where.notIn("userId", phones));
+                        if (null != where.query()) {
+                            entities.addAll(builder.distinct().query());
+                        }
 
-                    if (null!=entities&&entities.size()>0){
-                        for (int i = 0; i < entities.size(); i++) {
-                            phones.add(entities.get(i).userId);
+                        if (null!=entities&&entities.size()>0){
+                            for (int i = 0; i < entities.size(); i++) {
+                                phones.add(entities.get(i).userId);
+                            }
                         }
                     }
+
 
                     builder.reset();
                     where.reset();
