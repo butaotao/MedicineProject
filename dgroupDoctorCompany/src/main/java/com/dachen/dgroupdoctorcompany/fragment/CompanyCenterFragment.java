@@ -77,11 +77,15 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
                             MyAppBean bean = (MyAppBean) response;
                             mAdapter.removeAll();
                             mPageData.clear();
-                            mPageData = bean.data.pageData;
-                            if (mPageData.size() > 0 && mPageData != null) {
-                                mAdapter.addData(mPageData);
-                                mAdapter.notifyDataSetChanged();
+                            if (null!=bean.data&&null!=bean.data.pageData&&bean.data.pageData.size()>0){
+                                mPageData.addAll(bean.data.pageData);
                             }
+                            mAdapter.notifyDataSetChanged();
+                          //  mPageData = bean.data.pageData;
+                            /*if (mPageData.size() > 0 && mPageData != null) {
+                              //  mAdapter.addData(mPageData);
+                                mAdapter.notifyDataSetChanged();
+                            }*/
                         }
                     }
 
