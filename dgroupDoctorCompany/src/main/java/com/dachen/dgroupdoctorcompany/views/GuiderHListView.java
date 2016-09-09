@@ -16,9 +16,9 @@ import java.util.Map;
  * @Author: zxy on 16/8/23下午7:40.
  * @描述 水平导航列表
  */
-public class GuiderHListView extends HListview {
+public class GuiderHListView extends HListView {
     Context mContext;
-    private HListview mHListView;
+    private HListView mHListView;
     private ArrayList<String> mListGuide;              //导航Listview数据
     private Map<Integer, ArrayList<String>> departList;   //导航Listview数据任务栈
     private CompanyListGuide mListGuideAdapter;

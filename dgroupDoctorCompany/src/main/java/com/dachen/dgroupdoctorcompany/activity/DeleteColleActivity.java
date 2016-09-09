@@ -55,6 +55,7 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             setData();
+            showBtn();
         }
     };
 
@@ -98,6 +99,7 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
 
         enableBack();
         showBtn();
+
 
     }
 
