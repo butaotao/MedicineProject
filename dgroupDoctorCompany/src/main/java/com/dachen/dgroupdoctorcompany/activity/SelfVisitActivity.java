@@ -146,7 +146,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
         if(MODE_FROM_VIST_LIST_ITEM == mMode){
             tv_title.setText("拜访详情");
         }else if(MODE_FROM_SIGN == mMode || MODE_FROM_SIGN_LIST == mMode){
-            tv_title.setText("客户拜访");
+            tv_title.setText("签到详情");
 
         }else if (MODE_FROM_VIST_LIST == mMode){
             tv_title.setText("单独拜访");

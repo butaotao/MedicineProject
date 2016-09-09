@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -55,6 +56,7 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
         ll_sign_tag = (LinearLayout) findViewById(R.id.ll_sign_tag);
         enableBack();
         setTitle("签到详情");
+
         tvDate = (TextView) findViewById(R.id.tvDate);
         tvTime = (TextView) findViewById(R.id.tvTime);
         etRemark = (EditText) findViewById(R.id.etRemark);
@@ -67,6 +69,25 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
         tag = getIntent().getStringExtra("tag");
         String address = getIntent().getStringExtra("address");
         long longTime = getIntent().getLongExtra("longTime",0);
+        String from = getIntent().getStringExtra("from");
+        Log.d("zxy :", "72 : SiginDetailActivity : onCreate : from = "+from);
+        if ("searchSign".equals(from) ) {
+            etRemark.setEnabled(false);
+            etRemark.setHint("");
+        }else {
+            if (!TextUtils.isEmpty(tag)&&!tag.equals("拜访")){
+                TitleManager.showText(this, v, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (TextUtils.isEmpty(etRemark.getText().toString())){
+                            ToastUtil.showToast(SiginDetailActivity.this,"请输入备注!");
+                            return;
+                        }
+                        upDate(signedid,etRemark.getText().toString());
+                    }
+                }, "保存");
+            }
+        }
         btSubmit = (Button) findViewById(R.id.btSubmit);
 
         btSubmit.setVisibility(View.GONE);
@@ -93,18 +114,7 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
         if(isVisit()){
             ll_sign_tag.setVisibility(View.GONE);
         }
-        if (!TextUtils.isEmpty(tag)&&!tag.equals("拜访")){
-            TitleManager.showText(this, v, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (TextUtils.isEmpty(etRemark.getText().toString())){
-                        ToastUtil.showToast(SiginDetailActivity.this,"请输入备注!");
-                        return;
-                    }
-                    upDate(signedid,etRemark.getText().toString());
-                }
-            }, "保存");
-        }
+
         tvAddress.setText(address);
         ll_state.setVisibility(View.GONE);
        if (!TextUtils.isEmpty(tag)){
