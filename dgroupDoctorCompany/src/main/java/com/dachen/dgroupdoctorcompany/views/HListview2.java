@@ -62,7 +62,7 @@ import java.util.Queue;
  * </ul>
  */
 // @formatter:on
-public class HListView extends AdapterView<ListAdapter> {
+public class HListview2 extends AdapterView<ListAdapter> {
     /** Defines where to insert items into the ViewGroup, as defined in {@code ViewGroup #addViewInLayout(View, int, LayoutParams, boolean)} */
     private static final int INSERT_AT_END_OF_LIST = -1;
     private static final int INSERT_AT_START_OF_LIST = 0;
@@ -182,7 +182,7 @@ public class HListView extends AdapterView<ListAdapter> {
      */
     private OnClickListener mOnClickListener;
 
-    public HListView(Context context, AttributeSet attrs) {
+    public HListview2(Context context, AttributeSet attrs) {
         super(context, attrs);
         mEdgeGlowLeft = new EdgeEffectCompat(context);
         mEdgeGlowRight = new EdgeEffectCompat(context);
@@ -1094,20 +1094,20 @@ public class HListView extends AdapterView<ListAdapter> {
 
         @Override
         public boolean onDown(MotionEvent e) {
-            return HListView.this.onDown(e);
+            return HListview2.this.onDown(e);
         }
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
                                float velocityY) {
-            return HListView.this.onFling(e1, e2, velocityX, velocityY);
+            return HListview2.this.onFling(e1, e2, velocityX, velocityY);
         }
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2,
                                 float distanceX, float distanceY) {
 
-            synchronized (HListView.this) {
+            synchronized (HListview2.this) {
                 mNextX += (int) distanceX;
             }
             requestLayout();
@@ -1124,10 +1124,10 @@ public class HListView extends AdapterView<ListAdapter> {
                 int adapterIndex = mLeftViewAdapterIndex + index;
                 if (isEventWithinView(e, child)) {
                     if (mOnItemClicked != null) {
-                        mOnItemClicked.onItemClick(HListView.this, child, adapterIndex, mAdapter.getItemId(adapterIndex));
+                        mOnItemClicked.onItemClick(HListview2.this, child, adapterIndex, mAdapter.getItemId(adapterIndex));
                     }
                     if (mOnItemSelected != null) {
-                        mOnItemSelected.onItemSelected(HListView.this, child, adapterIndex, mAdapter.getItemId(adapterIndex));
+                        mOnItemSelected.onItemSelected(HListview2.this, child, adapterIndex, mAdapter.getItemId(adapterIndex));
                     }
                     break;
                 }
@@ -1142,7 +1142,7 @@ public class HListView extends AdapterView<ListAdapter> {
                 View child = getChildAt(i);
                 if (isEventWithinView(e, child)) {
                     if (mOnItemLongClicked != null) {
-                        mOnItemLongClicked.onItemLongClick(HListView.this, child, mLeftViewAdapterIndex + 1 + i, mAdapter.getItemId(mLeftViewAdapterIndex + 1 + i));
+                        mOnItemLongClicked.onItemLongClick(HListview2.this, child, mLeftViewAdapterIndex + 1 + i, mAdapter.getItemId(mLeftViewAdapterIndex + 1 + i));
                     }
                     break;
                 }

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
@@ -92,6 +91,8 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
     private int from;
     String  depName;
     private int currentPosition = 0;
+    private boolean isOpenHttp;
+    private boolean isHttpClose;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -239,8 +240,6 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
     }
     public void getDepment(BaseSearch contact ,boolean clickRadio){
         CompanyDepment.Data.Depaments  c1 = (CompanyDepment.Data.Depaments) (contact);
-       // setTitle(c1.name);
-       // Log.d("zxy :", "233 : CompanyContactListActivity : getDepment :  "+c1.name);
         from = LISTVIEWITEMCLICK;
         departName = c1.name;
         parentId = c1.parentId;
@@ -353,6 +352,7 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
 
     public void getOrganization(String idDep) {
         showLoadingDialog();
+        isOpenHttp = true;
         HashMap<String, String> maps = new HashMap<>();
         maps.put("access_token", UserInfo.getInstance(this).getSesstion());
         maps.put("drugCompanyId", SharedPreferenceUtil.getString(this, "enterpriseId", ""));
@@ -364,9 +364,13 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
                 false, 1);
     }
 
-
     @Override
     public void onSuccess(Result response) {
+        isOpenHttp = false;
+        if (isHttpClose) {
+            isHttpClose= false;
+            return;
+        }
         //tv.setVisibility(View.GONE);
         empteyll.setVisibility(View.GONE);
         switch (from) {
@@ -551,7 +555,11 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
     @Override
     public void onBackPressed() {
         //super.onBackPressed();
-        Log.d("zxy :", "532 : CompanyContactListActivity : onBackPressed :  ");
+        if (isOpenHttp) {
+            isHttpClose = true;
+            isOpenHttp = false;
+            return;
+        }
         backtofront();
         //		this.mApplication.getActivityManager().finishActivity(this.getClass());
     }
