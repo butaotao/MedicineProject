@@ -104,7 +104,7 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
         });
         mVSignin.setEmptyView(findViewById(R.id.empty_container));
         if(UserInfo.getInstance(SignListActivity.this).isMediePresent()){
-            mVType.setVisibility(View.VISIBLE);
+           /// mVType.setVisibility(View.VISIBLE);
         }else{
             //mVType.setVisibility(View.GONE);
         }
