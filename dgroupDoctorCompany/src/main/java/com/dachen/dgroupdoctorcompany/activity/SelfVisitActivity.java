@@ -202,27 +202,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
         signedId = this.getIntent().getStringExtra("signedId");
         if (MODE_FROM_VIST_LIST_ITEM == mMode || MODE_FROM_SIGN_LIST==mMode) {//拜访列表,签到列表
             Log.d("zxy :", "197 : SelfVisitActivity : initData : if");
-//            mStrAddress = this.getIntent().getStringExtra("addressname");
-//            mStrFloor = this.getIntent().getStringExtra("address");
-//            latitude = this.getIntent().getDoubleExtra("latitude", 0);
-//            longitude = this.getIntent().getDoubleExtra("longitude", 0);
-//            city = this.getIntent().getStringExtra("city");
-//            coordinate = String.valueOf(latitude) + "," + String.valueOf(longitude);
-//            tv_address.setText(mStrAddress);
             mId = this.getIntent().getStringExtra("id");
-//            mStrDoctorName = this.getIntent().getStringExtra("doctorName");
-//            mStrDoctorName = this.getIntent().getStringExtra("doctorId");
-//            tvSelected.setText(mStrDoctorName);
-//            long presentTime = this.getIntent().getLongExtra("presentTime", 0);
-//            Date date = new Date(presentTime);
-//            String strDate = TimeFormatUtils.china_format_date(date);
-//            String strWeek = TimeFormatUtils.week_format_date(date);
-//            strTime = TimeFormatUtils.time_format_date(date);
-//            tvWeek.setText(strWeek);
-//            tvDate.setText(strDate);
-//            tv_time_location.setText(strTime+" "+mStrFloor);
-//            String remark = this.getIntent().getStringExtra("remark");
-//            etRemark.setText(remark);
             location_ray.setEnabled(false);
             address_arrow.setVisibility(View.INVISIBLE);
             showLoadingDialog();
@@ -234,6 +214,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                     this, false, 4);
 
         }else if(MODE_FROM_SIGN==mMode){//签到过来
+
             Log.d("zxy :", "230 : SelfVisitActivity : initData : else if");
             mStrAddress = this.getIntent().getStringExtra("addressname");
             mStrFloor = this.getIntent().getStringExtra("address");
@@ -463,7 +444,10 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                     }
 
                     tv_address.setText(mStrAddress);
-                    Date date = new Date(serviceTime);//得到传过来的时间格式化
+                    if (time == 0) {
+                        time = presentTime;
+                    }
+                    Date date = new Date(time);//得到传过来的时间格式化
                     String strDate = TimeFormatUtils.china_format_date(date);
                     String strWeek = TimeFormatUtils.week_format_date(date);
                     strTime = TimeFormatUtils.time_format_date(date);
@@ -473,65 +457,30 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                         mStrFloor = mStrAddress;
                     }
                     tv_time_location.setText(strTime + " " + mStrFloor);
-   /*               24小时是否可以编辑详情转移到 setRemarkEnable()中
-                  Date time = new Date();
-                    long timeMillis = System.currentTimeMillis();
-                    SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
-                    String sp_time = sf.format(time);
-                    String current_time = sf.format(timeMillis);
-                    if (!sp_time.equals(current_time)) {//不是同一天，不可编辑
-                        del_desp.setVisibility(View.INVISIBLE);
-                        tv_title_save.setVisibility(View.GONE);
-                        selectedPicture.remove(ADDPIC);
-                        desp2.setVisibility(View.GONE);
-                        mAdapter.notifyDataSetChanged();
-                        variety_arrow.setVisibility(View.INVISIBLE);
-                        name_arrow.setVisibility(View.INVISIBLE);
-                        variety_ray.setEnabled(false);
-                        vSelect.setEnabled(false);
-                        tvSelected.setTextColor(getResources().getColor(R.color.gray_666666));
-                        tv_variety.setTextColor(getResources().getColor(R.color.gray_666666));
-                        tvSelected.setHintTextColor(getResources().getColor(R.color.gray_666666));
-                        tv_variety.setHintTextColor(getResources().getColor(R.color.gray_666666));
-                        if (TextUtils.isEmpty(mStrDoctorName)) {
-                            tvSelected.setHint("无");
-                        } else {
-                            tvSelected.setText(mStrDoctorName);
-                        }
-                        if (TextUtils.isEmpty(remark)) {
-                            etRemark.setHint("无");
-                        } else {
-                            etRemark.setText(remark);
-                        }
-                        if (TextUtils.isEmpty(tv_variety.getText().toString())) {
-                            tv_variety.setHint("无");
-                        }
-                    } else {
-                        del_desp.setVisibility(View.VISIBLE);
-                        tv_title_save.setVisibility(View.VISIBLE);
-                        etRemark.setText(remark);
-                        if (!TextUtils.isEmpty(mStrDoctorName)) {
-                            tvSelected.setText(mStrDoctorName);
-                        }
-                    }*/
                 }
-            }else if (response instanceof VisitEditEnableBean) {
+            }else if (response instanceof VisitEditEnableBean) {//接口出错了,暂时没用
                 VisitEditEnableBean editEnable = (VisitEditEnableBean) response;
                 if (editEnable.data!=null) {
                     boolean etRemarkEnable = editEnable.data.editStatus;
-                    setRemarkEnable(etRemarkEnable);
+                    Log.d("zxy :", "506 : SelfVisitActivity : onSuccess : editEnable = "+editEnable.data.editStatus);
+                   // setRemarkEnable(etRemarkEnable);
                 }
             }else if (response instanceof ServerTimeBean) {
                 ServerTimeBean time = (ServerTimeBean) response;
                 if (time.data>0) {
-                    this.presentTime = time.data;
-                    Date date = new Date(presentTime);
-                    String strDate = TimeFormatUtils.china_format_date(date);
-                    String strWeek = TimeFormatUtils.week_format_date(date);
-                    tvWeek.setText(strWeek);
-                    tvDate.setText(strDate);
-                    strTime = TimeFormatUtils.time_format_date(date);
-                    tv_time_location.setText(strTime+" "+mStrFloor);
+                    this.serviceTime = time.data;
+                    if(MODE_FROM_SIGN==mMode) {//签到过来 设定当前服务器时间
+                        Date date = new Date(serviceTime);
+                        String strDate = TimeFormatUtils.china_format_date(date);
+                        String strWeek = TimeFormatUtils.week_format_date(date);
+                        tvWeek.setText(strWeek);
+                        tvDate.setText(strDate);
+                        strTime = TimeFormatUtils.time_format_date(date);
+                        tv_time_location.setText(strTime + " " + mStrFloor);
+                    }
+                    if (MODE_FROM_VIST_LIST_ITEM == mMode || MODE_FROM_SIGN_LIST==mMode) {//拜访列表,签到列表,根据时间判断是否可以编辑
+                        setRemarkEnable(serviceTime < presentTime + 24 * 60 * 60 * 1000);
+                    }
                 }
             } else if (response instanceof Result) {
                 if (response.getResultCode() == 1) {

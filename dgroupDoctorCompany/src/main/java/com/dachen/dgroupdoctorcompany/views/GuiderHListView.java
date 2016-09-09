@@ -16,9 +16,9 @@ import java.util.Map;
  * @Author: zxy on 16/8/23下午7:40.
  * @描述 水平导航列表
  */
-public class GuiderHListView extends HListView {
+public class GuiderHListView extends HListview2 {
     Context mContext;
-    private HListView mHListView;
+    private HListview2 mHListView2;
     private ArrayList<String> mListGuide;              //导航Listview数据
     private Map<Integer, ArrayList<String>> departList;   //导航Listview数据任务栈
     private CompanyListGuide mListGuideAdapter;
@@ -38,7 +38,7 @@ public class GuiderHListView extends HListView {
 
     private void initView(Context context) {
         mContext = context;
-        mHListView = this;
+        mHListView2 = this;
         mListGuide = new ArrayList<>();
         departList = new LinkedHashMap<>();
         listGuideMap = new LinkedHashMap<>();
@@ -49,7 +49,7 @@ public class GuiderHListView extends HListView {
      */
     public void setAdapter(CompanyListGuide adapter) {
         mListGuideAdapter = adapter;
-        mHListView.setAdapter(mListGuideAdapter);
+        mHListView2.setAdapter(mListGuideAdapter);
     }
 
     /**
@@ -57,7 +57,7 @@ public class GuiderHListView extends HListView {
      */
     public void setAdapter() {
         mListGuideAdapter = new CompanyListGuide(mContext, mListGuide);
-        mHListView.setAdapter(mListGuideAdapter);
+        mHListView2.setAdapter(mListGuideAdapter);
     }
 
     /**
