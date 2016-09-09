@@ -22,7 +22,6 @@ import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
 import com.dachen.dgroupdoctorcompany.db.dbdao.DepAdminsListDao;
 import com.dachen.dgroupdoctorcompany.db.dbentity.DepAdminsList;
 import com.dachen.dgroupdoctorcompany.entity.ChoiceDepList;
-import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.entity.SignedRecordLists;
 import com.dachen.dgroupdoctorcompany.entity.SignedRecords;
 import com.dachen.dgroupdoctorcompany.entity.TogetherVisit;
@@ -454,6 +453,8 @@ public class BaseRecordActivity extends BaseActivity implements View.OnClickList
                     intent.putExtra("address", data.address);
                     intent.putExtra("longTime", data.longTime);
                     intent.putExtra("id", data.visitId);
+                    intent.putExtra("from","searchSign" );
+
                     if (null != data.tag && data.tag.size() > 0 && !TextUtils.isEmpty(data.tag
                             .get(0))) {
                         intent.putExtra("tag", data.tag.get(0));

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewStub;
@@ -59,8 +60,8 @@ public class SearchSignRecordDepActivity extends BaseActivity implements HttpMan
         tv_empty = (TextView) findViewById(R.id.tv_empty);
         rl_back.setVisibility(View.GONE);
         infos = new ArrayList<>();
-        showSearchTitleView();
         type = getIntent().getStringExtra("type");
+        showSearchTitleView();
         rl_notcontent = (RelativeLayout) findViewById(R.id.rl_notcontent);
         listview = (PullToRefreshListView) findViewById(R.id.listview);
         listview.setEmptyView(rl_notcontent);
@@ -83,6 +84,7 @@ public class SearchSignRecordDepActivity extends BaseActivity implements HttpMan
                 }
 
                 intent.putExtra("deptId",info.orgId);
+                intent.putExtra("type",type);
                 intent.putExtra("userId",info.userId);
                 intent.putExtra("userName",info.name);
                 intent.putExtra("deptName",info.departmentNmae);
@@ -207,7 +209,11 @@ public class SearchSignRecordDepActivity extends BaseActivity implements HttpMan
         RelativeLayout rl = (RelativeLayout) this.findViewById(R.id.ll_sub);
         View view = vstub_title.inflate(this, R.layout.layout_searchrecord_import, rl);
         et_search = (EditText) view.findViewById(R.id.et_search);
-        et_search.setHint("搜索姓名");
+        if ("visit".equals(type)) {
+            et_search.setHint("搜索拜访人员");
+        }else {
+            et_search.setHint("搜索签到人员");
+        }
 
 
         et_search.setOnEditorActionListener(

@@ -2,13 +2,13 @@ package com.dachen.dgroupdoctorcompany.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -54,6 +54,7 @@ public class VisitListActivity extends BaseActivity implements HttpManager.OnHtt
     private String city;//城市
     private String mStrFloor;
     private String mStrAddressName;
+    private TextView mStatistics;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,6 +69,11 @@ public class VisitListActivity extends BaseActivity implements HttpManager.OnHtt
         super.initView();
         mBtAdd = (Button) findViewById(R.id.btAdd);
         mBtAdd.setOnClickListener(this);
+        mStatistics = (TextView) findViewById(R.id.tv_title_save);
+        mStatistics.setText("统计");
+        mStatistics.setVisibility(View.VISIBLE);
+        mStatistics.setTextColor(Color.parseColor("#333333"));
+        mStatistics.setOnClickListener(this);
         mLvVisitList = (PullToRefreshListView) findViewById(R.id.lvVisitList);
         mBtTogtherAdd = (Button) findViewById(R.id.btTogtherAdd);
         mBtTogtherAdd.setOnClickListener(this);
@@ -150,6 +156,11 @@ public class VisitListActivity extends BaseActivity implements HttpManager.OnHtt
             case R.id.btAdd:
                 Intent intent = new Intent(VisitListActivity.this, SelfVisitActivity.class);//SelfVisitActivity
                 intent.putExtra("mode",SelfVisitActivity.MODE_FROM_VIST_LIST);
+                startActivity(intent);
+                break;
+            case R.id.tv_title_save://拜访统计
+                intent = new Intent(this,VisitRecordActivity.class);
+                intent.putExtra("type","visit");
                 startActivity(intent);
                 break;
             case R.id.btTogtherAdd:
