@@ -24,12 +24,13 @@ import com.dachen.common.utils.ToastUtil;
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
+import com.dachen.dgroupdoctorcompany.entity.ServerTimeBean;
 import com.dachen.dgroupdoctorcompany.entity.SignLable;
-import com.dachen.dgroupdoctorcompany.entity.VisitDetail;
 import com.dachen.dgroupdoctorcompany.entity.WorkingDetail;
 import com.dachen.dgroupdoctorcompany.utils.CommonUitls;
 import com.dachen.dgroupdoctorcompany.utils.DataUtils.GetUserDepId;
 import com.dachen.dgroupdoctorcompany.utils.GaoDeMapUtils;
+import com.dachen.dgroupdoctorcompany.utils.HttpUtil;
 import com.dachen.dgroupdoctorcompany.utils.TimeFormatUtils;
 import com.dachen.dgroupdoctorcompany.views.ItemContainer;
 import com.dachen.medicine.common.utils.MActivityManager;
@@ -56,6 +57,7 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
     public static final int            SIGN_OFFWORKING = 2;//上班打卡
     public static final int            SIGN_WORKING = 1;//上班打卡
     public static final int            MODE_VISIT = 1;//拜访客户
+    public static final int            MODE_FROM_SIGN_LIST = 6;//客户拜访
     public int mSignMode;
     private int                        mMode;
     private RelativeLayout             vSelect;
@@ -115,7 +117,7 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
         mTvSelected = (TextView) findViewById(R.id.tvSelected);
         mTvName = (TextView) findViewById(R.id.tvName);
         mTvSave = (TextView) findViewById(R.id.tvSave);
-//        mBtSubmit.setOnClickListener(this);
+        mBtSubmit.setOnClickListener(this);
         findViewById(R.id.vSelect).setOnClickListener(this);
         mTvSave.setOnClickListener(this);
         findViewById(R.id.vAddress).setOnClickListener(this);
@@ -147,6 +149,7 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
     }
 
     private void initData(){
+        HttpUtil.getServiceTime(this,this);
         mGaoDeMapUtils = new GaoDeMapUtils(this.getApplicationContext(),this);
         mSoundPool = new SoundPool(1, AudioManager.STREAM_SYSTEM, 0);
         mSoundId = mSoundPool.load(AddSignInActivity.this, R.raw.sign_add, 1);
@@ -154,7 +157,6 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
         mMode = this.getIntent().getIntExtra("mode", MODE_WORKING);
         mSignMode = this.getIntent().getIntExtra("singmode", -1);
         tabid = this.getIntent().getStringExtra("tabid");
-        serverTime = this.getIntent().getLongExtra("time", 0);
         snippet = getIntent().getStringExtra("snippet");
         addressname = getIntent().getStringExtra("addressname");
         city = getIntent().getStringExtra("city");
@@ -163,14 +165,23 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
         }else if(mSignMode ==  AddSignInActivity.SIGN_WORKING){
             mListLable.add("上班");
         }
+        mId = this.getIntent().getStringExtra("id");
         if(mMode == MODE_WORKING){
             setTitle("考勤打卡");
             vSelect.setVisibility(View.GONE);
         }else if(mMode == MODE_VISIT){
-            setTitle("拜访客户");
+            setTitle("拜访记录");
             vSelect.setVisibility(View.VISIBLE);
+        } else if(mMode == MODE_FROM_SIGN_LIST){//从签到记录过来
+            setTitle("拜访记录");
+            vSelect.setVisibility(View.VISIBLE);
+            if (TextUtils.isEmpty(mId)) {
+                mBtSubmit.setVisibility(View.GONE);
+            }else {
+                mBtSubmit.setVisibility(View.VISIBLE);
+            }
         }
-        mId = this.getIntent().getStringExtra("id");
+
         allow = getIntent().getBooleanExtra("allow",false);
         mAddressName = this.getIntent().getStringExtra("name");
         if(TextUtils.isEmpty(mId)){   //说明当前是添加签到
@@ -189,14 +200,9 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
             coordinate = mStrLatitude+","+mStrLongitude;
 
             mTvAddress.setText(mAddressName);
-            long timeStamp = this.getIntent().getLongExtra("time",0);
-            Log.d("zxy :", "188 : AddSignInActivity : initData : timeStamp = "+timeStamp);
-            initCurrentDate(serverTime);
-            mBtSubmit.setText("签到完成");
             setClickable(true);
 
         }else{
-//            mBtSubmit.setText("保存");
             findViewById(R.id.ivFlag).setVisibility(View.GONE);
             findViewById(R.id.ivGo).setVisibility(View.INVISIBLE);
 
@@ -315,7 +321,7 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
 
         String strDate = s_format.format(date);
         String strTime= TimeFormatUtils.time_format_date(date);
-
+        Log.d("zxy :", "321 : AddSignInActivity : initCurrentDate : strDate = "+strDate+", "+strTime);
         mTvTime.setText(strTime);
         mTvDate.setText(strDate);
 
@@ -350,6 +356,13 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
                 addressIntent.putExtra("address_name", mTvAddress.getText().toString());
                 startActivityForResult(addressIntent,REQUEST_ADDRESS);
 //                finish();
+                break;
+            case R.id.btSubmit:
+                Intent salfVisitIntent = new Intent(this,SelfVisitActivity.class);
+                salfVisitIntent.putExtra("id", mId);
+                salfVisitIntent.putExtra("time", getIntent().getLongExtra("time",0));
+                salfVisitIntent.putExtra("mode",SelfVisitActivity.MODE_FROM_SIGN_LIST);
+                startActivity(salfVisitIntent);
                 break;
             default:
                 break;
@@ -403,8 +416,15 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
                     mEtRemark.setText(remark);
                     initCurrentDate(time);
                 }
-            }else if(response instanceof VisitDetail){
-
+            }else if(response instanceof ServerTimeBean){
+                ServerTimeBean time = (ServerTimeBean) response;
+               // this.serverTime = time.data;
+                serverTime = time.data;
+                if (TextUtils.isEmpty(mId)) {
+                    Log.d("zxy :", "412 : AddSignInActivity : onSuccess : serverTime");
+                    initCurrentDate(serverTime);
+                }
+                //initCurrentDate(time.data);
             }else if(response instanceof SignLable){
                 if(response.getResultCode() == 1){
                     SignLable signLable = (SignLable) response;

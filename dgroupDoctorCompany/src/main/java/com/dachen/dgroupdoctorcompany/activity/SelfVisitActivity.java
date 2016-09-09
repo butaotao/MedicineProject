@@ -333,7 +333,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                      intentAddress.putExtra("city", city);
                      startActivityForResult(intentAddress, REQUEST_SELECT_ADDRESS);
                  }
-
                 break;
         }
     }
@@ -421,6 +420,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                         mStrDoctorID = member.getDoctorId();
                     }
                     remark = member.getRemark();
+                    Log.d("zxy :", "423 : SelfVisitActivity : onSuccess : remark = "+remark);
                     coordinate = member.getCoordinate();
                     List<String> picList = member.getImgUrls();
                     if (picList != null && picList.size() > 0) {
@@ -476,6 +476,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                         tvWeek.setText(strWeek);
                         tvDate.setText(strDate);
                         strTime = TimeFormatUtils.time_format_date(date);
+
                         tv_time_location.setText(strTime + " " + mStrFloor);
                     }
                     if (MODE_FROM_VIST_LIST_ITEM == mMode || MODE_FROM_SIGN_LIST==mMode) {//拜访列表,签到列表,根据时间判断是否可以编辑
@@ -526,7 +527,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
             tv_title_save.setVisibility(View.GONE);
             selectedPicture.remove(ADDPIC);
             desp2.setVisibility(View.GONE);
-
             mAdapter.notifyDataSetChanged();
             variety_arrow.setVisibility(View.INVISIBLE);
             name_arrow.setVisibility(View.INVISIBLE);

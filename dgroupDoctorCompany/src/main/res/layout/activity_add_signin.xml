@@ -209,18 +209,28 @@
         </LinearLayout>
     </LinearLayout>
 
-
+<!--<RelativeLayout
+    android:visibility="gone"
+    android:id="@+id/btSubmit"
+    android:background="@android:color/white"
+    android:layout_alignParentBottom="true"
+    android:layout_width="match_parent"
+    android:layout_height="56dp">-->
     <Button
+        android:visibility="gone"
         android:id="@+id/btSubmit"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="30dp"
+        android:layout_centerInParent="true"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginBottom="6dp"
+        android:layout_marginRight="15dp"
         android:background="@drawable/key"
-        android:text="签到完成"
+        android:text="查看/编辑拜访详情"
         android:textColor="@color/white"
         android:textSize="16sp"
-        android:visibility="gone"/>
+        />
+<!--</RelativeLayout>-->
+
 </RelativeLayout>

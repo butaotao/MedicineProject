@@ -74,9 +74,9 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
         ivLeft.setVisibility(View.VISIBLE);
         ivMid.setVisibility(View.GONE);
         ivRight.setVisibility(View.GONE);
-        mTvAll.setOnClickListener(this);
-        mTvWorking.setOnClickListener(this);
-        mTvVisit.setOnClickListener(this);
+        mTvAll.setOnClickListener(this);//需求变更,暂时废弃
+        mTvWorking.setOnClickListener(this);//需求变更,暂时废弃
+        mTvVisit.setOnClickListener(this);//需求变更,暂时废弃
         mVSignin.setMode(PullToRefreshBase.Mode.BOTH);
         mVSignin.setFocusable(false);
         mVSignin.setOnItemClickListener(this);
@@ -121,7 +121,7 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
     public void onClick(View v) {
         super.onClick(v);
         switch (v.getId()){
-            case R.id.tvAll:
+            case R.id.tvAll://需求变更,暂时废弃
                 mTvAll.setTextColor(getResources().getColor(R.color.color_3cbaff));
                 mTvWorking.setTextColor(getResources().getColor(R.color.color_666666));
                 mTvVisit.setTextColor(getResources().getColor(R.color.color_666666));
@@ -133,7 +133,7 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
                 pageIndex = 0;
                 getListData();
                 break;
-            case R.id.tvWorking:
+            case R.id.tvWorking://需求变更,暂时废弃
                 mTvAll.setTextColor(getResources().getColor(R.color.color_666666));
                 mTvWorking.setTextColor(getResources().getColor(R.color.color_3cbaff));
                 mTvVisit.setTextColor(getResources().getColor(R.color.color_666666));
@@ -145,7 +145,7 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
                 pageIndex = 0;
                 getListData();
                 break;
-            case R.id.tvVisit:
+            case R.id.tvVisit://需求变更,暂时废弃
                 mTvAll.setTextColor(getResources().getColor(R.color.color_666666));
                 mTvWorking.setTextColor(getResources().getColor(R.color.color_666666));
                 mTvVisit.setTextColor(getResources().getColor(R.color.color_3cbaff));
@@ -183,7 +183,6 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
                     mAdapter.notifyDataSetChanged();
                 }
                 //分离数据
-
                 if(beforeSize>0){
                     int afterSize = mDataLists.size();
                     if(beforeSize == afterSize){
@@ -205,101 +204,7 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
     public void onFailure(Exception e, String errorMsg, int s) {
         ToastUtil.showErrorNet(SignListActivity.this);
     }
-/*
-    @Override
-    public void onPullDownToRefresh(PullToRefreshBase<PinnedHeaderExpandableListView> refreshView) {
-        pageIndex = 0;
-        mDataLists.clear();
-        getListData();
-    }
 
-    @Override
-    public void onPullUpToRefresh(PullToRefreshBase<PinnedHeaderExpandableListView> refreshView) {
-        pageIndex++;
-        mDataLists.clear();
-        getListData();
-    }*/
-
- /*   @Override
-    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int
-            childPosition, long id) {
-        SignInList.Data.DataList.ListVisitVo  listVisitVo = (SignInList.Data.DataList
-                .ListVisitVo) parent.getExpandableListAdapter().getChild(groupPosition,childPosition);
-
-        String type = listVisitVo.type;
-        if("1".equals(type)){
-
-            String strId = listVisitVo.id;
-            String address = listVisitVo.address;
-            address = listVisitVo.address;
-            long time = listVisitVo.time;
-            coordinate = listVisitVo.coordinate;
-            String remark = listVisitVo.remark;
-            List<String> lable = listVisitVo.singedTag;
-            Intent intent = new Intent(SignListActivity.this,AddSignInActivity.class);
-            intent.putExtra("id",strId);
-            intent.putExtra("address",address);
-            intent.putExtra("time",time);
-            intent.putExtra("coordinate",coordinate);
-            intent.putExtra("remark",remark);
-            if(null != lable && lable.size()>0){
-                intent.putStringArrayListExtra("lable", (ArrayList<String>) lable);
-            }
-            intent.putExtra("mode",AddSignInActivity.MODE_WORKING);
-            startActivityForResult(intent,REQUEST_UPDATE_SIGN_IN);
-        }else {
-            Intent intent = null;
-            if("0".equals(listVisitVo.type)){
-                intent = new Intent(SignListActivity.this, SelfVisitActivity.class);
-                intent.putExtra("mode",SelfVisitActivity.MODE_FROM_SIGN_LIST);
-            }else if("2".equals(listVisitVo.type)){
-                intent = new Intent(SignListActivity.this, JointVisitActivity.class);
-                intent.putExtra("mode",JointVisitActivity.MODE_FROM_SIGN_LIST);
-            }
-            String mid = listVisitVo.id;
-            long time = listVisitVo.time;
-            String name = listVisitVo.doctorName;
-            String address = listVisitVo.address;
-            address = listVisitVo.address;
-            String addressName = listVisitVo.addressName;
-            String doctorname = listVisitVo.doctorName;
-            String remark = listVisitVo.remark;
-            coordinate = listVisitVo.coordinate;
-            String doctorid = listVisitVo.doctorId;
-            String state = listVisitVo.state;
-            intent.putExtra("id", mid);
-            intent.putExtra("name", name);
-            intent.putExtra("address", address);
-            intent.putExtra("addressname", addressName);
-            intent.putExtra("doctorName", doctorname);
-            intent.putExtra("doctorId", doctorid);
-            intent.putExtra("remark", remark);
-            intent.putExtra("coordinate", coordinate);
-            if(coordinate.contains(",")){
-                String[] array = coordinate.split(",");
-                String latitude = array[0];
-                String longitude = array[1];
-                intent.putExtra("latitude", Double.valueOf(latitude));
-                intent.putExtra("longitude", Double.valueOf(longitude));
-            }
-            intent.putExtra("time", time);
-            intent.putExtra("doctorid", doctorid);
-            startActivity(intent);
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-        return true;
-    }
-*//*
-    private void setExpandableListView(){
-        for (int i = 0; i < mAdapter.getGroupCount(); i++) {
-            mLvSign.expandGroup(i);
-        }
-    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -320,8 +225,8 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
         if("拜访".equals(type)||"协同拜访".equals(type)){
             Intent intent = null;
             if("拜访".equals(type)){
-                intent = new Intent(SignListActivity.this, SelfVisitActivity.class);
-                intent.putExtra("mode",SelfVisitActivity.MODE_FROM_SIGN_LIST);
+                intent = new Intent(SignListActivity.this, AddSignInActivity.class);
+                intent.putExtra("mode",AddSignInActivity.MODE_FROM_SIGN_LIST);
             }else if("协同拜访".equals(type)){
                 intent = new Intent(SignListActivity.this, JointVisitActivity.class);
                 intent.putExtra("mode",JointVisitActivity.MODE_FROM_SIGN_LIST);
@@ -330,13 +235,11 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
             long time = dataBean.longTime;
             String name = dataBean.userName;
             String address = dataBean.address;
-            address = dataBean.address;
             String addressName = dataBean.address;
             String doctorname = dataBean.userName;
             String remark = dataBean.remark;
             coordinate = dataBean.coordinate;
             String doctorid = dataBean.signedId;
-            //String state = dataBean.state;
             intent.putExtra("id", mid);
             intent.putExtra("name", name);
             intent.putExtra("address", address);
@@ -353,6 +256,7 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
                 intent.putExtra("longitude", Double.valueOf(longitude));
             }
             intent.putExtra("time", time);
+           // intent.putExtra("mode",AddSignInActivity.MODE_VISIT);
             intent.putExtra("doctorid", doctorid);
             startActivity(intent);
         }else {
@@ -369,11 +273,12 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
             intent.putExtra("time",time);
             intent.putExtra("coordinate",coordinate);
             intent.putExtra("remark",remark);
-            Log.d("zxy :", "376 : SignListActivity : onItemClick : id = "+strId+", "+address+", "+time+", "+coordinate+", "+remark);
+
             if(null != lable && lable.size()>0){
                 intent.putStringArrayListExtra("lable", (ArrayList<String>) lable);
             }
             intent.putExtra("mode",AddSignInActivity.MODE_WORKING);
+            Log.d("zxy :", "376 : SignListActivity : onItemClick : id = "+strId+", "+address+", "+time+", "+coordinate+", "+remark);
             startActivityForResult(intent,REQUEST_UPDATE_SIGN_IN);
 
         }

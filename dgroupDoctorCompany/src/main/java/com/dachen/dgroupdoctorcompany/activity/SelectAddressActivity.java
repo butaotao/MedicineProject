@@ -252,7 +252,7 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
                                        Params.getWorkingParams(SelectAddressActivity.this, deviceId, "", "",
                                                coordinate, name, tabid, orgId),
                                        SelectAddressActivity.this, false, 4);
-                           }else {
+                           }else {      //更多
                                Intent intent = new Intent(SelectAddressActivity.this, AddSignInActivity.class);
                                intent.putExtra("name", name);
                                intent.putExtra("longitude", longitude);
