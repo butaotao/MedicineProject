@@ -153,6 +153,9 @@ public class RadarViewGroup extends ViewGroup implements RadarView.IScanningList
             float itemAngle = j * angle;
             scanAngleList.put(j, itemAngle);
         }
+
+        int childCount = getChildCount();
+
         //根据数据源信息动态添加CircleView
         for (int i = 0; i < mDatas.size(); i++) {
             VisitPeople visitPeople = mDatas.get(i);
@@ -163,8 +166,29 @@ public class RadarViewGroup extends ViewGroup implements RadarView.IScanningList
             if (minItemPosition == i) {
                 minShowChild = circleView;
             }
+            boolean find = false;
+            for(int k=0;k<childCount;k++){
+                View child = getChildAt(k);
+                if(null == child){
+                    //如果view已被删除跳过
+                    continue;
+                }
+                if (child.getId() == R.id.id_scan_circle || child.getId() == R.id.ivPicture) {
+                    //如果不是Circleview跳过
+                    continue;
+                }
+                VisitPeople visitPeoples = mDatas.get(i);
+                IconTextView circleViews = (IconTextView) child;
+                if((circleViews.visit_people_id).equals(visitPeoples.id)){
+                    find = true;
+                    break;
+                }
 
-            addView(circleView);
+            }
+            if (!find){
+                addView(circleView);
+            }
+
         }
     }
 

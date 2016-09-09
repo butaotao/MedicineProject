@@ -186,9 +186,13 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
         new HttpManager().post(this, Constants.VISIT_DETAIL, VisitMemberResponse.class,
                 Params.getVisitDetail(JointVisitActivity.this, mId),
                 this, false, 4);
-        new HttpManager().post(this, Constants.VISIT_DETAIL_EDITEABLE, VisitEditEnableBean.class,
-                Params.getVisitDetail(JointVisitActivity.this, mId),
-                this, false, 4);
+        if (MODE_FROM_VIST_LIST!=2){
+            new HttpManager().post(this, Constants.VISIT_DETAIL_EDITEABLE, VisitEditEnableBean.class,
+                    Params.getVisitDetail(JointVisitActivity.this, mId),
+                    this, false, 4);
+        }
+
+        etRemarkEnable = true;
     }
 
     @Override
@@ -399,8 +403,11 @@ public class JointVisitActivity extends BaseActivity implements View.OnClickList
                 }
             } else if (response instanceof VisitEditEnableBean) {
                 VisitEditEnableBean editEnable = (VisitEditEnableBean) response;
-                etRemarkEnable = editEnable.data.editStatus;
-                setRemarkEnable();
+                if (null!=editEnable.data){
+                    etRemarkEnable = editEnable.data.editStatus;
+                    setRemarkEnable();
+                }
+
 
 
             }else if(response instanceof Result){

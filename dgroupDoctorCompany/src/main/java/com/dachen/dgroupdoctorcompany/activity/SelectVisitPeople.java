@@ -31,6 +31,7 @@ import com.dachen.dgroupdoctorcompany.app.CompanyApplication;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.entity.AddVisitGroup;
+import com.dachen.dgroupdoctorcompany.entity.CancelJoinVisit;
 import com.dachen.dgroupdoctorcompany.entity.ConfirmVisit;
 import com.dachen.dgroupdoctorcompany.entity.VisitPeople;
 import com.dachen.dgroupdoctorcompany.utils.CommonUitls;
@@ -436,7 +437,7 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
     //拜访组成员取消拜访
     private void cancelVisitGroup(){
         showLoadingDialog();
-        new HttpManager().get(this, Constants.CANCEL_VISIT_GROUP, Result.class,
+        new HttpManager().get(this, Constants.CANCEL_VISIT_GROUP, CancelJoinVisit.class,
                 Params.joinVisitGroup(SelectVisitPeople.this, id),
                 this,false,4);
     }
@@ -528,6 +529,9 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
                         addVisitPeopleFromServer(mVisitPeopleLists);
 
                    //mMyHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME,1000);
+                }else if(response instanceof CancelJoinVisit){
+                    CancelJoinVisit joinVisit = (CancelJoinVisit)response;
+                    onExit();
                 }else {
                     if(response.getResultCode() == 1) {
                         if (cancelVistitTogetter!=1){
@@ -613,7 +617,10 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
             if(!isAddPeople(visitPeople)){
                 SparseArray<VisitPeople> sparseArray = new SparseArray<>();
                 sparseArray.put(0, visitPeople);
-                mRadarViewGroup.setDatas(sparseArray);
+                if (!visitPeople.id.equals(SharedPreferenceUtil.getString(this,"id",""))){
+                    mRadarViewGroup.setDatas(sparseArray);
+                }
+
                 mVisitPeopleList.add(visitPeople);
 
                 Set<VisitPeople> set = new HashSet<>();
@@ -644,11 +651,13 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
         mVisitPeopleList.addAll(visitPeoples);
         if(null != visitPeoples){
             for (int i=0;i<visitPeoples.size();i++){
-                if (!isAddPeople(visitPeoples.get(i))){
+             //   if (!isAddPeople(visitPeoples.get(i))){
                     SparseArray<VisitPeople> sparseArray = new SparseArray<>();
                     sparseArray.put(0, visitPeoples.get(i));
+                if (!TextUtils.isEmpty(visitPeoples.get(i).id)&&!visitPeoples.get(i).id.equals(SharedPreferenceUtil.getString(this,"id",""))) {
                     mRadarViewGroup.setDatas(sparseArray);
                 }
+               // }
             }
 
 
