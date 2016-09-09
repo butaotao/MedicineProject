@@ -15,8 +15,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="10dip"
-            android:background="@drawable/icon_sign_in" />
+            android:layout_marginLeft="10dip"/>
 
         <TextView
             android:id="@+id/tv_ac_name"

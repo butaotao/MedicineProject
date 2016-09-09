@@ -7,7 +7,6 @@ import android.view.View;
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.entity.SignedRecordLists;
-import com.dachen.dgroupdoctorcompany.utils.DataUtils.GetUserDepId;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.config.UserInfo;
 import com.dachen.medicine.net.HttpManager;
@@ -44,12 +43,12 @@ public class SignRecordActivity extends BaseRecordActivity implements PullToRefr
         record.getRecord("");
         showSearchText(true);
 
-        setTitle("考勤统计");
+        setTitle("团队签到统计");
         initData();
     }
 
     private void initData(){
-        mPullToRefreshPinHeaderExpandableListView.setOnRefreshListener(this);
+mPullToRefreshPinHeaderExpandableListView.setOnRefreshListener(this);
     }
 
     private void getSingRecord() {

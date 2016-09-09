@@ -48,8 +48,10 @@ public class GuiderHListView extends HListview2 {
      * 设置外部Adapter
      */
     public void setAdapter(CompanyListGuide adapter) {
-        mListGuideAdapter = adapter;
-        mHListView2.setAdapter(mListGuideAdapter);
+        if (adapter != null) {
+            mListGuideAdapter = adapter;
+            mHListView2.setAdapter(mListGuideAdapter);
+        }
     }
 
     /**
@@ -98,8 +100,11 @@ public class GuiderHListView extends HListview2 {
      * @return id
      */
     public String reMoveTaskId() {
-        int position = currentPosition - 2;//当前任务栈id数
-        return listGuideMap.get(position);
+        if (listGuideMap !=null) {
+            int position = currentPosition - 2;//当前任务栈id数
+            return listGuideMap.get(position);
+        }
+        return "";
     }
 
     int oldPosition;
@@ -118,8 +123,8 @@ public class GuiderHListView extends HListview2 {
             departList.put(currentPosition, copyToNewList(mListGuide));
             listGuideMap.put(currentPosition, listGuideMap.get(position));
             String idDep = listGuideMap.get(position);
-            oldPosition = position;
             currentPosition++;
+            oldPosition = mListGuideAdapter.getCount() - 1;
             return idDep;
         }
         return "";
@@ -168,10 +173,13 @@ public class GuiderHListView extends HListview2 {
     }
 
     public String getLastDerpartName(int position) {
-        ArrayList<String> arrayList = departList.get(currentPosition - 1);
-        Log.d("zxy :", "151 : GuiderHListView : getLastDerpartName : departListsize = " + departList.size() + "  " +
-                currentPosition + " " + arrayList.get(arrayList.size() - 1));
-        return arrayList.get(arrayList.size() - 1);
+        if (departList !=null) {
+            ArrayList<String> arrayList = departList.get(currentPosition - 1);
+            Log.d("zxy :", "151 : GuiderHListView : getLastDerpartName : departListsize = " + departList.size() + "  " +
+                    currentPosition + " " + arrayList.get(arrayList.size() - 1));
+            return arrayList.get(arrayList.size() - 1);
+        }
+        return "";
     }
 
     public Map<Integer, ArrayList<String>> getDepartList() {

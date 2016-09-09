@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -18,10 +19,13 @@ import com.dachen.common.utils.ToastUtil;
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.adapter.SingnTodayAdapter;
 import com.dachen.dgroupdoctorcompany.app.Constants;
+import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
+import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.entity.SignTodayInList;
 import com.dachen.dgroupdoctorcompany.utils.DataUtils.SinUtils;
 import com.dachen.dgroupdoctorcompany.utils.TitleManager;
 import com.dachen.dgroupdoctorcompany.views.CustomButtonFragment;
+import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.common.utils.TimeUtils;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
@@ -71,6 +75,13 @@ public class MenuWithFABActivity extends SignInActivity implements View.OnClickL
         TitleManager.showImage(this, view, this, "", R.drawable.notice_nomorl);
         changerTitleBar();
         findViewById(R.id.btn_sinrecord).setOnClickListener(this);
+        Button teamRecord = (Button)findViewById(R.id.btn_teamrecord);
+        if (isDeptartManager()) {//如果是部门主管则显示团队统计按钮
+            teamRecord.setOnClickListener(this);
+            teamRecord.setVisibility(View.VISIBLE);
+        }else {
+            teamRecord.setVisibility(View.GONE);
+        }
         tv_week = (TextView) findViewById(R.id.tv_week);
         tv_time = (TextView) findViewById(R.id.tv_time);
         tv_week.setText(TimeUtils.getWeek(System.currentTimeMillis()));
@@ -105,6 +116,13 @@ public class MenuWithFABActivity extends SignInActivity implements View.OnClickL
         mAdapter = new SingnTodayAdapter(this);
         refreshScrollView.setAdapter(mAdapter);
         refresh = 0;
+    }
+
+    private boolean isDeptartManager() {
+        CompanyContactDao dao = new CompanyContactDao(getApplicationContext());
+        CompanyContactListEntity entity = dao.queryByUserid(SharedPreferenceUtil.getString(this, "id", ""));
+        Log.d("zxy :", "124 : MenuWithFABActivity : isDeptartManager : entity.deptManager = "+entity.deptManager);
+        return entity.deptManager == 1;
     }
 
     @Override
@@ -233,6 +251,14 @@ public class MenuWithFABActivity extends SignInActivity implements View.OnClickL
                     fragment.circleMenu.close(true);
                 }
 
+                break;
+            case R.id.btn_teamrecord:
+                Intent teamIntent = new Intent(this,SignRecordActivity.class);
+                teamIntent.putExtra("type","sign");
+                startActivity(teamIntent);
+                if (null!=fragment&&null!=fragment.circleMenu){
+                    fragment.circleMenu.close(true);
+                }
                 break;
             case R.id.iv_stub:
                 Intent intent4 = new Intent(this,SigninRemindActivity.class);

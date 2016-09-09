@@ -13,7 +13,6 @@ import com.dachen.dgroupdoctorcompany.entity.BaseSearch;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.entity.CompanyDepment;
 import com.dachen.dgroupdoctorcompany.fragment.AddressList;
-import com.dachen.dgroupdoctorcompany.utils.TextUtils;
 import com.dachen.dgroupdoctorcompany.utils.UserInfo;
 
 import java.util.List;
@@ -23,6 +22,8 @@ import java.util.List;
  */
 public class ManagerColleagueActivity extends CompanyContactListActivity implements View.OnClickListener{
     CompanyContactDao companyContactDao;
+
+    boolean isAddPeople = false;
    // String idDep;
     String companyId;
     CompanyContactListEntity entity;
@@ -34,6 +35,7 @@ public class ManagerColleagueActivity extends CompanyContactListActivity impleme
             switch (msg.what) {
                 case 1001:
                     if (null!=entity){
+                        isAddPeople = true;
                         getOrganization(entity.id);
                     }
                     break;
@@ -118,4 +120,5 @@ public class ManagerColleagueActivity extends CompanyContactListActivity impleme
              list.set(position,contact);
         }
     }
+
 }
