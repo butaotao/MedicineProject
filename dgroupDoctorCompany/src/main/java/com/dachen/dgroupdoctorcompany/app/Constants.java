@@ -25,7 +25,7 @@ public class Constants {
     public static String VERIFY_CODE = DRUG+"sms/randcode/verifyCode";
     public static String VISITRECORD = "visit/getVisitList";
     public static String VISITINFO = "visit/getVisitInfoByUserId";
-    public static String GETVOICECODE = DRUG+"user/preResetPasswordVoiceCode";
+    public static String GETVOICECODE = Constants.DRUG+"auth/sendVoiceCode";
     /**
      * 自动登录
      */

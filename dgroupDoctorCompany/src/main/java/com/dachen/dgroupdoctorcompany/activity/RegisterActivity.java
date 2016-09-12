@@ -341,7 +341,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener,Ht
 		params.put("telephone", phoneNumber);
 		params.put("access_context", SharedPreferenceUtil.getString(this,"context_token",""));
 		params.put("access_token", UserInfo.getInstance(this).getSesstion());// 短信模板。
-		new HttpManager().post(this, Constants.DRUG+"auth/sendVoiceCode",
+		new HttpManager().post(this, Constants.GETVOICECODE,
 				SmsSend.class, params, new HttpManager.OnHttpListener<Result>() {
 					@Override
 					public void onSuccess(Result result) {

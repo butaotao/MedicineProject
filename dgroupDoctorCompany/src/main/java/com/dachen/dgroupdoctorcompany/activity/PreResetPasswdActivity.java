@@ -18,7 +18,9 @@ import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.entity.CheckPhoneOnSys;
+import com.dachen.dgroupdoctorcompany.entity.SmsSend;
 import com.dachen.dgroupdoctorcompany.entity.TelePhoneVerifyData;
+import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.common.utils.ToastUtils;
 import com.dachen.medicine.config.UserInfo;
 import com.dachen.medicine.entity.ResetPassword;
@@ -121,11 +123,11 @@ public class PreResetPasswdActivity extends BaseActivity implements
 	private void getVoiceCode(final String phoneNumber) {
 		showLoadingDialog();
 		HashMap<String, String> params = new HashMap<String, String>();
-		params.put("phone", phoneNumber);
-		params.put("userType", Constants.USER_TYPE);
+		params.put("telephone", phoneNumber);
+		params.put("access_context", SharedPreferenceUtil.getString(this, "context_token", ""));
+		params.put("access_token", UserInfo.getInstance(this).getSesstion());// 短信模板。
 
-
-		new HttpManager().post(this, Constants.GETVOICECODE, TelePhoneVerifyData.class,
+		new HttpManager().post(this, Constants.GETVOICECODE, SmsSend.class,
 				params, this,
 				false, 1);
 	}
@@ -254,8 +256,8 @@ public class PreResetPasswdActivity extends BaseActivity implements
 				} else {
 					ToastUtils.showToast(PreResetPasswdActivity.this,result.getResultMsg());
 				}
-			}else if(result instanceof TelePhoneVerifyData){
-				TelePhoneVerifyData results = (TelePhoneVerifyData)(result);
+			}else if(result instanceof SmsSend){
+				SmsSend results = (SmsSend)(result);
 				if (results != null && results.getResultCode() == 1) {// 发送成功
 
 					if (results !=null && null!=results.data) {
