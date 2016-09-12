@@ -21,7 +21,6 @@ import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.db.dbdao.DoctorDao;
 import com.dachen.dgroupdoctorcompany.db.dbentity.Doctor;
 import com.dachen.dgroupdoctorcompany.im.activity.Represent2DoctorChatActivity;
-import com.dachen.dgroupdoctorcompany.im.activity.RepresentGroupChatActivity;
 import com.dachen.dgroupdoctorcompany.utils.CallIntent;
 import com.dachen.dgroupdoctorcompany.utils.ExitActivity;
 import com.dachen.dgroupdoctorcompany.views.InputDialog;
@@ -34,11 +33,9 @@ import com.dachen.imsdk.net.MessageSenderV2;
 import com.dachen.imsdk.net.SessionGroup;
 import com.dachen.imsdk.net.SessionGroup.SessionGroupCallback;
 import com.dachen.imsdk.service.ImRequestManager;
-import com.dachen.imsdk.utils.ImUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -264,7 +261,7 @@ public class ChoiceDoctorForChatActivity extends BaseActivity {
     private void createChatGroup(String userId){
         List<String> userIds = new ArrayList<String>();
         userIds.add(userId);
-        groupTool.createGroup(userIds, "10");
+        groupTool.createGroup(userIds, "3_10");
     }
     private class CallBack implements SessionGroupCallback{
         String userId;
