@@ -82,12 +82,15 @@ public class SearchSignRecordDepActivity extends BaseActivity implements HttpMan
                 }else if (type.equals("sign")){
                     intent= new Intent(SearchSignRecordDepActivity.this, SearchSignRecordActivity.class);
                 }
-
+                String dept = "";
+                if (!TextUtils.isEmpty(info.departmentNmae)){
+                    dept = info.departmentNmae;
+                }
                 intent.putExtra("deptId",info.orgId);
                 intent.putExtra("type",type);
                 intent.putExtra("userId",info.userId);
                 intent.putExtra("userName",info.name);
-                intent.putExtra("deptName",info.departmentNmae);
+                intent.putExtra("deptName",dept);
                 startActivity(intent);
             }
         });

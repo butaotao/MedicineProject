@@ -367,7 +367,7 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
                 Set<VisitPeople> set = new HashSet<>();
                 set.addAll(mVisitPeopleList);
                 int size = set.size();
-                if(size<=0){
+                if(size<=1){
                     ToastUtil.showToast(this,"协同拜访至少需要2人参加");
                     return;
                 }

@@ -46,6 +46,7 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
     Button btSubmit;
     public String id;
     RelativeLayout rl_btnsmit;
+    boolean searchSing;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,10 +71,12 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
         String address = getIntent().getStringExtra("address");
         long longTime = getIntent().getLongExtra("longTime",0);
         String from = getIntent().getStringExtra("from");
+        searchSing = false;
         Log.d("zxy :", "72 : SiginDetailActivity : onCreate : from = "+from);
         if ("searchSign".equals(from) ) {
             etRemark.setEnabled(false);
             etRemark.setHint("");
+            searchSing = true;
         }else {
             if (!TextUtils.isEmpty(tag)&&!tag.equals("拜访")){
                 TitleManager.showText(this, v, new View.OnClickListener() {
@@ -125,22 +128,25 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
             etRemark.requestFocus();
             etRemark.setSelection(etRemark.getText().length());
         }
-        Timer timer = new Timer();
-         timer.schedule(new TimerTask()
-           {
+        if (!searchSing){
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask()
+                           {
 
-                   public void run()
-                    {
-                        if (etRemark.getVisibility()==View.VISIBLE){
-                            InputMethodManager inputManager =
-                                    (InputMethodManager)etRemark.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                            inputManager.showSoftInput(etRemark, 0);
-                        }
+                               public void run()
+                               {
+                                   if (etRemark.getVisibility()==View.VISIBLE){
+                                       InputMethodManager inputManager =
+                                               (InputMethodManager)etRemark.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                                       inputManager.showSoftInput(etRemark, 0);
+                                   }
 
-                         }
+                               }
 
-                 },
-                998);
+                           },
+                    998);
+
+        }
 
     }
     private boolean isVisit(){

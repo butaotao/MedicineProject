@@ -110,7 +110,7 @@ public class SplashActivity extends BaseActivity implements HttpManager.OnHttpLi
         } else {
             long expiresInTime = SharedPreferenceUtil.getLong(this, "expires_in", 0);
             long currentTime = System.currentTimeMillis();
-            if (expiresInTime != 0) {
+           /* if (expiresInTime != 0) {
                 if (expiresInTime - currentTime > 0) {
                         addDoctor();
                         loginRequest();
@@ -119,7 +119,9 @@ public class SplashActivity extends BaseActivity implements HttpManager.OnHttpLi
                 }
             } else {
                 startLoginActivity();
-            }
+            }*/
+            addDoctor();
+            loginRequest();
         }
 
     }
