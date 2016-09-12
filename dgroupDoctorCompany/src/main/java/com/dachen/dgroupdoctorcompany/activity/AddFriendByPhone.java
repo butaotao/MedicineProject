@@ -49,6 +49,7 @@ public class AddFriendByPhone extends BaseActivity implements HttpManager.OnHttp
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
                 ToastUtil.showToast(AddFriendByPhone.this, "添加成功");
+            finish();
         }
     };
     @Override
