@@ -297,9 +297,9 @@ public class RegisterActivity extends BaseActivity implements OnClickListener,Ht
 					@Override
 					public void onSuccess(Result result) {
 						closeLoadingDialog();
-						SmsSend send = (SmsSend)result;
-						if (result != null && result.getResultCode() == 1&&send.data!=null) {// 发送成功
-							smsId =send.data.smsid;
+						SmsSend send = (SmsSend) result;
+						if (result != null && result.getResultCode() == 1 && send.data != null) {// 发送成功
+							smsId = send.data.smsid;
 							ToastUtils.showToast(RegisterActivity.this, "验证码已发送，请注意查收");
 							//语音验证码不可点击，直到120秒后
 							get_call_code.setTextColor(getResources().getColor(R.color.gray_time_text));
@@ -327,7 +327,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener,Ht
 						clicked = false;
 						smsId = "";
 					}
-				}, false,1);
+				}, false, 1);
 	}
 
 	/**
@@ -339,17 +339,21 @@ public class RegisterActivity extends BaseActivity implements OnClickListener,Ht
 		final String templateId = "25118";
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("telephone", phoneNumber);
-		params.put("templateId", templateId);// 短信模板。
-		new HttpManager().post(this, Constants.DRUG+"sms/randcode/getVoiceCode",
-				Void.class, params, new HttpManager.OnHttpListener<Result>() {
+		params.put("access_context", SharedPreferenceUtil.getString(this,"context_token",""));
+		params.put("access_token", UserInfo.getInstance(this).getSesstion());// 短信模板。
+		new HttpManager().post(this, Constants.DRUG+"auth/sendVoiceCode",
+				SmsSend.class, params, new HttpManager.OnHttpListener<Result>() {
 					@Override
 					public void onSuccess(Result result) {
 						closeLoadingDialog();
+						SmsSend send = (SmsSend) result;
 						if (result != null && result.getResultCode() == 1) {// 发送成功
 							ToastUtils.showToast(RegisterActivity.this, "语音验证码已发送，请注意接听电话");
 							//语音验证码不可点击，直到120秒后
 							get_call_code.setTextColor(getResources().getColor(R.color.gray_time_text));
 							get_call_code.setClickable(false);
+							if (result != null && result.getResultCode() == 1&&send.data!=null) {// 发送成功
+								smsId =send.data.smsid;}
 						} else {
 							mReckonHandler.removeCallbacksAndMessages(null);
 							mReckonHandler.sendEmptyMessage(0x2);
@@ -363,6 +367,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener,Ht
 					}
 					@Override
 					public void onFailure(Exception e, String errorMsg, int s) {
+						closeLoadingDialog();
 						ToastUtils.showToast(RegisterActivity.this, "获取语音验证码失败");
 						mReckonHandler.removeCallbacksAndMessages(null);
 						mReckonHandler.sendEmptyMessage(0x2);

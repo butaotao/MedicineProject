@@ -103,6 +103,7 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
                         childHolder.tvLable.setText(listLable.get(0));
                     }
                 }else{
+                    childHolder.tvLable.setVisibility(View.VISIBLE);
                     //childHolder.tvLable.setVisibility(View.GONE);
                     childHolder.tvLable.setText("签到");
                 }
@@ -124,7 +125,9 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
                         childHolder.tvLable.setText(listLable.get(0));
                     }
                 }else{
-                    childHolder.tvLable.setVisibility(View.GONE);
+                    childHolder.tvLable.setVisibility(View.VISIBLE);
+                    //childHolder.tvLable.setVisibility(View.GONE);
+                    childHolder.tvLable.setText("签到");
                 }
             }
             Date date = new Date(time);
