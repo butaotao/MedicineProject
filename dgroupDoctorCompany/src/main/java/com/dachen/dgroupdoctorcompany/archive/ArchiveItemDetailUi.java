@@ -31,7 +31,6 @@ import com.dachen.dgroupdoctorcompany.activity.ChatShareMsgActivity;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.imsdk.ImSdk;
-import com.dachen.imsdk.adapter.MsgMenuAdapter;
 import com.dachen.imsdk.archive.download.ArchiveLoader;
 import com.dachen.imsdk.archive.download.ArchiveTaskInfo;
 import com.dachen.imsdk.archive.entity.ArchiveItem;
@@ -60,7 +59,7 @@ public abstract class ArchiveItemDetailUi extends BaseActivity implements View.O
     private String mFrom;
     private FrameLayout mContainer;
     private Button mSave;
-    private TextView mShare;
+     TextView mShare;
     public static String DOCTYPE = "DOCTYPE";
     @Override
     protected void onCreate(Bundle savedInstanceState) {

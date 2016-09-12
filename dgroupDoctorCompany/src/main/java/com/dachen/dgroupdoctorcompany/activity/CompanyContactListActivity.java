@@ -79,7 +79,7 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
     public static int isManager = 1;
     public static int editColleageDep = 2;
     public String companyid;
-    private GuiderHListView mCp_listguilde;
+     GuiderHListView mCp_listguilde;
     boolean isEmpty = false;
     public String departName="";
     public String baseDepartName="";
@@ -570,14 +570,7 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
 
     @Override
     public void onBackPressed() {
-        //super.onBackPressed();
-        Log.d("zxy :", "560 : CompanyContactListActivity : onBackPressed : isHttpClose");
-        if (isOpenHttp) {
-            Log.d("zxy :", "559 : CompanyContactListActivity : onBackPressed : isOpenHttp = "+isOpenHttp);
-            isHttpClose = true;
-            isOpenHttp = false;
-            return;
-        }
+
         backtofront();
         //		this.mApplication.getActivityManager().finishActivity(this.getClass());
     }
@@ -606,7 +599,9 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
                     if (departmentId.size()==0) {
                         getOrganization(AddressList.deptId);
                     }else {
-                        getOrganization(departmentId.get(departmentId.size()-1).id);
+                        GuiderHListView.Guider item = (GuiderHListView.Guider) mCp_listguilde.getAdapter().getItem
+                                (mCp_listguilde.getAdapter().getCount() - 1);
+                        getOrganization(item.id);
                     }
                 }
                 break;

@@ -102,8 +102,8 @@ public class VisitDetailVAdapter extends android.widget.BaseAdapter {
         }else{
             hoder.tv_des.setText(sum.remark);
         }
-        String time = TimeUtils.getTimeRecord(sum.time);
-        hoder.tv_time.setText(time);
+       // String time = TimeUtils.getTimeRecord(sum.time);
+        hoder.tv_time.setText(TimeUtils.getTimeDay3(sum.time)+TimeUtils.getTimesHourMinute(sum.time));
         return convertView;
     }
 

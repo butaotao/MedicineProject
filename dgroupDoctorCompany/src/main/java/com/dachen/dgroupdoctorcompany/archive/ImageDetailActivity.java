@@ -38,6 +38,7 @@ public class ImageDetailActivity extends ArchiveItemDetailUi {
             findViewById(R.id.vBottom).setVisibility(View.GONE);
             findViewById(R.id.vLine).setVisibility(View.GONE);
         }
+        mShare.setVisibility(View.GONE);
     }
 
     @Override

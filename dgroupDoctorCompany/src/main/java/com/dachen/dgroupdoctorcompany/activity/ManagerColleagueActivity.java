@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -90,39 +89,20 @@ public class ManagerColleagueActivity extends CompanyContactListActivity impleme
        switch (v.getId()){
             case R.id.rl_addpeople:
                 Intent intent = new Intent(this, FriendsContactsActivity.class);
-                String id=AddressList.deptId;
-                if (list!=null&&list.size()>0){
-                    BaseSearch search = list.get(0);
-                    String s[] = new String[]{};
-                    if (search instanceof CompanyContactListEntity) {
-                        CompanyContactListEntity entity = (CompanyContactListEntity) search;
-                        if (!TextUtils.isEmpty(entity.treePath)&&entity.treePath.contains("/")){
-                            s = entity.treePath.split("/");
-                            if (s.length>=2){
-                                id = s[s.length-1];
-                            }
-                        }
-                    } else if (search instanceof CompanyDepment.Data.Depaments) {
-                        CompanyDepment.Data.Depaments entity = (CompanyDepment.Data.Depaments) search;
-                        if (!TextUtils.isEmpty(entity.treePath)&&entity.treePath.contains("/")){
-                            s =entity.treePath.split("/");
-                            if (s.length>=2) {
-                                id = s[s.length - 2];
-                            }
-                        }
-                    }
-                }else {
-                    id = idDep;
+                if (fistAdd){
+                    intent.putExtra("deptid", AddressList.deptId);//第一次取固定的
+                    fistAdd = false;
+                    Log.d("zxy :", "91 : ManagerColleagueActivity : onClick : deptid = "+idDep);
+                }else if(!android.text.TextUtils.isEmpty(idDep)) {
+                    intent.putExtra("deptid",idDep);
+                }else{
+                    intent.putExtra("deptid", AddressList.deptId);
                 }
-                if (TextUtils.isEmpty(id)){
-                    id = AddressList.deptId;
-                }
-                intent.putExtra("deptid", id);
-
                 startActivityForResult(intent, 200);
                 break;
         }
     }
+
     public void onColleagueEdit(CompanyContactListEntity c2,int position){
         entity = c2;
         Intent intent = new Intent(ManagerColleagueActivity.this, DeleteColleActivity.class);
