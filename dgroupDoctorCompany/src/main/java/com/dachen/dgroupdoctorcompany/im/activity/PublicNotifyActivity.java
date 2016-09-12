@@ -35,6 +35,7 @@ public class PublicNotifyActivity extends AppBaseChatActivity {
 		setTitle(getIntent().getStringExtra(INTENT_EXTRA_GROUP_NAME));
 		// 隐藏右侧菜单
 		setRightMenuVisibility(View.GONE);
+		mChatBottomView.setVisibility(View.GONE);
 
 	}
 	
