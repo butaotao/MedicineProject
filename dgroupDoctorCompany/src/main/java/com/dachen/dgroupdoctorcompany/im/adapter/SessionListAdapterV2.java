@@ -41,10 +41,11 @@ public class SessionListAdapterV2 extends BaseCustomAdapter<ChatGroupPo> {
 	}
 
 	protected void setAvatarImage(ViewHolder holder, ChatGroupPo group) {
-		if (group.type ==ChatGroupPo.TYPE_DOUBLE|| group.type == ChatGroupPo.TYPE_MULTI||"pub_news".equals(group.bizType)||"pub_customer".equals(group.bizType) ) {
-			// 双人或者多人会话
-			ImageLoader.getInstance().displayImage(group.gpic, holder.session_message_avatar_image, CompanyApplication.mAvatarRoundImageOptions);
-		}else if (group.groupId.equals(SessionGroupId.auth_request_doctor) ||group.groupId.equals(SessionGroupId.auth_request_patient)) {
+//		if (group.type ==ChatGroupPo.TYPE_DOUBLE|| group.type == ChatGroupPo.TYPE_MULTI||"pub_news".equals(group.bizType)||"pub_customer".equals(group.bizType) ) {
+//			// 双人或者多人会话
+//			ImageLoader.getInstance().displayImage(group.gpic, holder.session_message_avatar_image, CompanyApplication.mAvatarRoundImageOptions);
+//		}else
+		if (group.groupId.equals(SessionGroupId.auth_request_doctor) ||group.groupId.equals(SessionGroupId.auth_request_patient)) {
 			// 好友验证请求
 			holder.session_message_avatar_image.setImageResource(R.drawable.new_friends);
 		} else if (group.groupId.equals(SessionGroupId.system_notification)) {
@@ -52,7 +53,8 @@ public class SessionListAdapterV2 extends BaseCustomAdapter<ChatGroupPo> {
 			holder.session_message_avatar_image.setImageResource(R.drawable.system_notification);
 		} else {
 			// 其它的
-			holder.session_message_avatar_image.setImageResource(R.drawable.avatar_normal);
+//			holder.session_message_avatar_image.setImageResource(R.drawable.avatar_normal);
+			ImageLoader.getInstance().displayImage(group.gpic, holder.session_message_avatar_image, CompanyApplication.mAvatarRoundImageOptions);
 		}
 //		if (po.clickType == SessionClickType.chat_double || po.clickType == SessionClickType.chat_multi ||po.groupType.equals("pub_news")||po.groupType.equals("pub_002")) {
 //			// 双人或者多人会话

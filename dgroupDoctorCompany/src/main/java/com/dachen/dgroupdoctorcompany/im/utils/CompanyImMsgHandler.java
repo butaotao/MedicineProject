@@ -1,14 +1,17 @@
 package com.dachen.dgroupdoctorcompany.im.utils;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 
 import com.alibaba.fastjson.JSON;
 import com.dachen.dgroupdoctorcompany.activity.ChatShareMsgActivity;
+import com.dachen.dgroupdoctorcompany.activity.ColleagueDetailActivity;
 import com.dachen.dgroupdoctorcompany.activity.WebActivityForCompany;
 import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
 import com.dachen.dgroupdoctorcompany.db.dbdao.DoctorDao;
+import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.imsdk.activities.ChatActivityV2;
 import com.dachen.imsdk.adapter.ChatAdapterV2;
 import com.dachen.imsdk.adapter.MsgMenuAdapter;
@@ -29,6 +32,19 @@ public class CompanyImMsgHandler extends ImMsgHandler{
         super(mContext);
         mDoctorDao=new DoctorDao(mContext);
         mCompanyDao=new CompanyContactDao(mContext);
+    }
+
+    @Override
+    public void onClickMyself(ChatMessagePo chatMessage, ChatAdapterV2 adapter) {
+        List<CompanyContactListEntity> l=mCompanyDao.queryByUserId(chatMessage.fromUserId);
+        if(l!=null&&l.size()>0){
+            CompanyContactListEntity e=l.get(0);
+            Intent intent = new Intent(mContext, ColleagueDetailActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("peopledes",e);
+            intent.putExtra("peopledes", bundle);
+            mContext.startActivity(intent);
+        }
     }
 
     @Override
