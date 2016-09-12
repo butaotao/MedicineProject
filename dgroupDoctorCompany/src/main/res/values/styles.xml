@@ -177,4 +177,16 @@
         <item name="android:src">@drawable/arrow</item>
         <item name="android:layout_alignParentRight">true</item>
     </style>
+    <!--Widget.AppCompat.ProgressBar.Horizontal-->
+    <style name="StyleProgressBarMini" parent="android:Widget.ProgressBar.Horizontal">
+
+        <item name="android:maxHeight">10dp</item>
+        <item name="android:minHeight">5dp</item>
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:indeterminateDrawable">
+            @android:drawable/progress_indeterminate_horizontal
+        </item>
+        <item name="android:progressDrawable">@drawable/progress_horizontal</item>
+
+    </style>
 </resources>

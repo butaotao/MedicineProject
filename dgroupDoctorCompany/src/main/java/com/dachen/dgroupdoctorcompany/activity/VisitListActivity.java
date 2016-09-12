@@ -17,11 +17,14 @@ import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.adapter.VisitListAdapter;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
+import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
+import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.entity.JoinVisitGroup;
 import com.dachen.dgroupdoctorcompany.entity.SignInList;
 import com.dachen.dgroupdoctorcompany.utils.DataUtils.GetUserDepId;
 import com.dachen.dgroupdoctorcompany.utils.GaoDeMapUtils;
 import com.dachen.dgroupdoctorcompany.views.CustomDialog;
+import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.Params;
@@ -70,10 +73,14 @@ public class VisitListActivity extends BaseActivity implements HttpManager.OnHtt
         mBtAdd = (Button) findViewById(R.id.btAdd);
         mBtAdd.setOnClickListener(this);
         mStatistics = (TextView) findViewById(R.id.tv_title_save);
-        mStatistics.setText("统计");
-        mStatistics.setVisibility(View.VISIBLE);
-        mStatistics.setTextColor(Color.parseColor("#333333"));
-        mStatistics.setOnClickListener(this);
+        if(isDeptartManager()){
+            mStatistics.setText("统计");
+            mStatistics.setVisibility(View.VISIBLE);
+            mStatistics.setTextColor(Color.parseColor("#333333"));
+            mStatistics.setOnClickListener(this);
+        }else {
+            mStatistics.setVisibility(View.GONE);
+        }
         mLvVisitList = (PullToRefreshListView) findViewById(R.id.lvVisitList);
         mBtTogtherAdd = (Button) findViewById(R.id.btTogtherAdd);
         mBtTogtherAdd.setOnClickListener(this);
@@ -369,5 +376,15 @@ public class VisitListActivity extends BaseActivity implements HttpManager.OnHtt
         if(null != mGaoDeMapUtils){
             mGaoDeMapUtils.onDestory();
         }
+    }
+
+    /**
+     * 判断是否是管理员
+     * @return
+     */
+    private boolean isDeptartManager() {
+        CompanyContactDao dao = new CompanyContactDao(getApplicationContext());
+        CompanyContactListEntity entity = dao.queryByUserid(SharedPreferenceUtil.getString(this, "id", ""));
+        return entity.deptManager == 1;
     }
 }

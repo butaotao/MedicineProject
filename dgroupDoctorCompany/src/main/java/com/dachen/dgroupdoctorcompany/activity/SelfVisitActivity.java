@@ -469,7 +469,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                 ServerTimeBean time = (ServerTimeBean) response;
                 if (time.data>0) {
                     this.serviceTime = time.data;
-                    if(MODE_FROM_SIGN==mMode) {//签到过来 设定当前服务器时间
+                    if(MODE_FROM_SIGN==mMode||MODE_FROM_VIST_LIST == mMode) {//签到过来 设定当前服务器时间
                         Date date = new Date(serviceTime);
                         String strDate = TimeFormatUtils.china_format_date(date);
                         String strWeek = TimeFormatUtils.week_format_date(date);
@@ -479,9 +479,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
 
                         tv_time_location.setText(strTime + " " + mStrFloor);
                     }
-                    if (MODE_FROM_VIST_LIST_ITEM == mMode || MODE_FROM_SIGN_LIST==mMode) {//拜访列表,签到列表,根据时间判断是否可以编辑
-                      //  setRemarkEnable(serviceTime < presentTime + 24 * 60 * 60 * 1000);
-                    }
+
                 }
             } else if (response instanceof Result) {
                 if (response.getResultCode() == 1) {

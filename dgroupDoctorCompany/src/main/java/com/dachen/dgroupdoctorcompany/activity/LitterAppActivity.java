@@ -3,7 +3,7 @@ package com.dachen.dgroupdoctorcompany.activity;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.dachen.dgroupdoctorcompany.R;
@@ -38,19 +39,32 @@ public class LitterAppActivity extends CordovaActivity {
     private Button mMenu;
     private PopupWindow popWindow;
     MenuButtonBean mMenuButtonBean;
+    private ProgressBar mProgress;
+    private Thread mProgressThread;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        //super.setIntegerProperty("loadUrlTimeoutValue", 60000);
         super.onCreate(savedInstanceState);
         setTheme(R.style.ActionSheetStyleiOS7);
         EventBus.getDefault().register(this);
-        //|String url ="http://192.168.3.46:8081/community/test/";
         String url ="http://192.168.3.7/drugorg/web/attachments/JSBridge/";
-
-        Log.d("zxy", "onCreate: ");
-        //String url = "file:///android_asset/www/index.html";
+        loadProgress();
         loadUrl(url);
+    }
+
+    private void loadProgress() {
+        mProgress.setVisibility(View.VISIBLE);
+        mProgress.setMax(100);
+        mProgressThread = new Thread(){
+            @Override
+            public void run() {
+                for (int i = 0; i < 95; i= i+5) {
+                    mProgress.setProgress(i);
+                    SystemClock.sleep(80);
+                }
+            }
+        };
+        mProgressThread.start();
     }
 
     @Override
@@ -63,6 +77,8 @@ public class LitterAppActivity extends CordovaActivity {
         initView();
 
     }
+
+
     public void onEventMainThread(TitleBean title){
         Gson gson = new Gson();
         TitleBean titleBean = gson.fromJson(title.title, TitleBean.class);
@@ -76,6 +92,7 @@ public class LitterAppActivity extends CordovaActivity {
         mTitle = (TextView) findViewById(R.id.title);
         mClose = (TextView) findViewById(R.id.close);
         mMenu = (Button) findViewById(R.id.right_menu);
+        mProgress = (ProgressBar) findViewById(R.id.litter_app_progress);
         mClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,7 +114,6 @@ public class LitterAppActivity extends CordovaActivity {
         mMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("zxy", "onClick: ");
                 if (popWindow == null) {
                     View contentView = View.inflate(LitterAppActivity.this,R.layout.litterapp_popwindow, null);
                     if (mMenuButtonBean!=null&&"singleMenu".equals(mMenuButtonBean.menuType)) {

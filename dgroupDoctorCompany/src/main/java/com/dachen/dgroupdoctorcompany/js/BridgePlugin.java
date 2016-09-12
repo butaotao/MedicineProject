@@ -369,7 +369,7 @@ public class BridgePlugin extends CordovaPlugin {
     private JSONObject getIdentityData(JSONObject json) throws JSONException {
         json.put("resultCode","1");
         JSONObject jsonData = new JSONObject();
-        jsonData.put("openID","001");
+        jsonData.put("openID",SharedPreferenceUtil.getString(CompanyApplication.getInstance(),"openId",""));
         jsonData.put("userName", SharedPreferenceUtil.getString(CompanyApplication.getInstance(),"username",""));
         jsonData.put("companyID", SharedPreferenceUtil.getString(CompanyApplication.getInstance(), "enterpriseId", ""));
         jsonData.put("companyName", SharedPreferenceUtil.getString(CompanyApplication.getInstance(), "enterpriseName", ""));
