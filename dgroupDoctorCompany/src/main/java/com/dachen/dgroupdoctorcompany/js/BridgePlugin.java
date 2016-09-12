@@ -3,6 +3,7 @@ package com.dachen.dgroupdoctorcompany.js;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.util.Base64;
@@ -372,7 +373,9 @@ public class BridgePlugin extends CordovaPlugin {
         jsonData.put("userName", SharedPreferenceUtil.getString(CompanyApplication.getInstance(),"username",""));
         jsonData.put("companyID", SharedPreferenceUtil.getString(CompanyApplication.getInstance(), "enterpriseId", ""));
         jsonData.put("companyName", SharedPreferenceUtil.getString(CompanyApplication.getInstance(), "enterpriseName", ""));
-        jsonData.put("platform","Android");
+        String model = Build.MODEL;
+        String system = ";Android "+android.os.Build.VERSION.RELEASE;
+        jsonData.put("platform",model+system);
         json.put("data",jsonData);
         json.put("resultMsg","");
         return json;

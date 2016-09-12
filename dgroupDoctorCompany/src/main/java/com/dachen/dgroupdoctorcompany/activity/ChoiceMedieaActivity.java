@@ -156,7 +156,7 @@ public class ChoiceMedieaActivity extends BaseActivity implements HttpManager.On
 
     private void getMeida(){
         showLoadingDialog();
-        new HttpManager().get(this, Constants.GET_GOODSGROUP_LIST , GoodsGroupEntity.class,
+        new HttpManager().post(this, Constants.GET_GOODSGROUP_LIST , GoodsGroupEntity.class,
                 Params.getGoodsGroupList(ChoiceMedieaActivity.this,null,pageSize,pageIndex), this,
                 false, 1);
     }

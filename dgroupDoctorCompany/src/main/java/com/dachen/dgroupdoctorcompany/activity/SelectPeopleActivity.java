@@ -257,9 +257,6 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
                         partName = c1.name;
                         idDep = c1.id;
                         from = LISTVIEWITEMCLICK;
-                        /*mListGuider.addTask(partName,idDep);//数据请求成功后加载
-                        mListGuider.setOldPosition();
-                        mListGuider.notifyDataSetChanged();*/
                         getOrganization();
                     }
                 }
@@ -318,7 +315,8 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
         }
         from = GUIDERITEMCLICK;
         currentPosition = position;
-        idDep = mListGuider.addBackTaskId(position);
+        GuiderHListView.Guider item = (GuiderHListView.Guider) mListGuider.getAdapter().getItem(position);
+        idDep = item.id;
         getOrganization();
     }
 
@@ -339,7 +337,6 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
 
     void backtofront() {
         from = BACKCLICK;
-
         int position = mListGuider.getCurrentPosition()-1;//当前任务栈id数
         if (position == 0) {   //只剩联系人了,直接返回,  清空数据释放缓存
             finish();
@@ -347,8 +344,6 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
         }else{//返回
             idDep = mListGuider.reMoveTaskId();
         }
-        /*mListGuider.setOldPosition();
-        mListGuider.notifyDataSetChanged();*/
         getOrganization();
     }
 
@@ -808,7 +803,6 @@ public class SelectPeopleActivity extends BaseActivity implements HttpManager.On
     @Override
     public void onBackPressed() {
         backtofront();
-        super.onBackPressed();
     }
 
     @Override

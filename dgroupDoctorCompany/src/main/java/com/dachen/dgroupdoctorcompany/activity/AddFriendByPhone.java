@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -56,6 +57,7 @@ public class AddFriendByPhone extends BaseActivity implements HttpManager.OnHttp
         setContentView(R.layout.activity_addfriend_byphone);
         ButterKnife.bind(this);
         deptid = getIntent().getStringExtra("deptid");
+        Log.d("zxy :", "59 : AddFriendByPhone : onCreate : deptid = "+deptid);
         setTitle("手机号码添加");
      //   enableBack();
         phone_numer_edit.addTextChangedListener(new TextWatcher() {
@@ -131,11 +133,11 @@ public class AddFriendByPhone extends BaseActivity implements HttpManager.OnHttp
         HashMap<String ,String > maps = new HashMap<>();
         maps.put("access_token", UserInfo.getInstance(this).getSesstion());
         maps.put("drugCompanyId", SharedPreferenceUtil.getString(this, "enterpriseId", ""));
-        maps.put("id",""+ AddressList.deptId);
+       // maps.put("id",""+ AddressList.deptId);
         maps.put("telephone",phoneNumber);
         maps.put("orgId",""+deptid);
         //1表示移动端添加
-        maps.put("addSource","1");
+       // maps.put("addSource","1");
         String userName = "";
         if (!TextUtils.isEmpty(name)){
             userName = name;

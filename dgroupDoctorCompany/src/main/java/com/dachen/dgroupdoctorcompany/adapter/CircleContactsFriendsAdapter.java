@@ -168,18 +168,18 @@ public class CircleContactsFriendsAdapter extends BaseAdapter<ContactsInfo>imple
         maps.put("drugCompanyId", SharedPreferenceUtil.getString(mContext, "enterpriseId", ""));
         maps.put("orgId",""+ activity.deptid);
         maps.put("telephone",finalPhone);
-        maps.put("addSource","1");
+      //  maps.put("addSource","1");
         String userName = "";
         if (!TextUtils.isEmpty(contactsInfo.getName())){
             userName = contactsInfo.getName();
         }
         maps.put("name",userName);
-        new HttpManager().post(mContext, Constants.DRUG+"companyUser/addMajorUser", CompanyDepment.class,
+        new HttpManager().post(mContext, Constants.ADDCONTACT, CompanyDepment.class,
                 maps, new HttpManager.OnHttpListener<Result>() {
                     @Override
                     public void onSuccess(Result response) {
                         if (response.resultCode==1&&response.resultMsg.equals("success")){
-                            ToastUtil.showToast(mContext, "添加成功");
+                           /* ToastUtil.showToast(mContext, "添加成功");
                             contactsInfo.setOnlyFriend(true);
                             viewHolder.add_btn.setText("已添加");
                             viewHolder.add_btn.setBackgroundResource(R.drawable.btn_bulk_gray);
@@ -189,7 +189,7 @@ public class CircleContactsFriendsAdapter extends BaseAdapter<ContactsInfo>imple
                                 public void onClick(View v) {
 
                                 }
-                            });
+                            });*/
 
                             GetAllDoctor.getInstance().getPeople(new Handler() {
                                 @Override
@@ -197,6 +197,17 @@ public class CircleContactsFriendsAdapter extends BaseAdapter<ContactsInfo>imple
                                     super.handleMessage(msg);
                                     if (mContext instanceof FriendsContactsActivity){
                                         FriendsContactsActivity activity = (FriendsContactsActivity) mContext;
+                                        ToastUtil.showToast(mContext, "添加成功");
+                                        contactsInfo.setOnlyFriend(true);
+                                        viewHolder.add_btn.setText("已添加");
+                                        viewHolder.add_btn.setBackgroundResource(R.drawable.btn_bulk_gray);
+                                        viewHolder.add_btn.setTextColor(mContext.getResources().getColor(R.color.color_grayline1dp));
+                                        viewHolder.add_btn.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+
+                                            }
+                                        });
                                     }
 
                                 }

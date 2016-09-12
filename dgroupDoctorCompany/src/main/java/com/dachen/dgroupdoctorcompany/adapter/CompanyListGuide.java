@@ -2,12 +2,14 @@ package com.dachen.dgroupdoctorcompany.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dachen.dgroupdoctorcompany.R;
+import com.dachen.dgroupdoctorcompany.views.GuiderHListView;
 
 import java.util.List;
 
@@ -16,12 +18,12 @@ import java.util.List;
  * @Author: zxy on 16/8/19上午10:49.
  * @描述 TODO
  */
-public class CompanyListGuide extends BaseAdapter<String> {
+public class CompanyListGuide extends BaseAdapter<GuiderHListView.Guider> {
     public CompanyListGuide(Context context) {
         super(context);
     }
 
-    public CompanyListGuide(Context context, List<String> data) {
+    public CompanyListGuide(Context context, List<GuiderHListView.Guider> data) {
         super(context, data);
     }
 
@@ -44,7 +46,8 @@ public class CompanyListGuide extends BaseAdapter<String> {
             holder.icptext.setTextColor(Color.parseColor("#3cbaff"));
             holder.icparrow.setVisibility(View.VISIBLE);
         }
-        String text = dataSet.get(position);
+        String text = dataSet.get(position).name;
+        Log.d("zxy :", "49 : CompanyListGuide : getView : text = "+text);
         holder.icptext.setText(text);
         return convertView;
     }
