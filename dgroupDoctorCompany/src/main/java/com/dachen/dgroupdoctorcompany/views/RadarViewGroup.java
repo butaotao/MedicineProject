@@ -2,6 +2,7 @@ package com.dachen.dgroupdoctorcompany.views;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.entity.VisitPeople;
 import com.dachen.dgroupdoctorcompany.utils.CommonUitls;
+import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 
 public class RadarViewGroup extends ViewGroup implements RadarView.IScanningListener {
     private int mWidth, mHeight;//viewgroup的宽高
@@ -160,7 +162,9 @@ public class RadarViewGroup extends ViewGroup implements RadarView.IScanningList
         for (int i = 0; i < mDatas.size(); i++) {
             VisitPeople visitPeople = mDatas.get(i);
             IconTextView circleView = new IconTextView(getContext(),visitPeople);
-
+            if (!TextUtils.isEmpty(visitPeople.id)&&visitPeople.id.equals(SharedPreferenceUtil.getString(getContext(),"id",""))){
+                continue;
+            }
             //根据远近距离的不同计算得到的应该占的半径比例 0.312-0.832
             circleView.setProportion(3 / 4f);//固定在第二个圈
             if (minItemPosition == i) {

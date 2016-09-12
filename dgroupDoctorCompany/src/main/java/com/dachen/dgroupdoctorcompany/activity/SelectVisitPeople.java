@@ -321,9 +321,9 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
 
 //        mBtSure.setText("确定选择(1)人");
         btn_choiceposition.setOnClickListener(this);
-        mMyHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME,1000);
-
-        if(!TextUtils.isEmpty(headPic)){
+        mMyHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, 1000);
+        headPic =   SharedPreferenceUtil.getString(CompanyApplication.getInstance(), userId + "head_url", "");
+        if (!TextUtils.isEmpty(headPic)){
             ImageLoader.getInstance().displayImage(headPic,mIvPicture, CompanyApplication.mAvatarCircleImageOptions);
         }else{
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.head_icon);
