@@ -780,6 +780,8 @@
         <activity android:name=".activity.LitterAppActivity"/>
         <!--公告web界面-->
         <activity android:name=".activity.NoticeWebActivity"/>
+        <!--签到导航-->
+        <activity android:name=".activity.GuiderActivity"/>
 
     </application>
 

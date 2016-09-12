@@ -598,10 +598,12 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
                     GetAllDoctor.getInstance().getPeople();
                     if (departmentId.size()==0) {
                         getOrganization(AddressList.deptId);
-                    }else {
-                        GuiderHListView.Guider item = (GuiderHListView.Guider) mCp_listguilde.getAdapter().getItem
-                                (mCp_listguilde.getAdapter().getCount() - 1);
-                        getOrganization(item.id);
+                    }else {//添加成员activity返回
+                        if (mCp_listguilde!= null&&mCp_listguilde.getAdapter().getCount()>=1) {
+                            GuiderHListView.Guider item = (GuiderHListView.Guider) mCp_listguilde.getAdapter().getItem
+                                    (mCp_listguilde.getAdapter().getCount() - 1);
+                            getOrganization(item.id);
+                        }
                     }
                 }
                 break;

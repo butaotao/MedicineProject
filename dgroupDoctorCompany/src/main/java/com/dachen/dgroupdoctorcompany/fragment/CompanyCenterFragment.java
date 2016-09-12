@@ -112,6 +112,12 @@ public class CompanyCenterFragment extends BaseFragment implements OnHttpListene
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         String protocol = mAdapter.getItem(position-1).protocol;
+        if (protocol.startsWith("lightapp://")) {
+            String url = protocol.replace("lightapp://", "");
+            Intent litterAppIntent = new Intent(mActivity,LitterAppActivity.class);
+            litterAppIntent.putExtra("url",url);
+            startActivity(litterAppIntent);
+        }
         switch (protocol){
             case "local://meeting"://会议直播
                 showLoadingDialog();

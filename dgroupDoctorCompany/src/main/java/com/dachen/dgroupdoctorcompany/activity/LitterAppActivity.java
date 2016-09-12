@@ -3,7 +3,6 @@ package com.dachen.dgroupdoctorcompany.activity;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,24 +46,31 @@ public class LitterAppActivity extends CordovaActivity {
         super.onCreate(savedInstanceState);
         setTheme(R.style.ActionSheetStyleiOS7);
         EventBus.getDefault().register(this);
-        String url ="http://192.168.3.7/drugorg/web/attachments/JSBridge/";
-        loadProgress();
+        String url = getIntent().getStringExtra("url");
+        // String url ="http://192.168.3.7/drugorg/web/attachments/JSBridge/";
         loadUrl(url);
     }
+
 
     private void loadProgress() {
         mProgress.setVisibility(View.VISIBLE);
         mProgress.setMax(100);
-        mProgressThread = new Thread(){
-            @Override
+      /*  mProgressThread = new Thread(){
+          *//*  @Override
             public void run() {
-                for (int i = 0; i < 95; i= i+5) {
+                for (int i = 0; i < 100; i++) {
                     mProgress.setProgress(i);
-                    SystemClock.sleep(80);
+                    SystemClock.sleep(15);
                 }
-            }
-        };
-        mProgressThread.start();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mProgress.setVisibility(View.GONE);
+                    }
+                });
+            }*//*
+        };*/
+       // mProgressThread.start();
     }
 
     @Override
@@ -75,7 +81,8 @@ public class LitterAppActivity extends CordovaActivity {
         initWebView();
 
         initView();
-
+        mProgress = (ProgressBar) findViewById(R.id.litter_app_progress);
+        loadProgress();
     }
 
 
@@ -196,6 +203,14 @@ public class LitterAppActivity extends CordovaActivity {
             }
 
         }
+        @Override
+        public void onProgressChanged(WebView view, int newProgress) {
+            super.onProgressChanged(view,newProgress);
+            mProgress.setProgress(newProgress);
+            if (newProgress == 100) {
+                mProgress.setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override
@@ -210,5 +225,18 @@ public class LitterAppActivity extends CordovaActivity {
     public void onDestroy() {
         EventBus.getDefault().unregister(this);
         super.onDestroy();
+    }
+
+    public class AppWebViewClient extends SystemWebChromeClient {
+        public AppWebViewClient(SystemWebViewEngine parentEngine) {
+            super(parentEngine);
+        }
+
+        @Override
+        public void onProgressChanged(WebView view, int newProgress) {
+
+        }
+
+
     }
 }

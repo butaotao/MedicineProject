@@ -97,40 +97,19 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
                 List<String> listLable = pageDataBean.tag;
                 if(null!=listLable && listLable.size()>0){  //显示拜访标签
                     childHolder.tvLable.setVisibility(View.VISIBLE);
-                    childHolder.tvLable.setText(listLable.get(0));
+                    if (TextUtils.isEmpty(listLable.get(0))) {//标签为空的时候显示签到
+                        childHolder.tvLable.setText("签到");
+                    }else {
+                        childHolder.tvLable.setText(listLable.get(0));
+                    }
                 }else{
-                    childHolder.tvLable.setVisibility(View.GONE);
+                    //childHolder.tvLable.setVisibility(View.GONE);
+                    childHolder.tvLable.setText("签到");
                 }
                 childHolder.tvAddress.setText(address);
                 childHolder.ivPicture.setBackgroundResource(R.drawable.icon_sign);
-//                         CustomImagerLoader.getInstance().loadImage(childHolder.ivPicture, headPic,
-//                                R.drawable.baifang, R.drawable.baifang);
-                //TODO ????
-               /* if(TextUtils.isEmpty(pageDataBean.userName)){
-                    childHolder.tvName.setText("不记名拜访");
-                }else{
-                    childHolder.tvName.setText("拜访 "+doctorname);
-                }*/
 
-            }else if("协同拜访".equals(type)){//协同拜访
-                String address = pageDataBean.address;
-                if(TextUtils.isEmpty(address)){
-                    address = pageDataBean.address;
-                }
-                childHolder.tvAddress.setText(address);
-                childHolder.ivPicture.setBackgroundResource(R.drawable.icon_sign);
-//                         CustomImagerLoader.getInstance().loadImage(childHolder.ivPicture, headPic,
-//                                R.drawable.baifang, R.drawable.baifang);
-
-              /*  if(TextUtils.isEmpty(pageDataBean.userName)){
-                    childHolder.tvName.setText("不记名拜访");
-                }else{
-                    childHolder.tvName.setText("拜访 "+doctorname);
-                }
-*/
-                childHolder.tvLable.setVisibility(View.VISIBLE);
-                childHolder.tvLable.setText("协同");
-            }else /*if("上班".equals(type))*/{  //独立拜访
+            }else {  //独立拜访
                 childHolder.ivPicture.setBackgroundResource(R.drawable.icon_sign);
                 // childHolder.tvName.setText("考勤打卡");
                 String address = pageDataBean.address;
@@ -139,17 +118,15 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
                 List<String> listLable = pageDataBean.tag;
                 if(null!=listLable && listLable.size()>0){
                     childHolder.tvLable.setVisibility(View.VISIBLE);
-                    childHolder.tvLable.setText(listLable.get(0));
+                    if (TextUtils.isEmpty(listLable.get(0))) {
+                        childHolder.tvLable.setText("签到");
+                    }else {
+                        childHolder.tvLable.setText(listLable.get(0));
+                    }
                 }else{
                     childHolder.tvLable.setVisibility(View.GONE);
                 }
             }
-//                if(TextViewUtils.isEmpty(remark)){
-//                    childHolder.vRemark.setVisibility(View.GONE);
-//                }else{
-//                    childHolder.vRemark.setVisibility(View.VISIBLE);
-//                }
-//                childHolder.tvRemark.setText(remark);
             Date date = new Date(time);
             String strDate = TimeFormatUtils.china_format_date(date);//格式化日期X月X日
             childHolder.tvSinginDate.setVisibility(View.GONE);
