@@ -493,20 +493,16 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
     }
 
     void upDataGuiderList() {
-        Log.d("zxy :", "502 : CompanyContactListActivity : upDataGuiderList : from = "+from);
         switch (from) {
             case LISTVIEWITEMCLICK://ListView点击请求数据成功
-                Log.d("zxy :", "505 : CompanyContactListActivity : upDataGuiderList : ");
                 mCp_listguilde.addTask(departName,idDep);
                 break;
             case GUIDERITEMCLICK:   //导航listView
-                Log.d("zxy :", "509 : CompanyContactListActivity : upDataGuiderList : ");
                 mCp_listguilde.addBackTask(currentPosition);
                 departName= mCp_listguilde.getLastDerpartName(0);
                 break;
             case BACKCLICK:         //返回
                 mCp_listguilde.reMoveTask();
-                Log.d("zxy :", "515 : CompanyContactListActivity : upDataGuiderList : ");
                 departName= mCp_listguilde.getLastDerpartName(0);
                 break;
         }
@@ -626,11 +622,12 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
             return;
         }
         currentPosition = position;
-        idDep = mCp_listguilde.addBackTaskId(currentPosition);
+       // idDep = mCp_listguilde.addBackTaskId(currentPosition);
         from = GUIDERITEMCLICK;
-        String item = (String) mCp_listguilde.getAdapter().getItem(position);
+        GuiderHListView.Guider item = (GuiderHListView.Guider) mCp_listguilde.getAdapter().getItem(position);
+        idDep = item.id;
         Log.d("zxy :", "630 : CompanyContactListActivity : onItemClick : ");
-        getOrganization(idDep);
+        getOrganization(item.id);
 
     }
 

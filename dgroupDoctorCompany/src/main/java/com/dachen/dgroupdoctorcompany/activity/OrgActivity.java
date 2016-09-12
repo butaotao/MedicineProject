@@ -170,6 +170,7 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
                         otherPage = true;
                     }
                 }
+                mOrgListGuilde.setSelection(mOrgListGuilde.getCurrentPosition());
             }
         });
         String title = this.getIntent().getStringExtra("title");
@@ -186,8 +187,14 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
             mDepamentsStack.add(copyToNewList(mDepamentsList));
             mStackCount++;
         }
-
     }
+
+    @Override
+    public void onBackPressed() {
+        Log.d("zxy :", "194 : OrgActivity : onBackPressed : text");
+        backtofront();
+    }
+
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -319,6 +326,8 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
             mDepamentsStack.remove(mStackCount-1);
         }
         mOrgListGuilde.setOldPosition();
+        mOrgListGuilde.notifyDataSetChanged();
+        mOrgListGuilde.setSelection(mOrgListGuilde.getCurrentPosition());//导航定位到最后
         mStackCount--;
         backId();
         mOrgSelectAdapter.update(mDepamentsList);
@@ -357,8 +366,7 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
         mOrgListGuilde.setOldPosition();
         mOrgListGuilde.addBackTask(position);
         mOrgListGuilde.notifyDataSetChanged();
-        String title = mOrgListGuilde.getListGuide().get(mOrgListGuilde.getListGuide().size()-1);
-       // setTitle(title);
+        mOrgListGuilde.setSelection(mOrgListGuilde.getCurrentPosition());
     }
 
     @Override

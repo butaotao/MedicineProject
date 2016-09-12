@@ -20,9 +20,9 @@ import java.util.Map;
 public class GuiderHListView extends HListview2 {
     Context mContext;
     private HListview2 mHListView2;
-    private ArrayList<String> mListGuide;              //导航Listview数据
+    private ArrayList<Guider> mListGuide;              //导航Listview数据
     private ArrayList<GuiderHListviewBean> mListGuideId;              //导航Listview数据
-    private Map<String , ArrayList<String>> departList;   //导航Listview数据任务栈
+    private Map<String , ArrayList<Guider>> departList;   //导航Listview数据任务栈
     private CompanyListGuide mListGuideAdapter;
     private Map<Integer, Map<String , ArrayList<String>>> listGuideMap; //公司部门id任务栈;
     private int currentPosition = 0;//任务栈任务数
@@ -75,10 +75,9 @@ public class GuiderHListView extends HListview2 {
      */
     public void addTask(String departName, String departId) {
         if (mListGuide != null && listGuideMap != null && departList != null) {
-            mListGuide.add(departName);
+            Guider guider = new Guider(departId,departName);
+            mListGuide.add(guider);
             GuiderHListviewBean bean = new GuiderHListviewBean(departId,copyToNewList(mListGuide));
-            //departList.put(departId, copyToNewList(mListGuide));
-            //listGuideMap.put(currentPosition, departList);
             mBeanHashMap.put(currentPosition,bean);//栈
             currentPosition++;
         }
@@ -199,8 +198,8 @@ public class GuiderHListView extends HListview2 {
     /**
      * 将集合拷贝到一个新集合中
      */
-    public ArrayList<String> copyToNewList(ArrayList<String> list) {
-        ArrayList<String> arrayList = new ArrayList<>();
+    public ArrayList<Guider> copyToNewList(ArrayList<Guider> list) {
+        ArrayList<Guider> arrayList = new ArrayList<>();
         arrayList.addAll(list);
         return arrayList;
     }
@@ -228,31 +227,26 @@ public class GuiderHListView extends HListview2 {
     public String getLastDerpartName(int position) {
         if (departList !=null) {
             GuiderHListviewBean bean = mBeanHashMap.get(currentPosition - 1);
-            ArrayList<String> departList = bean.departList;
+            ArrayList<Guider> departList = bean.departList;
 
-            return departList.get(departList.size() - 1);
-
-            /*ArrayList<String> arrayList = departList.get(currentPosition - 1);
-            Log.d("zxy :", "151 : GuiderHListView : getLastDerpartName : departListsize = " + departList.size() + "  " +
-                    currentPosition + " " + arrayList.get(arrayList.size() - 1));
-            return arrayList.get(arrayList.size() - 1);*/
+            return departList.get(departList.size() - 1).name;
         }
         return "";
     }
 
-    public Map<String , ArrayList<String>> getDepartList() {
+    public Map<String , ArrayList<Guider>> getDepartList() {
         return departList;
     }
 
-    public void setDepartList(Map<String , ArrayList<String>> departList) {
+    public void setDepartList(Map<String , ArrayList<Guider>> departList) {
         this.departList = departList;
     }
 
-    public ArrayList<String> getListGuide() {
+    public ArrayList<Guider> getListGuide() {
         return mListGuide;
     }
 
-    public void setListGuide(ArrayList<String> listGuide) {
+    public void setListGuide(ArrayList<Guider> listGuide) {
         mListGuide = listGuide;
     }
 
@@ -266,14 +260,27 @@ public class GuiderHListView extends HListview2 {
 
     class GuiderHListviewBean{
         public String id ;
-        public ArrayList<String> departList;
+        public ArrayList<Guider> departList;
 
         public GuiderHListviewBean() {
         }
 
-        public GuiderHListviewBean(String id, ArrayList<String> departList) {
+        public GuiderHListviewBean(String id, ArrayList<Guider> departList) {
             this.id = id;
             this.departList = departList;
         }
+    }
+
+   public class Guider {
+       public Guider(String id, String name) {
+           this.id = id;
+           this.name = name;
+       }
+
+       public Guider() {
+       }
+
+       public String id ;
+        public String name;
     }
 }
