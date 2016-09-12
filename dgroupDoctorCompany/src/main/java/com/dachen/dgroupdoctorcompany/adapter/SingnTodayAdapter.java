@@ -81,14 +81,26 @@ public class SingnTodayAdapter extends android.widget.BaseAdapter{
             String des = "";
             String text = listVisitVo.tag.get(0);
             if (!TextUtils.isEmpty(text)&&text.length()>0){
-                for (int i = 0;i<text.length();i++){
-                    if (i!=text.length()-1){
-                        des += text.charAt(i)+"\n";
-                    }else {
-                        des += text.charAt(i);
-                    }
+                if (text.length()<4){
+                    for (int i = 0;i<text.length();i++){
+                        if (i!=text.length()-1){
+                            des += text.charAt(i)+"\n";
+                        }else {
+                            des += text.charAt(i);
+                        }
 
+                    }
+                }else {
+                    for (int i = 0;i<text.length();i++){
+                        if (i!=0&&(i-1)%2==0&&i!=text.length()-1){
+                            des += text.charAt(i)+"\n";
+                        }else {
+                            des += text.charAt(i);
+                        }
+
+                    }
                 }
+
             }
             if (text.equals("拜访")){
                 childHolder.rl_des.setVisibility(View.GONE);

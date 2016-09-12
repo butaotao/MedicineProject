@@ -78,7 +78,7 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
             etRemark.setHint("");
             searchSing = true;
         }else {
-            if (!TextUtils.isEmpty(tag)&&!tag.equals("拜访")){
+            if ((!TextUtils.isEmpty(tag)&&!tag.equals("拜访"))||TextUtils.isEmpty(tag)){
                 TitleManager.showText(this, v, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -90,6 +90,7 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
                     }
                 }, "保存");
             }
+
         }
         btSubmit = (Button) findViewById(R.id.btSubmit);
 

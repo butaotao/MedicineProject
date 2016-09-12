@@ -79,11 +79,11 @@ public class ManagerColleagueActivity extends CompanyContactListActivity impleme
         mMyThread.start();*/
     }
 
-    @Override
+   /* @Override
     public void onBackPressed() {
         super.onBackPressed();
         finish();
-    }
+    }*/
     @Override
     public void onClick(View v) {
         super.onClick(v);
