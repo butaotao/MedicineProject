@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -79,8 +78,10 @@ public class MenuWithFABActivity extends SignInActivity implements View.OnClickL
         if (isDeptartManager()) {//如果是部门主管则显示团队统计按钮
             teamRecord.setOnClickListener(this);
             teamRecord.setVisibility(View.VISIBLE);
+            showGuider(true);
         }else {
             teamRecord.setVisibility(View.GONE);
+            showGuider(false);
         }
         tv_week = (TextView) findViewById(R.id.tv_week);
         tv_time = (TextView) findViewById(R.id.tv_time);
@@ -118,10 +119,25 @@ public class MenuWithFABActivity extends SignInActivity implements View.OnClickL
         refresh = 0;
     }
 
+    /**
+     * 展示这个版本的签到导航
+     * @param isManager 管理员
+     */
+    private void showGuider(Boolean isManager) {//
+        Intent intent = new Intent(getApplicationContext(),GuiderActivity.class);
+        if (isManager && SharedPreferenceUtil.getBoolean(getApplicationContext(),"isFirst",true)) {
+            intent.putExtra("guider","manager");
+            startActivity(intent);
+        }else if(SharedPreferenceUtil.getBoolean(getApplicationContext(),"isFirst",true)) {
+            intent.putExtra("guider","user");
+            startActivity(intent);
+        }
+        SharedPreferenceUtil.putBoolean(getApplicationContext(),"isFirst",false);
+    }
+
     private boolean isDeptartManager() {
         CompanyContactDao dao = new CompanyContactDao(getApplicationContext());
         CompanyContactListEntity entity = dao.queryByUserid(SharedPreferenceUtil.getString(this, "id", ""));
-        Log.d("zxy :", "124 : MenuWithFABActivity : isDeptartManager : entity.deptManager = "+entity.deptManager);
         return entity.deptManager == 1;
     }
 
@@ -145,7 +161,6 @@ public class MenuWithFABActivity extends SignInActivity implements View.OnClickL
         intent2.putExtra("type","signle");
         intent2.putExtra("poi",this.POI);
         intent2.putExtra("time",timeStamp);
-        Log.d("zxy :", "149 : MenuWithFABActivity : start : timeStamp"+timeStamp);
         intent2.putExtra("distance",this.distance);
         intent2.putExtra("latitude",this.latitude);
         intent2.putExtra("longitude",this.longitude);

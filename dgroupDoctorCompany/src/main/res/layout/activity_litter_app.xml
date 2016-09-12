@@ -44,17 +44,17 @@
         style="@style/StyleProgressBarMini"
         android:progressDrawable="@drawable/progress_horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="2dp"
         android:id="@+id/litter_app_progress"
         android:indeterminate="false"/>
 
 
-    <!--    <FrameLayout
+        <FrameLayout
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
 
-        </FrameLayout>-->
+        </FrameLayout>
 
 </LinearLayout>
