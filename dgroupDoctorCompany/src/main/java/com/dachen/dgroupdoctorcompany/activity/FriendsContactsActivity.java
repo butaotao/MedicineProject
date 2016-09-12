@@ -13,6 +13,7 @@ import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -25,7 +26,6 @@ import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.entity.ContactsInfo;
-import com.dachen.dgroupdoctorcompany.fragment.AddressList;
 import com.dachen.dgroupdoctorcompany.views.SideBar;
 
 import java.util.ArrayList;
@@ -206,6 +206,7 @@ public class FriendsContactsActivity extends BaseActivity implements AdapterView
             case R.id.btn_addbyphonenum:
                 Intent intent = new Intent(this,AddFriendByPhone.class);
                 intent.putExtra("deptid",deptid);
+                Log.d("zxy :", "209 : FriendsContactsActivity : onClick : deptid = "+deptid);
                 startActivityForResult( intent,200);
                 break;
         }

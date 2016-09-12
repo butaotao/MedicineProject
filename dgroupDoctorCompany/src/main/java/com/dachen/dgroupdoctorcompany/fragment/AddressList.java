@@ -119,10 +119,12 @@ public class AddressList extends BaseFragment implements View.OnClickListener{
 					showLoadingDialog();
 					DepAdminsList dept = (DepAdminsList) depManagerAdapter.getItem(position);
 					deptId = dept.orgId;
+					Log.d("zxy :", "122 : AddressList : onItemClick : deptId = "+deptId);
 					/*Intent intent = new Intent(mActivity, EidtColleagueActivity.class);
 					startActivityForResult(intent, 200);*/
 				  	Intent intent = new Intent(mActivity, ManagerColleagueActivity.class);
 					if (!TextUtils.isEmpty(dept.orgName)) {
+						Log.d("zxy :", "127 : AddressList : onItemClick : dept.orgName = "+dept.orgName);
 						intent.putExtra("depName",getDepName(dept.orgName));//传递部门信息
 					}
 					startActivityForResult(intent, 200);

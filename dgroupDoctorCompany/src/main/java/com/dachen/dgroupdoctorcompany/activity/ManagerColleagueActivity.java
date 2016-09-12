@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 
@@ -42,6 +43,8 @@ public class ManagerColleagueActivity extends CompanyContactListActivity impleme
             }
         }
     };
+    private boolean fistAdd  = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -86,15 +89,20 @@ public class ManagerColleagueActivity extends CompanyContactListActivity impleme
        switch (v.getId()){
             case R.id.rl_addpeople:
                 Intent intent = new Intent(this, FriendsContactsActivity.class);
-                if (!android.text.TextUtils.isEmpty(idDep)){
+                if (fistAdd){
+                    intent.putExtra("deptid", AddressList.deptId);//第一次取固定的
+                    fistAdd = false;
+                    Log.d("zxy :", "91 : ManagerColleagueActivity : onClick : deptid = "+idDep);
+                }else if(!android.text.TextUtils.isEmpty(idDep)) {
                     intent.putExtra("deptid",idDep);
-                }else {
-                    intent.putExtra("deptid",AddressList.deptId);
+                }else{
+                    intent.putExtra("deptid", AddressList.deptId);
                 }
                 startActivityForResult(intent, 200);
                 break;
         }
     }
+
     public void onColleagueEdit(CompanyContactListEntity c2,int position){
         entity = c2;
         Intent intent = new Intent(ManagerColleagueActivity.this, DeleteColleActivity.class);

@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -56,6 +57,7 @@ public class AddFriendByPhone extends BaseActivity implements HttpManager.OnHttp
         setContentView(R.layout.activity_addfriend_byphone);
         ButterKnife.bind(this);
         deptid = getIntent().getStringExtra("deptid");
+        Log.d("zxy :", "59 : AddFriendByPhone : onCreate : deptid = "+deptid);
         setTitle("手机号码添加");
      //   enableBack();
         phone_numer_edit.addTextChangedListener(new TextWatcher() {

@@ -331,6 +331,7 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
 
             case R.id.tv_search:
                 intent = new Intent(this, EidtColleagueActivity.class);
+
                 startActivityForResult(intent, 100);
                 break;
             case R.id.tv_des:
@@ -625,7 +626,8 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
         currentPosition = position;
         idDep = mCp_listguilde.addBackTaskId(currentPosition);
         from = GUIDERITEMCLICK;
-
+        String item = (String) mCp_listguilde.getAdapter().getItem(position);
+        Log.d("zxy :", "630 : CompanyContactListActivity : onItemClick : ");
         getOrganization(idDep);
 
     }
