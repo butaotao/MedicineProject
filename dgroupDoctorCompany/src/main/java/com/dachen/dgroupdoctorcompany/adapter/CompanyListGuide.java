@@ -2,7 +2,6 @@ package com.dachen.dgroupdoctorcompany.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -47,7 +46,6 @@ public class CompanyListGuide extends BaseAdapter<GuiderHListView.Guider> {
             holder.icparrow.setVisibility(View.VISIBLE);
         }
         String text = dataSet.get(position).name;
-        Log.d("zxy :", "49 : CompanyListGuide : getView : text = "+text);
         holder.icptext.setText(text);
         return convertView;
     }

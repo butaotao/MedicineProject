@@ -340,7 +340,6 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
         }
     }
     public void backtofront() {
-        Log.d("zxy :", "340 : CompanyContactListActivity : backtofront : ");
         int position = mCp_listguilde.getCurrentPosition()-1;//当前任务栈id数
         if (position == 0) {   //只剩联系人了,直接返回,  清空数据释放缓存
             finish();
@@ -541,7 +540,6 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
                 }
                 break;
             }
-
         }
         return departments;
     }
@@ -570,9 +568,7 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
 
     @Override
     public void onBackPressed() {
-
         backtofront();
-        //		this.mApplication.getActivityManager().finishActivity(this.getClass());
     }
 
     @Override
@@ -621,10 +617,8 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
         currentPosition = position;
        // idDep = mCp_listguilde.addBackTaskId(currentPosition);
         from = GUIDERITEMCLICK;
-        GuiderHListView.Guider item = (GuiderHListView.Guider) mCp_listguilde.getAdapter().getItem(position);
-        idDep = item.id;
-        Log.d("zxy :", "630 : CompanyContactListActivity : onItemClick : ");
-        getOrganization(item.id);
+        idDep = mCp_listguilde.getBackTaskId(position);
+        getOrganization(idDep);
 
     }
 
@@ -655,7 +649,6 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
         mCp_listguilde.clearData();
         super.onDestroy();
     }
-
     public void setBaseDepartName(String baseDepartName) {
         this.baseDepartName = baseDepartName;
     }
