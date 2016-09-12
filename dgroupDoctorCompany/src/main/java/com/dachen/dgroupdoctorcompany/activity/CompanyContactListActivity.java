@@ -474,6 +474,8 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
 
                 } else {
                     if (!haveDep &&getContent()!=editColleageDep) {
+                        list.clear();
+                        adapter.notifyDataSetChanged();
                         isEmpty = true;
                         empteyll.setVisibility(View.VISIBLE);
                         empteyll.setOnClickListener(this);

@@ -121,7 +121,11 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
                     tv_positiondes.setText(entitye.position);
                     tv_phonedes.setText(entitye.telephone);
                     entity = entitye;
-                    if (entityMySelf!=null&&!TextUtils.isEmpty(entityMySelf.treePath)&&
+                    if (!TextUtils.isEmpty(entity.status)&&entity.status.equals("2")){
+                        finish();
+                        return;
+                    }
+                    if (entityMySelf!=null&&!TextUtils.isEmpty(entityMySelf.treePath)&&!TextUtils.isEmpty(entity.treePath)&&
                             !entity.treePath.startsWith(entityMySelf.treePath)){
                         rl_editname.setOnClickListener(null);
                         rl_editdept.setOnClickListener(null);

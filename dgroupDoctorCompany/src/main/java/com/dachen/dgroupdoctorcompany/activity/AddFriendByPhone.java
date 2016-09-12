@@ -133,11 +133,11 @@ public class AddFriendByPhone extends BaseActivity implements HttpManager.OnHttp
         HashMap<String ,String > maps = new HashMap<>();
         maps.put("access_token", UserInfo.getInstance(this).getSesstion());
         maps.put("drugCompanyId", SharedPreferenceUtil.getString(this, "enterpriseId", ""));
-        maps.put("id",""+ AddressList.deptId);
+       // maps.put("id",""+ AddressList.deptId);
         maps.put("telephone",phoneNumber);
         maps.put("orgId",""+deptid);
         //1表示移动端添加
-        maps.put("addSource","1");
+       // maps.put("addSource","1");
         String userName = "";
         if (!TextUtils.isEmpty(name)){
             userName = name;

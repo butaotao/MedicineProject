@@ -26,6 +26,8 @@ import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.dgroupdoctorcompany.db.dbdao.CompanyContactDao;
 import com.dachen.dgroupdoctorcompany.entity.CompanyContactListEntity;
 import com.dachen.dgroupdoctorcompany.entity.ContactsInfo;
+import com.dachen.dgroupdoctorcompany.fragment.AddressList;
+import com.dachen.dgroupdoctorcompany.utils.GetAllDoctor;
 import com.dachen.dgroupdoctorcompany.views.SideBar;
 
 import java.util.ArrayList;
@@ -88,7 +90,7 @@ public class FriendsContactsActivity extends BaseActivity implements AdapterView
         setContentView(R.layout.circle_contacts_friends);
         context = this;
         localList = new ArrayList<ContactsInfo>();
-
+        GetAllDoctor.changeContact.clear();
         //        allFriends = dao.queryAll(SharedPreferenceUtil.getString(this, "id", ""));
         //如果是健康关怀分享
         from = getIntent().getStringExtra("from");
