@@ -75,7 +75,7 @@ public class RadarViewGroup extends ViewGroup implements RadarView.IScanningList
             view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
         }
         if(null != imageView){
-            imageView.layout(view.getMeasuredWidth()*3/8,view.getMeasuredHeight()*3/8,view.getMeasuredWidth()*5/8,view.getMeasuredHeight()*5/8);
+            imageView.layout(view.getMeasuredWidth() * 3 / 8, view.getMeasuredHeight() * 3 / 8, view.getMeasuredWidth() * 5 / 8, view.getMeasuredHeight() * 5 / 8);
         }
         //放置雷达图中需要展示的item圆点
         for (int i = 0; i < childCount; i++) {
@@ -162,9 +162,9 @@ public class RadarViewGroup extends ViewGroup implements RadarView.IScanningList
         for (int i = 0; i < mDatas.size(); i++) {
             VisitPeople visitPeople = mDatas.get(i);
             IconTextView circleView = new IconTextView(getContext(),visitPeople);
-            if (!TextUtils.isEmpty(visitPeople.id)&&visitPeople.id.equals(SharedPreferenceUtil.getString(getContext(),"id",""))){
+           /* if (!TextUtils.isEmpty(visitPeople.id)&&visitPeople.id.equals(SharedPreferenceUtil.getString(getContext(),"id",""))){
                 continue;
-            }
+            }*/
             //根据远近距离的不同计算得到的应该占的半径比例 0.312-0.832
             circleView.setProportion(3 / 4f);//固定在第二个圈
             if (minItemPosition == i) {
@@ -189,7 +189,8 @@ public class RadarViewGroup extends ViewGroup implements RadarView.IScanningList
                 }
 
             }
-            if (!find){
+            if (!find/*&&(!TextUtils.isEmpty(visitPeople.id)
+                    &&!visitPeople.id.equals(SharedPreferenceUtil.getString(getContext(),"id","")))*/){
                 addView(circleView);
             }
 

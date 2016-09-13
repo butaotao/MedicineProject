@@ -89,26 +89,33 @@ public class SearchContactAdapter extends BaseCustomAdapter<BaseSearch>{
                 Spanned spanned = HtmlTextViewEdit.showkeywordContent(people.name,activity.searchText,context);
                 if (activity!=null/*&&activity.showColleague*/){
                     boolean isNum = StringUtils.isNumeric(activity.searchText.toLowerCase());
-                    if (people.name.toLowerCase().contains(activity.searchText.toLowerCase())&&(!(
-                            isNum&&people.telephone.contains(activity.searchText))|| !ConditionLogic.isAllow(context)
-                            )){
+                    if (activity.searchText.toLowerCase().equals("1")){
                         holder.tv_name_leader.setText(spanned);
                         show = false;
                     }else {
-                        holder.tv_name_leader.setText(people.name);
+
+                        if (people.name.toLowerCase().contains(activity.searchText.toLowerCase())&&(!(
+                                isNum&&people.telephone.contains(activity.searchText))|| !ConditionLogic.isAllow(context)
+                        )){
+                            holder.tv_name_leader.setText(spanned);
+                            show = false;
+                        }else {
+                            holder.tv_name_leader.setText(people.name);
+                        }
+                        holder.tv_name_phone.setVisibility(View.GONE);
+                        if (show&&!"1".equals(activity.searchText)&&people.telephone.contains(activity.searchText)){
+                            Spanned spannedphone = HtmlTextViewEdit.showkeywordContent("("+people.telephone+")",activity.searchText,context);
+                            holder.tv_name_phone.setText(spannedphone);
+                            holder.tv_name_phone.setVisibility(View.VISIBLE);
+                        }
+                        boolean isEnglish = StringUtils.isEnglish(activity.searchText);
+                        if (isEnglish&&show){
+                            Spanned spannedphone = HtmlTextViewEdit.showkeywordContent("("+activity.searchText+")",activity.searchText,context,people);
+                            holder.tv_name_phone.setText(spannedphone);
+                            holder.tv_name_phone.setVisibility(View.VISIBLE);
+                        }
                     }
-                    holder.tv_name_phone.setVisibility(View.GONE);
-                    if (show&&!"1".equals(activity.searchText)&&people.telephone.contains(activity.searchText)){
-                        Spanned spannedphone = HtmlTextViewEdit.showkeywordContent("("+people.telephone+")",activity.searchText,context);
-                        holder.tv_name_phone.setText(spannedphone);
-                        holder.tv_name_phone.setVisibility(View.VISIBLE);
-                    }
-                    boolean isEnglish = StringUtils.isEnglish(activity.searchText);
-                    if (isEnglish&&show){
-                        Spanned spannedphone = HtmlTextViewEdit.showkeywordContent("("+activity.searchText+")",activity.searchText,context,people);
-                        holder.tv_name_phone.setText(spannedphone);
-                        holder.tv_name_phone.setVisibility(View.VISIBLE);
-                    }
+
 
                     holder.iv_irr.setVisibility(View.GONE);
                 }else {
