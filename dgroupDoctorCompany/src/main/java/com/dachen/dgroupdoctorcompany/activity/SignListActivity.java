@@ -272,6 +272,13 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
             intent.putExtra("address", dataBean.address);
             intent.putExtra("longTime", dataBean.longTime);
             intent.putExtra("signedid",dataBean.signedId);
+         /*    if(coordinate.contains(",")){
+            String[] array = coordinate.split(",");
+            String latitude = array[0];
+            String longitude = array[1];
+            intent.putExtra("latitude", Double.valueOf(latitude));
+            intent.putExtra("longitude", Double.valueOf(longitude));
+                }*/
             intent.putExtra("id",dataBean.visitId);
             if (null != dataBean.tag && dataBean.tag.size() > 0 && !TextUtils.isEmpty(dataBean.tag
                     .get(0))) {

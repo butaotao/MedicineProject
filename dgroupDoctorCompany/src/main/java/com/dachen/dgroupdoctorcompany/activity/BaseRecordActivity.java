@@ -452,6 +452,8 @@ public class BaseRecordActivity extends BaseActivity implements View.OnClickList
                     intent.putExtra("hour", data.time);
                     intent.putExtra("address", data.address);
                     intent.putExtra("longTime", data.longTime);
+                    /*intent.putExtra("latitude",0);
+                    intent.putExtra("longitude",0);*/
                     intent.putExtra("id", data.visitId);
                     intent.putExtra("from","searchSign" );
 

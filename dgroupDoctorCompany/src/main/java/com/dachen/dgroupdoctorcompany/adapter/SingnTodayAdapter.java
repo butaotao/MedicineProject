@@ -159,6 +159,13 @@ public class SingnTodayAdapter extends android.widget.BaseAdapter{
                 intent.putExtra("address", listVisitVo.address);
                 intent.putExtra("longTime", listVisitVo.longTime);
                 intent.putExtra("signedid",listVisitVo.signedId);
+                /*if(!TextUtils.isEmpty(listVisitVo.coordinate)&&listVisitVo.coordinate.contains(",")){
+                    String[] array = listVisitVo.coordinate.split(",");
+                    String latitude = array[0];
+                    String longitude = array[1];
+                    intent.putExtra("latitude", Double.valueOf(latitude));
+                    intent.putExtra("longitude", Double.valueOf(longitude));
+                }*/
                 intent.putExtra("id",listVisitVo.visitId);
                 if (null != listVisitVo.tag && listVisitVo.tag.size() > 0 && !TextUtils.isEmpty(listVisitVo.tag
                         .get(0))) {
