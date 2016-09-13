@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +36,6 @@ public class NoticeWebActivity extends CordovaActivity {
         String sUri = SharedPreferenceUtil.getString(getApplicationContext(), "noticeUri", "");
         Uri data = Uri.parse(sUri);
         String url = "http:" + data.getPath() + "?" + data.getQuery();
-        Log.d("zxy :", "35 : NoticeWebActivity : onCreate :  url = " + url);
         if (!"".equals(url)) {
             loadUrl(url);
         } else {

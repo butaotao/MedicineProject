@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -191,7 +190,6 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
 
     @Override
     public void onBackPressed() {
-        Log.d("zxy :", "194 : OrgActivity : onBackPressed : text");
         backtofront();
     }
 
@@ -336,7 +334,6 @@ public class OrgActivity extends BaseActivity implements HttpManager.OnHttpListe
     private void backId() {
         for(int i=0;i<mDepamentsList.size();i++){
             if (mDepamentsList.get(i).id.equals(orgId)) {//其他数据是否checked
-                Log.d("zxy :", "303 : OrgActivity : backtofront : ");
                 mDepamentsList.get(i).isCheck = true;
             }else {
                 mDepamentsList.get(i).isCheck = false;

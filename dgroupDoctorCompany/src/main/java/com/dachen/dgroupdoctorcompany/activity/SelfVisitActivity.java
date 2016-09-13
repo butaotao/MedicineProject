@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -201,7 +200,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                 this, false, 1);
         signedId = this.getIntent().getStringExtra("signedId");
         if (MODE_FROM_VIST_LIST_ITEM == mMode || MODE_FROM_SIGN_LIST==mMode) {//拜访列表,签到列表
-            Log.d("zxy :", "197 : SelfVisitActivity : initData : if");
             mId = this.getIntent().getStringExtra("id");
             location_ray.setEnabled(false);
             address_arrow.setVisibility(View.INVISIBLE);
@@ -215,7 +213,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
 
         }else if(MODE_FROM_SIGN==mMode){//签到过来
 
-            Log.d("zxy :", "230 : SelfVisitActivity : initData : else if");
             mStrAddress = this.getIntent().getStringExtra("addressname");
             mStrFloor = this.getIntent().getStringExtra("address");
             latitude = this.getIntent().getDoubleExtra("latitude", 0);
@@ -228,7 +225,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
             Date date = new Date(presentTime);
             String strDate = TimeFormatUtils.china_format_date(date);
             String strWeek = TimeFormatUtils.week_format_date(date);
-            Log.d("zxy :", "249 : SelfVisitActivity : initData : strDate = "+strDate+", strWeek = "+strWeek);
             strTime = TimeFormatUtils.time_format_date(date);
             tvWeek.setText(strWeek);
             tvDate.setText(strDate);
@@ -420,7 +416,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                         mStrDoctorID = member.getDoctorId();
                     }
                     remark = member.getRemark();
-                    Log.d("zxy :", "423 : SelfVisitActivity : onSuccess : remark = "+remark);
                     coordinate = member.getCoordinate();
                     List<String> picList = member.getImgUrls();
                     if (picList != null && picList.size() > 0) {
@@ -462,7 +457,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                 VisitEditEnableBean editEnable = (VisitEditEnableBean) response;
                 if (editEnable.data!=null) {
                     boolean etRemarkEnable = editEnable.data.editStatus;
-                    Log.d("zxy :", "506 : SelfVisitActivity : onSuccess : editEnable = "+editEnable.data.editStatus);
                     setRemarkEnable(etRemarkEnable);
                 }
             }else if (response instanceof ServerTimeBean) {
@@ -509,7 +503,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
      * @param etRemarkEnable
      */
     private void setRemarkEnable(boolean etRemarkEnable) {
-        Log.d("zxy :", "567 : SelfVisitActivity : setRemarkEnable : 是否可以编辑 = "+etRemarkEnable);
         if (etRemarkEnable) {
             tv_title_save.setVisibility(View.VISIBLE);
             etRemark.setText(remark);

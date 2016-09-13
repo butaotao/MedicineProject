@@ -1,7 +1,6 @@
 package com.dachen.dgroupdoctorcompany.activity;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -79,8 +78,6 @@ public class WebQRLoginActivity extends BaseActivity {
                 .getQRWebLoginParams(getApplicationContext(), mScanResult), new HttpManager.OnHttpListener<Result>() {
             @Override
             public void onSuccess(Result response) {
-                Log.d("zxy :", "85 : WebQRLoginActivity : onSuccess : key = "+mScanResult);
-                Log.d("zxy :", "85 : WebQRLoginActivity : onSuccess : response = "+response.resultCode);
                 if (response.resultCode == 1) {
                     ToastUtil.showToast(getApplicationContext(),"登录成功");
                 }else/*(response.resultCode == 0)*/{

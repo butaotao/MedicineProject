@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.entity.SignInLists;
+import com.dachen.dgroupdoctorcompany.utils.LogUtils;
 import com.dachen.dgroupdoctorcompany.utils.TimeFormatUtils;
 
 import java.util.ArrayList;
@@ -87,47 +88,22 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
             String doctorname = pageDataBean.userName;
             String remark = pageDataBean.remark;
             long time = pageDataBean.longTime;
-            if (pageDataBean.tag != null) {
+            childHolder.tvLable.setVisibility(View.VISIBLE);
+            childHolder.ivPicture.setBackgroundResource(R.drawable.icon_sign);
+            if (pageDataBean.tag != null && pageDataBean.tag.size()>0 && !TextUtils.isEmpty(pageDataBean.tag.get(0))) {
                 String type = pageDataBean.tag.get(0);
                 if ("拜访".equals(type)) {   //如果是上班签到
                     String address = pageDataBean.address;
                     if (TextUtils.isEmpty(address)) {
                         address = pageDataBean.address;
                     }
-                    List<String> listLable = pageDataBean.tag;
-                    if (null != listLable && listLable.size() > 0) {  //显示拜访标签
-                        childHolder.tvLable.setVisibility(View.VISIBLE);
-                        if (TextUtils.isEmpty(listLable.get(0))) {//标签为空的时候显示签到
-                            childHolder.tvLable.setText("签到");
-                        } else {
-                            childHolder.tvLable.setText(listLable.get(0));
-                        }
-                    } else {
-                        childHolder.tvLable.setVisibility(View.VISIBLE);
-                        //childHolder.tvLable.setVisibility(View.GONE);
-                        childHolder.tvLable.setText("签到");
-                    }
+                    childHolder.tvLable.setText(type);
                     childHolder.tvAddress.setText(address);
-                    childHolder.ivPicture.setBackgroundResource(R.drawable.icon_sign);
 
                 } else {  //独立拜访
-                    childHolder.ivPicture.setBackgroundResource(R.drawable.icon_sign);
-                    // childHolder.tvName.setText("考勤打卡");
                     String address = pageDataBean.address;
                     childHolder.tvAddress.setText(address);
-
-                    List<String> listLable = pageDataBean.tag;
-                    if (null != listLable && listLable.size() > 0) {
-                        childHolder.tvLable.setVisibility(View.VISIBLE);
-                        if (TextUtils.isEmpty(listLable.get(0))) {
-                            childHolder.tvLable.setText("签到");
-                        } else {
-                            childHolder.tvLable.setText(listLable.get(0));
-                        }
-                    } else {
-                        childHolder.tvLable.setVisibility(View.VISIBLE);
-                        childHolder.tvLable.setText("签到");
-                    }
+                    childHolder.tvLable.setText(type);
                 }
             }else {
                 childHolder.tvLable.setText("签到");

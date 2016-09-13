@@ -69,12 +69,6 @@ public class GuiderActivity extends BaseActivity implements ViewPager.OnPageChan
         mPagerAdapter = new MyPagerAdapter(mDataList);
         mVpGuider.setAdapter(mPagerAdapter);
         mVpGuider.addOnPageChangeListener(this);
-        mVpGuider.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
 
     }
 

@@ -70,7 +70,6 @@ public class BridgePlugin extends CordovaPlugin {
 
     @Override
     public boolean execute(String action, JSONArray params, CallbackContext callbackContext) throws JSONException {
-        Log.d("zxy", "execute action = " + action+", params = "+params.toString());
 
         if ("get_identity".equals(action)) {
             Log.d("zxy", "execute: getIdentity");

@@ -322,7 +322,6 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
 
         String strDate = s_format.format(date);
         String strTime= TimeFormatUtils.time_format_date(date);
-        Log.d("zxy :", "321 : AddSignInActivity : initCurrentDate : strDate = "+strDate+", "+strTime);
         mTvTime.setText(strTime);
         mTvDate.setText(strDate);
 
@@ -422,7 +421,6 @@ public class AddSignInActivity extends BaseActivity implements HttpManager.OnHtt
                // this.serverTime = time.data;
                 serverTime = time.data;
                 if (TextUtils.isEmpty(mId)) {
-                    Log.d("zxy :", "412 : AddSignInActivity : onSuccess : serverTime");
                     initCurrentDate(serverTime);
                 }
                 //initCurrentDate(time.data);

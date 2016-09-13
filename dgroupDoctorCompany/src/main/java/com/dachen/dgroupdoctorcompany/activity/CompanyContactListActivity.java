@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
@@ -278,9 +277,7 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("zxy :", "281 : CompanyContactListActivity : onResume : isAddPeople");
             if (manager && !idDep.equals("-1")&&getContent()!=1) {
-                Log.d("zxy :", "282 : CompanyContactListActivity : onResume : isAddPeople");
                 getOrganization(idDep);
             }
             isAddPeople = false;
@@ -379,7 +376,6 @@ public  class CompanyContactListActivity extends BaseActivity implements HttpMan
         }*/
         //tv.setVisibility(View.GONE);
         empteyll.setVisibility(View.GONE);
-        Log.d("zxy :", "381 : CompanyContactListActivity : onSuccess : isAddPeople = "+isAddPeople);
         if (!isAddPeople) { //如果添加人员不更新
             upDataGuiderList();
         }

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -81,7 +80,6 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
         String from = getIntent().getStringExtra("from");
         ivFlag.setVisibility(View.GONE);
         searchSing = false;
-        Log.d("zxy :", "72 : SiginDetailActivity : onCreate : from = "+from);
         if ("searchSign".equals(from) ) {
             etRemark.setEnabled(false);
             etRemark.setHint("");
