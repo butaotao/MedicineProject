@@ -70,45 +70,45 @@ public class Constants {
 	/**
 	 * 常备药 - 根据用户ID获取常备药列表
 	 */
-	public static String GET_DRUG_LIST = "org/drugCollection/getDrugCollectionListByUserId";
+	public static String GET_DRUG_LIST = "drug/drugCollection/getDrugCollectionListByUserId";
 	/**
 	 * 药方 - 新增药方
 	 */
-	public static String ADD_RECIPE = "org/recipe/addRecipe";
+	public static String ADD_RECIPE = "drug/recipe/addRecipe";
 	/**
 	 * 品种 - 获取某个患者的积分列表
 	 */
-	public static String GET_USER_POINTS = "org/goods/points/getUserPointsByPatientId";
+	public static String GET_USER_POINTS = "drug/goods/points/getUserGoodsPointsList";
 	/**
 	 * 品种积分 - 获取可以接收的总的积分数
 	 */
-	public static String GET_TOTAL_POINTS = "org/goods/points/countUserGoodsPointsList";
+	public static String GET_TOTAL_POINTS = "drug/goods/points/countUserGoodsPointsList";
 	/**
 	 * 品种组 - 根据关键字搜索品种组
 	 */
-	public static String SEARCH_GOODS = "org/goods/group/getGoodsGroupList";
+	public static String SEARCH_GOODS = "drug/goods/group/getGoodsGroupList";
 	/**
 	 * 常备药（药品收藏） - 批量新增常备药
 	 */
-	public static String ADD_DRUG_LIST = "org/drugCollection/addMutilDrugCollection";
+	public static String ADD_DRUG_LIST = "drug/drugCollection/addMutilDrugCollection";
 	/**
 	 * 常备药（药品收藏） - 删除常备药（药品收藏）
 	 */
-	public static String DELETE_DRUG = "org/drugCollection/deleteDrugCollection";
+	public static String DELETE_DRUG = "drug/drugCollection/deleteDrugCollection";
 	/**
 	 * 品种 - 查询指定品种组下面的品种列表
 	 */
-	public static String SEARCH_DRUG_BY_GROUPID = "org/goods/getGoodsListByGroupId";
+	public static String SEARCH_DRUG_BY_GROUPID = "drug/goods/getGoodsListByGroupId";
 	/**
 	 * 品种积分 - 查询患者的获取到积分明细
 	 */
-	public static String GET_PATIENT_POINT_DETAIL = "org/goods/points/getUserReceivePointsDetailList";
+	public static String GET_PATIENT_POINT_DETAIL = "drug/goods/points/getUserReceivePointsDetailList";
 	/**
 	 * 品种积分 - 领取积分
 	 */
-	public static String GET_POINTS = "org/goods/points/receiveGoodsPoints";
+	public static String GET_POINTS = "drug/goods/points/receiveGoodsPoints";
 	/**
 	 * 品种积分 - 获取赠药积分
 	 */
-	public static String GET_GIVEN_DRUG_POINTS = "org/goods/points/getUserGivenPointsDetailList";
+	public static String GET_GIVEN_DRUG_POINTS = "drug/goods/points/getUserGivenPointsDetailList";
 }

@@ -25,10 +25,8 @@ import com.dachen.medicine.common.utils.TimeUtils;
 import com.dachen.medicine.common.utils.ToastUtils;
 import com.dachen.medicine.config.UserInfo;
 import com.dachen.medicine.entity.Result;
-import com.dachen.medicine.entity.User;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
-import com.dachen.medicine.net.Params;
 import com.dachen.mediecinelibraryrealize.R;
 import com.dachen.mediecinelibraryrealize.activity.AlertTimeDialog.InterfaceGetData;
 import com.dachen.mediecinelibraryrealize.activity.MyDialog.Dialogcallback;
@@ -39,7 +37,6 @@ import com.dachen.mediecinelibraryrealize.entity.ChoiceMedieEntity.MedieEntity;
 import com.dachen.mediecinelibraryrealize.entity.DeteAlarm;
 import com.dachen.mediecinelibraryrealize.entity.DrugRemindDao;
 import com.dachen.mediecinelibraryrealize.entity.DrugRemindNoDataBase;
-import com.dachen.mediecinelibraryrealize.entity.Patients;
 import com.dachen.mediecinelibraryrealize.entity.SaveAlarm;
 import com.dachen.mediecinelibraryrealize.entity.SoundPlayer;
 import com.dachen.mediecinelibraryrealize.utils.AlarmUtil;
@@ -389,14 +386,14 @@ public class SetAlertActivity extends BaseActivity implements OnClickListener,Ac
 				interfaces.put("status", "2");
 
 				new HttpManager().post (this,
-						"org/drugReminder/updateStatusById",
+						"drug/drugReminder/updateStatusById",
 						AlarmStop.class,
 						interfaces,
 						this,false, 1);
 			}else {
 				interfaces.put("status", "1");
 				new HttpManager().post (this,
-						"org/drugReminder/updateStatusById",
+						"drug/drugReminder/updateStatusById",
 						AlarmStop.class,
 						interfaces,
 						this,false, 1);
@@ -468,7 +465,7 @@ public class SetAlertActivity extends BaseActivity implements OnClickListener,Ac
 					interfaces.put("id", info.id);
 					interfaces.put("access_token", UserInfo.getInstance(SetAlertActivity.this).getSesstion());
 					new HttpManager().post(SetAlertActivity.this,
-							"org/drugReminder/deleteDrugReminderById",
+							"drug/drugReminder/deleteDrugReminderById",
 							DeteAlarm.class,
 							interfaces,
 							SetAlertActivity.this, false, 1);
@@ -666,7 +663,7 @@ public class SetAlertActivity extends BaseActivity implements OnClickListener,Ac
 					this, false, 2, false);*/
 			interfaces.put("id",info.id);
 			new HttpManager().post (this,
-					"org/drugReminder/updateDrugReminderById",
+					"drug/drugReminder/updateDrugReminderById",
 					SaveAlarm.class,
 					interfaces,
 					this,false, 1);
@@ -678,7 +675,7 @@ public class SetAlertActivity extends BaseActivity implements OnClickListener,Ac
 					interfaces,
 					this, false, 2, false);*/
 			new HttpManager().post (this,
-					"org/drugReminder/addDrugReminder",
+					"drug/drugReminder/addDrugReminder",
 					SaveAlarm.class,
 					interfaces,
 					this,false, 1);

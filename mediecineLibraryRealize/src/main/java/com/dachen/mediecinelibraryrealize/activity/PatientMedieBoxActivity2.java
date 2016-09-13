@@ -370,6 +370,7 @@ public class PatientMedieBoxActivity2 extends BaseActivity implements  OnHttpLis
 			}else{
 				ll_point.setVisibility(View.GONE);
 			}
+			ll_point.setVisibility(View.GONE);
 
 			if (null!=parseDate(TimeUtils.getTime())&&parseDate(TimeUtils.getTime()).length>4) {
 				String[] s = parseDate(TimeUtils.getTime());

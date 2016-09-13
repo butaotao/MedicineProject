@@ -11,15 +11,12 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.dachen.common.utils.ToastUtil;
 import com.dachen.medicine.common.utils.ToastUtils;
 import com.dachen.medicine.config.UserInfo;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
 import com.dachen.medicine.view.ScrollTabView;
-import com.dachen.medicine.view.ScrollTabView.OnInitView;
-import com.dachen.medicine.view.ScrollTabView.OnViewPagerSelectedListener;
 import com.dachen.mediecinelibraryrealize.R;
 import com.dachen.mediecinelibraryrealize.adapter.AdapterPatientPointGet;
 import com.dachen.mediecinelibraryrealize.adapter.AdapterPatientPointXH;
@@ -37,8 +34,6 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -74,14 +69,15 @@ public class PointDetailActivity extends BaseActivity implements OnHttpListener,
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
-        scrollTabView = new ScrollTabView(this, R.layout.activity_point, 2, true, new
-                OnViewPagerSelectedListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-
-                    }
-                });
-        setContentView(scrollTabView);
+//        scrollTabView = new ScrollTabView(this, R.layout.activity_point, 2, true, new
+//                OnViewPagerSelectedListener() {
+//                    @Override
+//                    public void onPageSelected(int position) {
+//
+//                    }
+//                });
+//        setContentView(scrollTabView);
+        setContentView(R.layout.activity_point_detail);
         RelativeLayout ll_sub = (RelativeLayout) findViewById(R.id.ll_sub);
         ViewStub vstub_title = (ViewStub) findViewById(R.id.vstub_title);
         View view = vstub_title.inflate(this, R.layout.layout_modi_time, ll_sub);
@@ -93,6 +89,7 @@ public class PointDetailActivity extends BaseActivity implements OnHttpListener,
         showLoadingDialog();
        // getPointInfo(id, index2);
       //  getPointInfo_page1(id,index);
+        /*
         scrollTabView.setViewPagerItemView(new int[]{R.layout.layout_getpoint1, R.layout
                 .layout_getpoint2}, new OnInitView() {
 
@@ -102,10 +99,11 @@ public class PointDetailActivity extends BaseActivity implements OnHttpListener,
 
             }
 
-        });
+        });*/
+        initView();
     }
 
-    private void initView(View v1, View v2) {
+    private void initView() {
 		/*   name1 = (TextView) v1.findViewById(R.id.tv_name);
 		   weight1 =(TextView) v1.findViewById(R.id.tv_weight);
 		   des1 = (TextView) v1.findViewById(R.id.tv_des);
@@ -115,21 +113,21 @@ public class PointDetailActivity extends BaseActivity implements OnHttpListener,
 		   weight2 =(TextView) v2.findViewById(R.id.tv_weight);
 		   des2 = (TextView) v2.findViewById(R.id.tv_des);
 		   point2 = (TextView) v2.findViewById(R.id.tv_point);*/
-        listview1 = (PullToRefreshListView) v1.findViewById(R.id.listview1);
+        listview1 = (PullToRefreshListView) findViewById(R.id.listview1);
         listview1.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
         listview1.setOnRefreshListener(this);
-        listview2 = (PullToRefreshListView) v2.findViewById(R.id.listview2);
-        listview2.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
-        listview2.setOnRefreshListener(this);
+//        listview2 = (PullToRefreshListView) v2.findViewById(R.id.listview2);
+//        listview2.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
+//        listview2.setOnRefreshListener(this);
         patientpoints1 = new ArrayList<Point>();
-        patientpoints2 = new ArrayList<Potient>();
-        adaper2 = new AdapterPatientPointGet(this, patientpoints2);
+//        patientpoints2 = new ArrayList<Potient>();
+//        adaper2 = new AdapterPatientPointGet(this, patientpoints2);
         adaper1 = new AdapterPatientPointXH(this, patientpoints1);
         listview1.setAdapter(adaper1);
-        listview2.setAdapter(adaper2);
+//        listview2.setAdapter(adaper2);
         id = getIntent().getStringExtra("id");
         title = (TextView) findViewById(R.id.tv_title);
-        getPointInfo(id,index2);
+//        getPointInfo(id,index2);
         getPointInfo_page1(id,index);
         title.setText("我的积分");
         rl_back = (RelativeLayout) findViewById(R.id.rl_back);
@@ -248,6 +246,7 @@ public class PointDetailActivity extends BaseActivity implements OnHttpListener,
                     ToastUtils.showResultToast(this, arg0);
                 }
             } else if (arg0 instanceof PointsDetail) {
+                listview1.onRefreshComplete();
                 PointsDetail pointsDetail = (PointsDetail) arg0;
                 PointsGet p = new PointsGet();
                 List<Point> pointList = new ArrayList<>();
@@ -288,7 +287,7 @@ public class PointDetailActivity extends BaseActivity implements OnHttpListener,
                 }
                 p.info_list = pointList;
                 if (null != p.info_list && p.info_list.size() > 0) {
-                    listview1.onRefreshComplete();
+
                     if (index==0){
                         patientpoints1.clear();
                     }
@@ -310,7 +309,7 @@ public class PointDetailActivity extends BaseActivity implements OnHttpListener,
 
                         //listview1.getRefreshableView().setSelection(index*15);//一次加载20条，所以乘以20
                         adaper1.notifyDataSetChanged();
-                        adaper2.notifyDataSetChanged();
+//                        adaper2.notifyDataSetChanged();
                         listview1.getRefreshableView().setSelection(index * 15);
                         if (index==2){
                             listview1.setMode(PullToRefreshBase.Mode.DISABLED);
@@ -368,14 +367,16 @@ public class PointDetailActivity extends BaseActivity implements OnHttpListener,
 
     @Override
     public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
+        if (index<(pagesize1-1)){
+            index++;
+            getPointInfo_page1(id,index);
+        }else {
+            listview1.onRefreshComplete();
+        }
+        /*
         int selectTab = scrollTabView.getCurrentSelectTab();
         if (selectTab == 1){
-            if (index<(pagesize1-1)){
-                index++;
-                getPointInfo_page1(id,index);
-            }else {
-                listview1.onRefreshComplete();
-            }
+
         }
        if (selectTab == 2){
            if (index2<(pagesize2-1)){
@@ -384,6 +385,6 @@ public class PointDetailActivity extends BaseActivity implements OnHttpListener,
            }else {
                listview2.onRefreshComplete();
            }
-       }
+       }*/
     }
 }

@@ -1,10 +1,5 @@
 package com.dachen.mediecinelibraryrealize.activity;
  
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -14,22 +9,22 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.dachen.medicine.common.utils.LogUtils;
 import com.dachen.medicine.common.utils.ToastUtils;
 import com.dachen.medicine.config.UserInfo;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
-import com.dachen.medicine.net.Params;
 import com.dachen.mediecinelibraryrealize.R;
 import com.dachen.mediecinelibraryrealize.adapter.ChoiceMedieAdapter;
 import com.dachen.mediecinelibraryrealize.entity.ChoiceMedieEntity;
 import com.dachen.mediecinelibraryrealize.entity.ChoiceMedieEntity.MedieEntity;
 import com.dachen.mediecinelibraryrealize.utils.JsonUtils.ChoiceMedieForAlarm;
-import com.dachen.mediecinelibraryrealizedoctor.entity.DrugData;
 import com.dachen.mediecinelibraryrealizedoctor.entity.DrugDtaList;
-import com.dachen.mediecinelibraryrealizedoctor.entity.MedicineInfo;
-import com.dachen.mediecinelibraryrealizedoctor.utils.Json.DrugChange;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class ChoiceMedieActivity extends BaseActivity implements OnHttpListener,OnClickListener{
 	ListView listview;
@@ -73,7 +68,7 @@ public class ChoiceMedieActivity extends BaseActivity implements OnHttpListener,
 		}
 	};
 	void getChoiceMedieInfo(){
-		String s = "org/recipe/getRecipeGoodsListByPatientId";
+		String s = "drug/recipe/getRecipeGoodsListByPatientId";
 		HashMap<String, String> interfaces = new HashMap<String, String>();
 		//患者
 		interfaces.put("patientId", Patientid);

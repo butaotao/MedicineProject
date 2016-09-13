@@ -1,72 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"  
-    android:paddingLeft="4dp"
-    android:paddingRight="4dp"
-    android:background="@drawable/btn_bulk_30b2cc"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="@drawable/btn_bulk_30b2cc"
+              android:orientation="horizontal"
+              android:paddingLeft="4dp"
+              android:paddingRight="4dp"
     >
-    <LinearLayout android:layout_width="0dp"
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="4"
-        android:orientation="vertical" 
-        android:layout_height="wrap_content">
-        <LinearLayout android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp"
-            >
-            <TextView android:layout_width="wrap_content"
-                android:maxEms="9"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:id="@+id/tv_name"
-                android:text="@string/null_info"
-                android:singleLine="true"
-                android:ellipsize="end"
-                android:textColor="@color/color_333333"/>
-            <TextView android:layout_width="wrap_content"
-                android:layout_height="wrap_content" 
-                android:textColor="@color/color_aaaaaa"
-                android:textSize="12sp"
-                android:singleLine="true"
-                android:maxEms="8"
-                android:layout_marginLeft="2dp"
-                android:id="@+id/tv_weight"
-                android:ellipsize="end"
-                android:text="@string/null_info"/>
-        </LinearLayout>
-        <TextView android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/null_info"
+        android:orientation="vertical">
 
-            android:layout_marginTop="8dp"
-            android:singleLine="true"
-
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:ellipsize="end"
-            android:id="@+id/tv_des"/>
-    </LinearLayout>
-   <LinearLayout android:layout_width="0dp"
-        android:layout_weight="1" 
-        android:layout_marginTop="10dp"
-        android:orientation="horizontal"
-        android:gravity="right|center_vertical"
-        android:id="@+id/ll_points"
-        android:layout_height="wrap_content">
-        <TextView android:layout_width="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            >
+
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxEms="9"
+                android:singleLine="true"
+                android:text="@string/null_info"
+                android:textColor="@color/color_333333"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/tv_weight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:ellipsize="end"
+                android:maxEms="8"
+                android:singleLine="true"
+                android:text="@string/null_info"
+                android:textColor="@color/color_aaaaaa"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_des"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/null_info"
-            android:textSize="17sp"
-            android:textColor="@color/color_ff9d6a"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="8dp"
+            android:ellipsize="end"
             android:singleLine="true"
-            android:id="@+id/tv_point"/>
-        <TextView android:layout_width="wrap_content"
+            android:text="@string/null_info"
+            android:visibility="gone"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_points"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_weight="1"
+        android:gravity="right|center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_point"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:text="@string/null_info"
+            android:textColor="@color/color_ff9d6a"
+            android:textSize="17sp"/>
+
+        <TextView
+            android:id="@+id/tv_pointunit"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="1dp"
-            android:text="积分"
             android:singleLine="true"
-            android:textColor="@color/color_aaaaaa"
-            android:id="@+id/tv_pointunit"/>
+            android:text="积分"
+            android:textColor="@color/color_aaaaaa"/>
     </LinearLayout>
 </LinearLayout>

@@ -1,14 +1,6 @@
 package com.dachen.mediecinelibraryrealizedoctor.activity;
 
 
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -22,24 +14,21 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.dachen.medicine.common.utils.LogUtils;
 import com.dachen.medicine.common.utils.ToastUtils;
 import com.dachen.medicine.config.UserInfo;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
-import com.dachen.medicine.net.Params;
 import com.dachen.mediecinelibraryrealizedoctor.R;
-import com.dachen.mediecinelibraryrealizedoctor.entity.Constants;
 import com.dachen.mediecinelibraryrealizedoctor.entity.DrugData;
 import com.dachen.mediecinelibraryrealizedoctor.entity.DrugDtaList;
-import com.dachen.mediecinelibraryrealizedoctor.entity.MedicienInfo;
-import com.dachen.mediecinelibraryrealizedoctor.entity.MedicienInfoBean;
-import com.dachen.mediecinelibraryrealizedoctor.entity.MedicienInfoFactory;
-import com.dachen.mediecinelibraryrealizedoctor.entity.MedicineEntity;
 import com.dachen.mediecinelibraryrealizedoctor.entity.MedicineInfo;
-import com.dachen.mediecinelibraryrealizedoctor.entity.MeidecineSearchList;
 import com.dachen.mediecinelibraryrealizedoctor.utils.Json.DrugChange;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author znouy 药品搜索列表
@@ -70,7 +59,7 @@ public class MedicienSearchListActivity extends BaseActivity implements
 			showLoadingDialog();
 
 
-			String SEARCH_DRUG_BY_GROUPID = "org/goods/getGoodsListByGroupId";
+			String SEARCH_DRUG_BY_GROUPID = "drug/goods/getGoodsListByGroupId";
 			String id = this.getIntent().getStringExtra("id");
 			//id = "573c0c2ada1a9e20a0709f8e";
 			Map<String, String> params = new HashMap<String, String>();

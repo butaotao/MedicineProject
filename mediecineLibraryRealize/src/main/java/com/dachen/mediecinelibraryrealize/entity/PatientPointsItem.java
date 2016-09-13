@@ -9,6 +9,21 @@ import java.util.List;
  */
 public class PatientPointsItem extends Result {
     public int pointsCount;
+    public List<Data>userGoodsPointsList;
+    public class Data{
+        public int consumePointsNum;
+        public String  goodsId;
+        public String  imageUrl;
+        public int leftPointsNum;
+        public int lowPointsNum;
+        public String manufacturer;
+        public String packSpecification;
+        public String packUnit;
+        public String packUnitText;
+        public String ruleId;
+        public String title;
+    }
+    /*
     public List<Data> patientList;
     public class Data{
         public int consumePointsNum;
@@ -20,5 +35,5 @@ public class PatientPointsItem extends Result {
         public String ruleId;
         public String title;
         public String goodsId;
-    }
+    }*/
 }

@@ -1,12 +1,5 @@
 package com.dachen.mediecinelibraryrealizedoctor.activity;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,7 +18,6 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.dachen.medicine.common.utils.LogUtils;
 import com.dachen.medicine.common.utils.ToastUtils;
 import com.dachen.medicine.config.UserInfo;
 import com.dachen.medicine.entity.Result;
@@ -36,14 +28,17 @@ import com.dachen.mediecinelibraryrealizedoctor.R;
 import com.dachen.mediecinelibraryrealizedoctor.activity.BaseSearchActivity.CleanAllRefreshinferface;
 import com.dachen.mediecinelibraryrealizedoctor.adapter.ChoicedItemadapter;
 import com.dachen.mediecinelibraryrealizedoctor.adapter.SearchAdapter;
-import com.dachen.mediecinelibraryrealizedoctor.entity.DrugDtaList;
 import com.dachen.mediecinelibraryrealizedoctor.entity.MedicineEntity;
 import com.dachen.mediecinelibraryrealizedoctor.entity.MedicineInfo;
-import com.dachen.mediecinelibraryrealizedoctor.entity.PreparedMedie;
 import com.dachen.mediecinelibraryrealizedoctor.entity.SearchDrugDtaList;
-import com.dachen.mediecinelibraryrealizedoctor.entity.SearchMedicineEntity;
-import com.dachen.mediecinelibraryrealizedoctor.entity.SearchMedicineInfo;
 import com.dachen.mediecinelibraryrealizedoctor.utils.Json.DrugChange;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class SearchActivity extends BaseSearchActivity implements OnClickListener,OnHttpListener,CleanAllRefreshinferface {
 	int totalNum;
@@ -305,7 +300,7 @@ protected void onResume() {
 		}
 //goods/searchGoodsList
 		new HttpManager().post(SearchActivity.this,
-				"org/goods/searchGoodsList", SearchDrugDtaList.class,
+				"drug/goods/searchGoodsList", SearchDrugDtaList.class,
 				interfaces,
 				SearchActivity.this, false, 1);
 					 // new HttpManager().postJson(this, interfaces, SearchMedicineEntity.class, Params.getSearchInfo (searchWord), this);

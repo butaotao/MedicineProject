@@ -1,34 +1,30 @@
 package com.dachen.mediecinelibraryrealize.activity;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewStub;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.dachen.medicine.common.utils.LogUtils;
 import com.dachen.medicine.common.utils.ToastUtils;
 import com.dachen.medicine.config.UserInfo;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
-import com.dachen.medicine.net.Params;
 import com.dachen.mediecinelibraryrealize.R;
 import com.dachen.mediecinelibraryrealize.adapter.AdapterPatientMedieBox;
 import com.dachen.mediecinelibraryrealize.entity.PatientMedieBoxs;
 import com.dachen.mediecinelibraryrealize.entity.PatientMedieBoxs.Info;
 import com.dachen.mediecinelibraryrealizedoctor.activity.PreparedMedieActivity;
 import com.dachen.mediecinelibraryrealizedoctor.utils.DataUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class PatientMedieBoxActivity extends BaseActivity  implements OnClickListener, OnHttpListener{
 //    http://localhost:8080/web/api/invoke/b5cf0d22e10e4c0d90231a5120d876d8/c_Recipe.query?patient=1038
@@ -77,7 +73,7 @@ public class PatientMedieBoxActivity extends BaseActivity  implements OnClickLis
 		maps.put("access_token", UserInfo.getInstance(this).getSesstion());
 		maps.put("patientId", id);//health
 		new HttpManager().post(this,
-				"org/recipe/getRecipeListByPatientId",
+				"drug/recipe/getRecipeListByPatientId",
 				PatientMedieBoxs.class,
 				maps,
 				this, false, 1);

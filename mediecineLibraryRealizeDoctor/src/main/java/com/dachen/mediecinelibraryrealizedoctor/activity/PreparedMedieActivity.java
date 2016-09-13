@@ -1,10 +1,5 @@
 package com.dachen.mediecinelibraryrealizedoctor.activity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
@@ -31,13 +26,16 @@ import com.dachen.mediecinelibraryrealizedoctor.activity.BaseSearchActivity.Clea
 import com.dachen.mediecinelibraryrealizedoctor.adapter.PreparedMedieAdapters;
 import com.dachen.mediecinelibraryrealizedoctor.entity.CustomDialog;
 import com.dachen.mediecinelibraryrealizedoctor.entity.DoctorCollectionDataLists;
-import com.dachen.mediecinelibraryrealizedoctor.entity.PatientCollectionDataLists;
 import com.dachen.mediecinelibraryrealizedoctor.entity.MedicineInfo;
 import com.dachen.mediecinelibraryrealizedoctor.entity.MedicineList;
+import com.dachen.mediecinelibraryrealizedoctor.entity.PatientCollectionDataLists;
 import com.dachen.mediecinelibraryrealizedoctor.utils.DataUtils;
 import com.dachen.mediecinelibraryrealizedoctor.utils.Json.CollectionsDtaChange;
 import com.dachen.mediecinelibraryrealizedoctor.utils.Json.DoctorCollectionsDtaChange;
-import com.dachen.mediecinelibraryrealizedoctor.utils.Json.DrugChange;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class PreparedMedieActivity extends BaseSearchActivity implements OnHttpListener,OnClickListener,CleanAllRefreshinferface{
 	PreparedMedieAdapters adapter;
@@ -162,14 +160,14 @@ public class PreparedMedieActivity extends BaseSearchActivity implements OnHttpL
 			//c_doctor_goods_CB.select
 			if (UserInfo.getInstance(this).getUserType().equals("3")) {
 				// ToastUtils.showToast("=="+UserInfo.getInstance(this).getUserType());
-				s = "org/drugCollection/getDrugCollectionDetailListByUserId";
+				s = "drug/drugCollection/getDrugCollectionDetailListByUserId";
 				new HttpManager().post (this,
 						s,
 						DoctorCollectionDataLists.class,
 						maps,
 						this,false, 1);
 			}else {
-				s = "org/drugCollection/getDrugCollectionListByUserId";
+				s = "drug/drugCollection/getDrugCollectionListByUserId";
 				new HttpManager().post (this,
 						s,
 						PatientCollectionDataLists.class,

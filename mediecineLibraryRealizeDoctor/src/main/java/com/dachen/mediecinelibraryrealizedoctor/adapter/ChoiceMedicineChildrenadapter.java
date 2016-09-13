@@ -1,10 +1,5 @@
 package com.dachen.mediecinelibraryrealizedoctor.adapter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import android.app.Activity;
 import android.content.Context;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -20,7 +15,6 @@ import android.widget.TextView;
 
 import com.dachen.medicine.common.utils.IllEntity;
 import com.dachen.medicine.common.utils.ImageUtil;
-import com.dachen.medicine.common.utils.LogUtils;
 import com.dachen.medicine.common.utils.MedicineApplication;
 import com.dachen.medicine.common.utils.ToastUtils;
 import com.dachen.medicine.config.UserInfo;
@@ -28,16 +22,18 @@ import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.CustomImagerLoader;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
-import com.dachen.medicine.net.Params;
 import com.dachen.medicine.view.AddAndSubView;
 import com.dachen.medicine.view.AddAndSubView.OnNumChangeListener;
 import com.dachen.mediecinelibraryrealizedoctor.R;
 import com.dachen.mediecinelibraryrealizedoctor.activity.BaseActivity;
 import com.dachen.mediecinelibraryrealizedoctor.activity.GetMedieDetaiInfo;
 import com.dachen.mediecinelibraryrealizedoctor.entity.AddDoctorCollectionInfo;
-import com.dachen.mediecinelibraryrealizedoctor.entity.MedicienInfo;
 import com.dachen.mediecinelibraryrealizedoctor.entity.MedicineInfo;
 import com.dachen.mediecinelibraryrealizedoctor.utils.CompareDatalogic;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class ChoiceMedicineChildrenadapter extends BaseAdapter{
 	AddAndSubView addAndSubView1;
@@ -308,13 +304,13 @@ public class ChoiceMedicineChildrenadapter extends BaseAdapter{
 									id = media.goods.id;
 								}
 								if (!media.is_doctor_cb) {
-									config  ="org/drugCollection/addDrugCollection";
+									config  ="drug/drugCollection/addDrugCollection";
 									interfaces.put("goodsId", id);
 									interfaces.put("userType",UserInfo.getInstance(context).getUserType());
 									interfaces.put("userId", UserInfo.getInstance(context).getId());
 									// interfaces.put("goodsGroupId",media.id);
 								}else {
-									config ="org/drugCollection/deleteByDoctorIdAndGoodsId";
+									config ="drug/drugCollection/deleteByDoctorIdAndGoodsId";
 									interfaces.put("doctorId", UserInfo.getInstance(context).getId());
 									interfaces.put("goodsId",id);
 								}

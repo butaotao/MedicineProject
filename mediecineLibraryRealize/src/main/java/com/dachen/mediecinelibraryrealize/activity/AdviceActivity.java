@@ -1,24 +1,17 @@
 package com.dachen.mediecinelibraryrealize.activity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.style.TextAppearanceSpan;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewStub;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.dachen.medicine.common.utils.LogUtils;
 import com.dachen.medicine.common.utils.ToastUtils;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
@@ -26,13 +19,12 @@ import com.dachen.medicine.net.HttpManager.OnHttpListener;
 import com.dachen.medicine.net.Params;
 import com.dachen.mediecinelibraryrealize.R;
 import com.dachen.mediecinelibraryrealize.adapter.AdviceAdapter;
-import com.dachen.mediecinelibraryrealize.entity.MedicineInfosList;
 import com.dachen.mediecinelibraryrealize.entity.SomeBox;
 import com.dachen.mediecinelibraryrealize.entity.SomeBox.patientSuggest;
 import com.dachen.mediecinelibraryrealize.entity.SomeBox2;
 import com.dachen.mediecinelibraryrealize.utils.StringUtils;
-import com.dachen.mediecinelibraryrealizedoctor.entity.MedicineInfo;
-import com.google.gson.Gson;
+
+import java.util.ArrayList;
 
 public class AdviceActivity extends BaseActivity  implements OnClickListener, OnHttpListener{
 	ArrayList<patientSuggest> c_patient_drug_suggest_list ;
@@ -127,7 +119,7 @@ public class AdviceActivity extends BaseActivity  implements OnClickListener, On
 					Params.getMedicineList(id, ""),
 					this, false, 2);*/
 		 new HttpManager().get(this,
-					"org/recipe/getRecipeById",
+					"drug/recipe/getRecipeById",
 				 SomeBox2.class,
 					Params.getMedicineDetal(id, this),
 					this, false, 1);

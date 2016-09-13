@@ -36,7 +36,6 @@ import com.dachen.mediecinelibraryrealize.entity.PatientPointsItemData;
 import com.dachen.mediecinelibraryrealize.entity.Patients;
 import com.dachen.mediecinelibraryrealize.entity.PointCanExchanges;
 import com.dachen.mediecinelibraryrealize.entity.TotalPoints;
-import com.dachen.mediecinelibraryrealize.utils.CompareDatalogic;
 import com.dachen.mediecinelibraryrealizedoctor.entity.Constants;
 
 import java.util.ArrayList;
@@ -111,6 +110,7 @@ public class PatientPointsActivity extends BaseActivity implements OnHttpListene
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+				/*
 				Intent intent = new Intent(PatientPointsActivity.this, ErcordingExChangeActivity.class);
 				Bundle bundlePatient = new Bundle();
 				PointCanExchanges.PointCanExchange point = (PointCanExchanges.PointCanExchange) adaper.getItem(position);
@@ -125,7 +125,7 @@ public class PatientPointsActivity extends BaseActivity implements OnHttpListene
 				intent.putExtra("medicineid", medieid);
 				if (CompareDatalogic.isShow(point)) {
 					startActivity(intent);
-				}
+				}*/
 
 			}
 		});
@@ -195,7 +195,7 @@ public class PatientPointsActivity extends BaseActivity implements OnHttpListene
 		HashMap<String, String> interfaces = new HashMap<String, String>();
 		String access_token = UserInfo.getInstance(PatientPointsActivity.this).getSesstion();
 		interfaces.put("access_token", access_token);
-		interfaces.put("patient", id);
+//		interfaces.put("userId", id);
 		new HttpManager().get(this, Constants.GET_USER_POINTS,
 				PatientPointsItemData.class,
 				interfaces,
@@ -224,10 +224,10 @@ public class PatientPointsActivity extends BaseActivity implements OnHttpListene
 				PatientPointsItemData patientPointsItem = (PatientPointsItemData) arg0;
 				PointCanExchanges ps = new PointCanExchanges();
 				List<PointCanExchanges.PointCanExchange> pointCanExchangeList = new ArrayList<>();
-				if (patientPointsItem.data != null && patientPointsItem.data.patientList != null &&
-						patientPointsItem.data.patientList.size() > 0) {
-					for (int i = 0; i < patientPointsItem.data.patientList.size(); i++) {
-						PatientPointsItem.Data dataItem = patientPointsItem.data.patientList.get(i);
+				if (patientPointsItem.data != null && patientPointsItem.data.userGoodsPointsList != null &&
+						patientPointsItem.data.userGoodsPointsList.size() > 0) {
+					for (int i = 0; i < patientPointsItem.data.userGoodsPointsList.size(); i++) {
+						PatientPointsItem.Data dataItem = patientPointsItem.data.userGoodsPointsList.get(i);
 						PointCanExchanges.PointCanExchange pointCanExchange = new PointCanExchanges.PointCanExchange();
 						PointCanExchanges.PointCanExchange.Goods goods = new PointCanExchanges.PointCanExchange.Goods();
 						goods.title = dataItem.title;

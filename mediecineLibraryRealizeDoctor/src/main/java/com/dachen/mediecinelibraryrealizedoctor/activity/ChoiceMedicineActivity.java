@@ -3,12 +3,6 @@ package com.dachen.mediecinelibraryrealizedoctor.activity;
 
 
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeMap;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -43,6 +37,12 @@ import com.dachen.mediecinelibraryrealizedoctor.entity.MedicineInfo;
 import com.dachen.mediecinelibraryrealizedoctor.entity.SharePrefrenceConst;
 import com.dachen.mediecinelibraryrealizedoctor.utils.DataUtils;
 import com.dachen.mediecinelibraryrealizedoctor.utils.Json.DrugChange;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.TreeMap;
 
 public class ChoiceMedicineActivity extends BaseSearchActivity implements
 		OnHttpListener,OnClickListener,CleanAllRefreshinferface {
@@ -253,7 +253,7 @@ public class ChoiceMedicineActivity extends BaseSearchActivity implements
 								Params.getGoodsInfo(groupID,entitys.getId(), "1"),
 								ChoiceMedicineActivity.this,false, 2);*/
 							new HttpManager().post(ChoiceMedicineActivity.this,
-									"org/goods/getGoodsListByIndications", DrugDtaList.class,
+									"drug/goods/getGoodsListByIndications", DrugDtaList.class,
 									maps,
 									ChoiceMedicineActivity.this, false, 1);
 					}

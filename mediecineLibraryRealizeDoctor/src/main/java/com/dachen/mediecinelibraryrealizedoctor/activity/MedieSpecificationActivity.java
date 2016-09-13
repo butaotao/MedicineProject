@@ -1,12 +1,5 @@
 package com.dachen.mediecinelibraryrealizedoctor.activity;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -14,14 +7,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.dachen.medicine.common.utils.ImageUtil;
-import com.dachen.medicine.common.utils.LogUtils;
 import com.dachen.medicine.common.utils.MedicineApplication;
 import com.dachen.medicine.common.utils.ToastUtils;
 import com.dachen.medicine.config.UserInfo;
@@ -29,14 +20,13 @@ import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.CustomImagerLoader;
 import com.dachen.medicine.net.HttpManager;
 import com.dachen.medicine.net.HttpManager.OnHttpListener;
-import com.dachen.medicine.net.NetConfig;
 import com.dachen.mediecinelibraryrealizedoctor.R;
-import com.dachen.mediecinelibraryrealizedoctor.entity.DrugDtaList;
 import com.dachen.mediecinelibraryrealizedoctor.entity.GetMedieById;
 import com.dachen.mediecinelibraryrealizedoctor.entity.GetMedieByIdData;
-import com.dachen.mediecinelibraryrealizedoctor.entity.MedicineInfo;
 import com.dachen.mediecinelibraryrealizedoctor.utils.CompareDatalogic;
-import com.dachen.mediecinelibraryrealizedoctor.utils.ImageUrl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MedieSpecificationActivity extends BaseActivity implements OnClickListener, OnHttpListener {
     WebView wv;
@@ -189,7 +179,7 @@ public class MedieSpecificationActivity extends BaseActivity implements OnClickL
         params.put("id", id);
 ////goods/viewGoods
 
-        new HttpManager().post(this, "org/goods/viewGoods",
+        new HttpManager().post(this, "drug/goods/viewGoods",
                 GetMedieByIdData.class,
                 params, this, false, 1);
     }

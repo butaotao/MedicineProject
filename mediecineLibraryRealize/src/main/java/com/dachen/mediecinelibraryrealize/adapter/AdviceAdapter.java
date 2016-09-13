@@ -1,10 +1,7 @@
 package com.dachen.mediecinelibraryrealize.adapter;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.content.Intent;
-import android.text.SpannableString;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -12,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -21,6 +17,8 @@ import com.dachen.mediecinelibraryrealize.entity.SomeBox.patientSuggest;
 import com.dachen.mediecinelibraryrealize.entity.SomeBox.patientSuggest.Uses;
 import com.dachen.mediecinelibraryrealize.utils.CompareDatalogic;
 import com.dachen.mediecinelibraryrealizedoctor.activity.MedieSpecificationActivity;
+
+import java.util.ArrayList;
 
 public class AdviceAdapter extends BaseAdapter{
 	Context context;
@@ -268,7 +266,8 @@ public class AdviceAdapter extends BaseAdapter{
 			}
 		});
 
-		// TODO Auto-generated method stub
+		holder.tv_target_patient_get_des.setVisibility(View.GONE);
+		holder.tv_target_patient_get.setVisibility(View.GONE);
 		return view;
 	}
 
