@@ -73,8 +73,6 @@ public class GuiderActivity extends BaseActivity implements ViewPager.OnPageChan
         mPagerAdapter = new MyPagerAdapter(mDataList);
         mVpGuider.setAdapter(mPagerAdapter);
         mVpGuider.addOnPageChangeListener(this);
-        onPageSelected(0);
-
     }
 
     @Override
@@ -84,7 +82,7 @@ public class GuiderActivity extends BaseActivity implements ViewPager.OnPageChan
 
     @Override
     public void onPageSelected(int position) {
-        if (position == mPagerAdapter.getCount() - 1) {//最后一页出现两秒后关闭
+       /* if (position == mPagerAdapter.getCount() - 1) {//最后一页出现两秒后关闭
             new Thread() {
                 @Override
                 public void run() {
@@ -92,7 +90,7 @@ public class GuiderActivity extends BaseActivity implements ViewPager.OnPageChan
                     finish();
                 }
             }.start();
-        }
+        }*/
     }
 
     @Override
@@ -119,14 +117,19 @@ public class GuiderActivity extends BaseActivity implements ViewPager.OnPageChan
         }
 
         @Override
-        public Object instantiateItem(ViewGroup container, int position) {
+        public Object instantiateItem(ViewGroup container, final int position) {
             ImageView view = dataList.get(position);
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int currentItem = mVpGuider.getCurrentItem();//点击滑到下一页
-                    mVpGuider.setCurrentItem(currentItem + 1);
-                    mPagerAdapter.notifyDataSetChanged();
+                    if (getCount() == position +1) {
+                        SystemClock.sleep(2000);
+                        finish();
+                    }else {
+                        int currentItem = mVpGuider.getCurrentItem();//点击滑到下一页
+                        mVpGuider.setCurrentItem(currentItem + 1);
+                        mPagerAdapter.notifyDataSetChanged();
+                    }
                 }
             });
             container.addView(view);

@@ -24,6 +24,7 @@ import com.dachen.dgroupdoctorcompany.entity.SignInList;
 import com.dachen.dgroupdoctorcompany.utils.DataUtils.GetUserDepId;
 import com.dachen.dgroupdoctorcompany.utils.GaoDeMapUtils;
 import com.dachen.dgroupdoctorcompany.views.CustomDialog;
+import com.dachen.medicine.common.utils.DisplayUtil;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.entity.Result;
 import com.dachen.medicine.net.HttpManager;
@@ -76,7 +77,8 @@ public class VisitListActivity extends BaseActivity implements HttpManager.OnHtt
         if(isDeptartManager()){
             mStatistics.setText("统计");
             mStatistics.setVisibility(View.VISIBLE);
-            mStatistics.setTextColor(Color.parseColor("#333333"));
+            mStatistics.setTextSize(DisplayUtil.px2dip(this,15));
+            mStatistics.setTextColor(Color.parseColor("#3cbaff"));
             mStatistics.setOnClickListener(this);
             showGuider(true);
         }else {
