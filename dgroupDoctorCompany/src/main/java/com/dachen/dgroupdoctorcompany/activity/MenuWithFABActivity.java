@@ -106,7 +106,14 @@ public class MenuWithFABActivity extends SignInActivity implements View.OnClickL
 
             @Override
             public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-                refreshScrollView.onRefreshComplete();
+                //refreshScrollView.onRefreshComplete();
+                refreshScrollView.postDelayed(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        refreshScrollView.onRefreshComplete();
+                    }
+                }, 1000);
             }
         });
         if (savedInstanceState == null) {
