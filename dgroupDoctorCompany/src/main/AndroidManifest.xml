@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.dachen.dgroupdoctorcompany"
     android:versionCode="186"
-    android:versionName="1.4.0.160091201">
+    android:versionName="1.4.0.160091208">
 <!--
     android:versionCode="161"
     android:versionName="1.4070706.161">-->
@@ -780,6 +780,8 @@
         <activity android:name=".activity.LitterAppActivity"/>
         <!--公告web界面-->
         <activity android:name=".activity.NoticeWebActivity"/>
+        <!--签到导航-->
+        <activity android:name=".activity.GuiderActivity"/>
 
     </application>
 

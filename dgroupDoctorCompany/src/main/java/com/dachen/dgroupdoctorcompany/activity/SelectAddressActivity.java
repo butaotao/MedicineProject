@@ -305,7 +305,7 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
         showLoadingDialog();
         String orginId = GetUserDepId.getUserDepId(this);
         new HttpManager().post(this, Constants.CREATE_AND_JOIN_VISIT_GROUP, JoinVisitGroup.class,
-                Params.startVisitGroup(SelectAddressActivity.this,orginId,String.valueOf(latitude),String.valueOf(longitude),address,addressname),
+                Params.startVisitGroup(SelectAddressActivity.this, orginId, String.valueOf(latitude), String.valueOf(longitude), address, addressname),
                 this, false, 4);
     }
 
@@ -365,15 +365,26 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
 
     @Override
     public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-        if(query != null && poiSearch != null && poiResult != null){
-            if(poiResult.getPageCount() - 1 > currentPage){
-                currentPage++;
-                query.setPageNum(currentPage);// 设置查后一页
-                poiSearch.searchPOIAsyn();
-            }else{
-                ToastUtil.showToast(SelectAddressActivity.this,"对不起，没有搜索到相关数据！");
+        if(null!=circle && !circle.contains(new LatLng(lp.getLatitude(),lp.getLongitude()))){
+            lvAddress.postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    lvAddress.onRefreshComplete();
+                }
+            }, 1000);
+        }else{
+            if(query != null && poiSearch != null && poiResult != null){
+                if(poiResult.getPageCount() - 1 > currentPage){
+                    currentPage++;
+                    query.setPageNum(currentPage);// 设置查后一页
+                    poiSearch.searchPOIAsyn();
+                }else{
+                    ToastUtil.showToast(SelectAddressActivity.this,"对不起，没有搜索到相关数据！");
+                }
             }
         }
+
     }
 
     @Override
@@ -441,8 +452,10 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
             intent.putExtra("medieaName",listMedieaName);
             intent.putExtra("doctorid",data.dataList.doctorId);
             intent.putExtra("doctorname",data.dataList.doctorName);
-            intent.putExtra("latitude",data.dataList.loc.lat);
-            intent.putExtra("longitude",data.dataList.loc.lng);
+            if (null!=data.dataList.loc){
+                intent.putExtra("latitude",data.dataList.loc.lat);
+                intent.putExtra("longitude",data.dataList.loc.lng);
+            }
             intent.putExtra("address",data.dataList.address);
             intent.putExtra("addressName",data.dataList.addressName);
             intent.putExtra("jsonPeople",jsonPeople);
@@ -492,7 +505,7 @@ public class SelectAddressActivity extends BaseActivity implements LocationSourc
         }else{
             if(null != response){
                 String msg = response.getResultMsg();
-                if(TextUtils.isEmpty(msg)){
+                if (TextUtils.isEmpty(msg)){
                     msg = "数据异常";
                 }
                 ToastUtil.showToast(this, msg);

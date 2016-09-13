@@ -82,12 +82,15 @@ public class SearchSignRecordDepActivity extends BaseActivity implements HttpMan
                 }else if (type.equals("sign")){
                     intent= new Intent(SearchSignRecordDepActivity.this, SearchSignRecordActivity.class);
                 }
-
+                String dept = "";
+                if (!TextUtils.isEmpty(info.departmentNmae)){
+                    dept = info.departmentNmae;
+                }
                 intent.putExtra("deptId",info.orgId);
                 intent.putExtra("type",type);
                 intent.putExtra("userId",info.userId);
                 intent.putExtra("userName",info.name);
-                intent.putExtra("deptName",info.departmentNmae);
+                intent.putExtra("deptName",dept);
                 startActivity(intent);
             }
         });
@@ -163,10 +166,10 @@ public class SearchSignRecordDepActivity extends BaseActivity implements HttpMan
                     for (int i=0,size = info.data.pageData.size();i<size;i++){
                         VisitRecordUserInfo.Data.PageData data = info.data.pageData.get(i);
                         UserInfos userInfo = new UserInfos();
-                        userInfo.departmentNmae = data.department;
-                        userInfo.orgId = data.id;
+                        userInfo.departmentNmae = data.orgName;
+                        userInfo.orgId = data.orgId;
                         userInfo.userId = data.userId;
-                        userInfo.headPic = data.headPicFileName;
+                        userInfo.headPic = data.headPicUrl;
                         userInfo.name = data.name;
                         infos.add(userInfo);
                     }

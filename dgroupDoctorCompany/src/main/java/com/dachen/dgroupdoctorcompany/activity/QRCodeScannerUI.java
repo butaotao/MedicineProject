@@ -124,7 +124,6 @@ public class QRCodeScannerUI extends Activity implements
     @Override
     public void handleResult(Result rawResult) {
         if (rawResult != null) {
-            Log.d("zxy :", "QRCodeScannerUI : "+"handleResult: "+rawResult.toString());
             handleResult(rawResult.getText());
         }
     }
@@ -158,19 +157,15 @@ public class QRCodeScannerUI extends Activity implements
         } else if(scanResult.startsWith("login://")){  //web端登入
             String[] strings = scanResult.split("\\?");
             for (int i = 0; i < strings.length; i++) {
-                Log.d("zxy :", "175 : QRCodeScannerUI : executeTask : strings"+i+" = "+strings[i]);
             }
             final String[] strings1 = strings[0].split("//");
-            Log.d("zxy :", "178 : QRCodeScannerUI : executeTask : strings1[1] = "+strings1[1]);
             new HttpManager().post(this, Constants.QR_WEB_LONIN_VERIFY, QRLogin.class, Params.getQRWebKeyParams
                     (strings1[1]), new HttpManager.OnHttpListener<com.dachen.medicine.entity.Result>() {
                 @Override
                 public void onSuccess(com.dachen.medicine.entity.Result response) {
-                    Log.d("zxy :", "186 : QRCodeScannerUI : onSuccess : result");
                     if (response instanceof QRLogin){
 
                         QRLogin result = (QRLogin)response;
-                        Log.d("zxy :", "189 : QRCodeScannerUI : onSuccess : result = "+result.resultCode);
                         if (result.resultCode == 1050002) {
                                 Intent intent = new Intent(QRCodeScannerUI.this, WebQRLoginActivity.class);
                                 intent.putExtra("scanResult", strings1[1]);
@@ -192,7 +187,6 @@ public class QRCodeScannerUI extends Activity implements
                 }
             }, false, 1);
         }else {
-            Log.d("zxy :", "214 : QRCodeScannerUI : executeTask : scanResult = "+scanResult);
             Intent intent= new Intent();
             intent.setAction("android.intent.action.VIEW");
             Uri content_url = Uri.parse(scanResult);

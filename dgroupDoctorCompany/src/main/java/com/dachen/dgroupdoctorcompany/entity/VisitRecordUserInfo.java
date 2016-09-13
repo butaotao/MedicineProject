@@ -12,13 +12,14 @@ public class VisitRecordUserInfo extends Result{
     public class Data{
         public ArrayList<PageData> pageData;
         public class PageData{
-            public String headPicFileName;
+            public String headPicUrl;
             public String name;
             public String userId;
             public String remarks;
-            public String department;
+            public String orgName;
             public String drugCompanyId;
             public String id;
+            public String orgId;
         }
     }
 }

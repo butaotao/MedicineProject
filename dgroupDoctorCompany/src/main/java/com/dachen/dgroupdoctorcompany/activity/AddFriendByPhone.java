@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -16,7 +15,6 @@ import com.dachen.common.utils.ToastUtil;
 import com.dachen.dgroupdoctorcompany.R;
 import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
-import com.dachen.dgroupdoctorcompany.fragment.AddressList;
 import com.dachen.dgroupdoctorcompany.utils.GetAllDoctor;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.common.utils.ToastUtils;
@@ -49,6 +47,7 @@ public class AddFriendByPhone extends BaseActivity implements HttpManager.OnHttp
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
                 ToastUtil.showToast(AddFriendByPhone.this, "添加成功");
+            finish();
         }
     };
     @Override
@@ -57,7 +56,6 @@ public class AddFriendByPhone extends BaseActivity implements HttpManager.OnHttp
         setContentView(R.layout.activity_addfriend_byphone);
         ButterKnife.bind(this);
         deptid = getIntent().getStringExtra("deptid");
-        Log.d("zxy :", "59 : AddFriendByPhone : onCreate : deptid = "+deptid);
         setTitle("手机号码添加");
      //   enableBack();
         phone_numer_edit.addTextChangedListener(new TextWatcher() {

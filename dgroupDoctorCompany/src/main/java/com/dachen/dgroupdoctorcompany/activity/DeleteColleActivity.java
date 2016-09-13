@@ -146,6 +146,11 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
                         btn_setrepresent.setFocusable(false);
                         btn_setrepresent.setClickable(false);
                     }
+                    if(showManager()){
+                        btn_delete.setBackgroundColor(getResources().getColor(R.color.red_88f95442));
+                        btn_delete.setFocusable(false);
+                        btn_delete.setClickable(false);
+                    }
                     break;
                 }
             }
@@ -221,7 +226,11 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
             findViewById(R.id.arrow2).setVisibility(View.GONE);
             findViewById(R.id.arrow3).setVisibility(View.GONE);
         }
-
+        if(showManager()){
+            btn_delete.setBackgroundColor(getResources().getColor(R.color.red_88f95442));
+            btn_delete.setFocusable(false);
+            btn_delete.setClickable(false);
+        }
     }
     private boolean showControlManager(){
         if (entity!=null){
@@ -231,6 +240,16 @@ public class DeleteColleActivity extends BaseActivity implements View.OnClickLis
                 if(loginUserId.equals(deptid)){
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    private boolean showManager(){
+        if (entity!=null){
+            if (entity.deptManager==1){
+
+                    return true;
             }
         }
         return false;

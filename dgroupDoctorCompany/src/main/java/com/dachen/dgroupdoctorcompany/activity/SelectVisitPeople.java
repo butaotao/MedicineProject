@@ -321,9 +321,9 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
 
 //        mBtSure.setText("确定选择(1)人");
         btn_choiceposition.setOnClickListener(this);
-        mMyHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME,1000);
-
-        if(!TextUtils.isEmpty(headPic)){
+        mMyHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, 1000);
+        //headPic =   SharedPreferenceUtil.getString(CompanyApplication.getInstance(), userId + "head_url", "");
+        if (!TextUtils.isEmpty(headPic)){
             ImageLoader.getInstance().displayImage(headPic,mIvPicture, CompanyApplication.mAvatarCircleImageOptions);
         }else{
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.head_icon);
@@ -367,7 +367,7 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
                 Set<VisitPeople> set = new HashSet<>();
                 set.addAll(mVisitPeopleList);
                 int size = set.size();
-                if(size<=0){
+                if(size<=1){
                     ToastUtil.showToast(this,"协同拜访至少需要2人参加");
                     return;
                 }
@@ -617,9 +617,9 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
             if(!isAddPeople(visitPeople)){
                 SparseArray<VisitPeople> sparseArray = new SparseArray<>();
                 sparseArray.put(0, visitPeople);
-                if (!visitPeople.id.equals(SharedPreferenceUtil.getString(this,"id",""))){
+             //   if (!visitPeople.id.equals(SharedPreferenceUtil.getString(this,"id",""))){
                     mRadarViewGroup.setDatas(sparseArray);
-                }
+              //  }
 
                 mVisitPeopleList.add(visitPeople);
 
@@ -647,19 +647,25 @@ public class SelectVisitPeople extends BaseActivity implements HttpManager.OnHtt
         }
     }
     public void addVisitPeopleFromServer(ArrayList<VisitPeople> visitPeoples){
-        mVisitPeopleList.clear();
-        mVisitPeopleList.addAll(visitPeoples);
+
         if(null != visitPeoples){
+
             for (int i=0;i<visitPeoples.size();i++){
-             //   if (!isAddPeople(visitPeoples.get(i))){
-                    SparseArray<VisitPeople> sparseArray = new SparseArray<>();
+               if (!isAddPeople(visitPeoples.get(i))){
+                SparseArray<VisitPeople> sparseArray = new SparseArray<>();
+                VisitPeople p = visitPeoples.get(i);
+                if (!p.id.equals(initatorId)) {
                     sparseArray.put(0, visitPeoples.get(i));
-                if (!TextUtils.isEmpty(visitPeoples.get(i).id)&&!visitPeoples.get(i).id.equals(SharedPreferenceUtil.getString(this,"id",""))) {
                     mRadarViewGroup.setDatas(sparseArray);
                 }
-               // }
-            }
 
+               // if (!TextUtils.isEmpty(visitPeoples.get(i).id)&&!visitPeoples.get(i).id.equals(SharedPreferenceUtil.getString(this,"id",""))) {
+
+               //}
+                 }
+            }
+            mVisitPeopleList.clear();
+            mVisitPeopleList.addAll(visitPeoples);
 
                 Set<VisitPeople> set = new HashSet<>();
                 set.addAll(mVisitPeopleList);

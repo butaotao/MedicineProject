@@ -12,7 +12,6 @@ import android.graphics.Bitmap.Config;
 import android.os.Build;
 import android.os.Environment;
 import android.support.multidex.MultiDexApplication;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.dachen.common.DCommonSdk;
@@ -45,9 +44,9 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
-import com.xiaomi.mipush.sdk.MiPushClient;
 import com.taobao.hotfix.HotFixManager;
 import com.taobao.hotfix.NewPatchListener;
+import com.xiaomi.mipush.sdk.MiPushClient;
 
 import java.io.File;
 import java.util.List;
@@ -279,9 +278,9 @@ public class CompanyApplication extends MultiDexApplication{
                 .cacheOnDisc(true)
                 .resetViewBeforeLoading(true)
                 .displayer(new RoundedBitmapDisplayer(10))
-                .showImageForEmptyUri(R.drawable.ic_default_head)
-                .showImageOnFail(R.drawable.ic_default_head)
-                .showImageOnLoading(R.drawable.ic_default_head)
+                .showImageForEmptyUri(R.drawable.avatar_normal)
+                .showImageOnFail(R.drawable.avatar_normal)
+                .showImageOnLoading(R.drawable.avatar_normal)
                 .build();
 
         mAvatarNormalImageOptions = new DisplayImageOptions.Builder()

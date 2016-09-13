@@ -104,7 +104,7 @@ public class SinUtils {
                     @Override
                     public void onSuccess(Result response) {
                         if (response.resultCode == 1){
-
+                            ToastUtil.showToast(activity,"签到成功");
                             if (activity instanceof BaseActivity){
                                 BaseActivity activity1 = (BaseActivity)activity;
                                 activity1.closeLoadingDialog();
@@ -210,7 +210,7 @@ public class SinUtils {
                     @Override
                     public void onSuccess(Result response) {
                         if (response.resultCode == 1){
-
+                            ToastUtil.showToast(activity,"签到成功");
                             if (activity instanceof BaseActivity){
                                 BaseActivity activity1 = (BaseActivity)activity;
                                 activity1.closeLoadingDialog();

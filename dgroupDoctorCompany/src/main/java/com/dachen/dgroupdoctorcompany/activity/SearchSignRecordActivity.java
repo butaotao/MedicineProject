@@ -1,6 +1,7 @@
 package com.dachen.dgroupdoctorcompany.activity;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 
 import com.dachen.dgroupdoctorcompany.R;
@@ -49,7 +50,12 @@ public class SearchSignRecordActivity extends BaseRecordActivity implements Pull
     @Override
     protected void onResume() {
         super.onResume();
-        setTitle(userName+"-"+deptName);
+        if (!TextUtils.isEmpty(deptName)){
+            setTitle(userName+"-"+deptName);
+        }else {
+            setTitle(userName);
+        }
+
     }
 
     private void getVistRecord() {

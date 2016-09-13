@@ -1,6 +1,7 @@
 package com.dachen.medicine.common.utils;
 
-import java.io.File;
+import android.util.Log;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,13 +12,9 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import android.util.Log;
-
-import com.dachen.medicine.config.FusionConfig;
-
 /**
  * log类
- * 
+ *
  * @author butaotao 2015-6-26 09:05
  * @update @yuankangle 2015-7-1
  */
@@ -37,6 +34,8 @@ public class LogUtils {
 	private static final String LENG = "@LengGX@ ";
 	// 鲁伟
 	private static final String LUWEI = "@LUWEI@";
+	//曾祥羽
+	private static final String ZXY = "@zxy@ ";
 
 	public static final String V = "VERBOSE";
 	public static final String D = "DEBUG";
@@ -47,7 +46,7 @@ public class LogUtils {
 	private ConcurrentLinkedQueue<String> queue;
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	@SuppressWarnings("unused")
@@ -134,7 +133,7 @@ public class LogUtils {
 
 	/**
 	 * Purpose:Mark user one
-	 * 
+	 *
 	 * @return
 	 */
 	public static void burtLog(String level, String content) {
@@ -147,7 +146,7 @@ public class LogUtils {
 
 	/**
 	 * Purpose:Mark user two
-	 * 
+	 *
 	 * @return
 	 */
 	public static void yuanLog(String level, String content) {
@@ -184,7 +183,7 @@ public class LogUtils {
 
 	/**
 	 * Get The Current Function Name
-	 * 
+	 *
 	 * @return
 	 */
 	private String getFunctionName() {
@@ -212,7 +211,7 @@ public class LogUtils {
 
 	/**
 	 * 初始化往SD卡记入log的类
-	 * 
+	 *
 	 * @author butaotao 增加方法 2015-6-26 09:05
 	 */
 	// public static void initLogConfig(){

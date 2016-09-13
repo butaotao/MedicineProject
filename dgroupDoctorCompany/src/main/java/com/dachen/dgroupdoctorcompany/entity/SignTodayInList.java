@@ -29,6 +29,7 @@ public class SignTodayInList extends Result {
             public String headPic;
             public String signedId;
             public String visitId;
+            public String coordinate;
             }
     }
 

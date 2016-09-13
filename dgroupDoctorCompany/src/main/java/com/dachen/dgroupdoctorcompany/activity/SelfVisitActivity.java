@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -201,7 +200,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                 this, false, 1);
         signedId = this.getIntent().getStringExtra("signedId");
         if (MODE_FROM_VIST_LIST_ITEM == mMode || MODE_FROM_SIGN_LIST==mMode) {//拜访列表,签到列表
-            Log.d("zxy :", "197 : SelfVisitActivity : initData : if");
             mId = this.getIntent().getStringExtra("id");
             location_ray.setEnabled(false);
             address_arrow.setVisibility(View.INVISIBLE);
@@ -215,7 +213,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
 
         }else if(MODE_FROM_SIGN==mMode){//签到过来
 
-            Log.d("zxy :", "230 : SelfVisitActivity : initData : else if");
             mStrAddress = this.getIntent().getStringExtra("addressname");
             mStrFloor = this.getIntent().getStringExtra("address");
             latitude = this.getIntent().getDoubleExtra("latitude", 0);
@@ -228,7 +225,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
             Date date = new Date(presentTime);
             String strDate = TimeFormatUtils.china_format_date(date);
             String strWeek = TimeFormatUtils.week_format_date(date);
-            Log.d("zxy :", "249 : SelfVisitActivity : initData : strDate = "+strDate+", strWeek = "+strWeek);
             strTime = TimeFormatUtils.time_format_date(date);
             tvWeek.setText(strWeek);
             tvDate.setText(strDate);
@@ -420,7 +416,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                         mStrDoctorID = member.getDoctorId();
                     }
                     remark = member.getRemark();
-                    Log.d("zxy :", "423 : SelfVisitActivity : onSuccess : remark = "+remark);
                     coordinate = member.getCoordinate();
                     List<String> picList = member.getImgUrls();
                     if (picList != null && picList.size() > 0) {
@@ -462,14 +457,13 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
                 VisitEditEnableBean editEnable = (VisitEditEnableBean) response;
                 if (editEnable.data!=null) {
                     boolean etRemarkEnable = editEnable.data.editStatus;
-                    Log.d("zxy :", "506 : SelfVisitActivity : onSuccess : editEnable = "+editEnable.data.editStatus);
                     setRemarkEnable(etRemarkEnable);
                 }
             }else if (response instanceof ServerTimeBean) {
                 ServerTimeBean time = (ServerTimeBean) response;
                 if (time.data>0) {
                     this.serviceTime = time.data;
-                    if(MODE_FROM_SIGN==mMode) {//签到过来 设定当前服务器时间
+                    if(MODE_FROM_SIGN==mMode||MODE_FROM_VIST_LIST == mMode) {//签到过来 设定当前服务器时间
                         Date date = new Date(serviceTime);
                         String strDate = TimeFormatUtils.china_format_date(date);
                         String strWeek = TimeFormatUtils.week_format_date(date);
@@ -479,9 +473,7 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
 
                         tv_time_location.setText(strTime + " " + mStrFloor);
                     }
-                    if (MODE_FROM_VIST_LIST_ITEM == mMode || MODE_FROM_SIGN_LIST==mMode) {//拜访列表,签到列表,根据时间判断是否可以编辑
-                      //  setRemarkEnable(serviceTime < presentTime + 24 * 60 * 60 * 1000);
-                    }
+
                 }
             } else if (response instanceof Result) {
                 if (response.getResultCode() == 1) {
@@ -511,7 +503,6 @@ public class SelfVisitActivity extends BaseActivity implements View.OnClickListe
      * @param etRemarkEnable
      */
     private void setRemarkEnable(boolean etRemarkEnable) {
-        Log.d("zxy :", "567 : SelfVisitActivity : setRemarkEnable : 是否可以编辑 = "+etRemarkEnable);
         if (etRemarkEnable) {
             tv_title_save.setVisibility(View.VISIBLE);
             etRemark.setText(remark);

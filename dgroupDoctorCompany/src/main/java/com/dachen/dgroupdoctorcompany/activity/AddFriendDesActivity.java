@@ -8,6 +8,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.dachen.dgroupdoctorcompany.R;
+import com.dachen.dgroupdoctorcompany.app.Constants;
 import com.dachen.dgroupdoctorcompany.base.BaseActivity;
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.net.NetConfig;
@@ -24,7 +25,7 @@ public class AddFriendDesActivity extends BaseActivity {
         setContentView(R.layout.activity_addfrienddes);
        String des = SharedPreferenceUtil.getString(this, "netdes", NetConfig.KANG_ZHE);
                 enableBack();
-        mURL = "http://"+des+"/org/web/dev/DGroupBusiness/documentation/businessInfo.html";
+        mURL = "http://"+des+"/"+ Constants.DRUG+"web/dev/DGroupBusiness/documentation/businessInfo.html";
         setTitle("业务助理介绍");
         mWebView = (WebView) findViewById(R.id.mWeb);
         //启用支持javascript

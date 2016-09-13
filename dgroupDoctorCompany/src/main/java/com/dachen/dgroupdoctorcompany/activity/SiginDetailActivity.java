@@ -4,11 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -46,6 +46,11 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
     Button btSubmit;
     public String id;
     RelativeLayout rl_btnsmit;
+    boolean searchSing;
+    String address;
+    double latitude;
+    double longitude;
+    ImageView ivFlag;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,9 +59,10 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
         rl_btnsmit = (RelativeLayout) findViewById(R.id.rl_btnsmit);
         ll_state = (LinearLayout) findViewById(R.id.ll_state);
         ll_sign_tag = (LinearLayout) findViewById(R.id.ll_sign_tag);
+        findViewById(R.id.vAddress).setOnClickListener(this);
         enableBack();
         setTitle("签到详情");
-
+        ivFlag = (ImageView) findViewById(R.id.ivFlag);
         tvDate = (TextView) findViewById(R.id.tvDate);
         tvTime = (TextView) findViewById(R.id.tvTime);
         etRemark = (EditText) findViewById(R.id.etRemark);
@@ -66,16 +72,20 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
         remark = getIntent().getStringExtra("remark");
         String day = getIntent().getStringExtra("day");
         String hour = getIntent().getStringExtra("hour");
+        latitude = getIntent().getDoubleExtra("latitude",0);
+        longitude = getIntent().getDoubleExtra("longitude",0);
         tag = getIntent().getStringExtra("tag");
-        String address = getIntent().getStringExtra("address");
+        address = getIntent().getStringExtra("address");
         long longTime = getIntent().getLongExtra("longTime",0);
         String from = getIntent().getStringExtra("from");
-        Log.d("zxy :", "72 : SiginDetailActivity : onCreate : from = "+from);
+        ivFlag.setVisibility(View.GONE);
+        searchSing = false;
         if ("searchSign".equals(from) ) {
             etRemark.setEnabled(false);
             etRemark.setHint("");
+            searchSing = true;
         }else {
-            if (!TextUtils.isEmpty(tag)&&!tag.equals("拜访")){
+            if ((!TextUtils.isEmpty(tag)&&!tag.equals("拜访"))||TextUtils.isEmpty(tag)){
                 TitleManager.showText(this, v, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -87,6 +97,7 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
                     }
                 }, "保存");
             }
+
         }
         btSubmit = (Button) findViewById(R.id.btSubmit);
 
@@ -125,22 +136,25 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
             etRemark.requestFocus();
             etRemark.setSelection(etRemark.getText().length());
         }
-        Timer timer = new Timer();
-         timer.schedule(new TimerTask()
-           {
+        if (!searchSing){
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask()
+                           {
 
-                   public void run()
-                    {
-                        if (etRemark.getVisibility()==View.VISIBLE){
-                            InputMethodManager inputManager =
-                                    (InputMethodManager)etRemark.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                            inputManager.showSoftInput(etRemark, 0);
-                        }
+                               public void run()
+                               {
+                                   if (etRemark.getVisibility()==View.VISIBLE){
+                                       InputMethodManager inputManager =
+                                               (InputMethodManager)etRemark.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                                       inputManager.showSoftInput(etRemark, 0);
+                                   }
 
-                         }
+                               }
 
-                 },
-                998);
+                           },
+                    998);
+
+        }
 
     }
     private boolean isVisit(){
@@ -181,7 +195,15 @@ public class SiginDetailActivity extends BaseActivity implements HttpManager.OnH
 
 
                 break;
+            case R.id.vAddress:
+              /*  intent = new Intent(this,MapDetailActivity.class);
+                intent.putExtra("latitude", 0);
+                intent.putExtra("longitude", 0);
+                intent.putExtra("address", address);
+                startActivity(intent);*/
+                break;
         }
+
     }
 
     public void upDate(String id,String des){

@@ -333,7 +333,7 @@
                 android:layout_marginBottom="5dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="15dp"
-                android:text="当天24点前允许编辑未完成的拜访总结"
+                android:text="提交后24小时内允许编辑未完成的拜访总结"
                 android:textColor="@color/gray_999999"
                 android:textSize="14sp" />
 

@@ -112,8 +112,8 @@ public class UserLoginc {
         SharedPreferenceUtil.putString(CompanyApplication.getInstance(),"telephone", user.telephone);
         SharedPreferenceUtil.putString(CompanyApplication.getInstance(), "username", user.name);
         SharedPreferenceUtil.putString(CompanyApplication.getInstance(),"employeeId",user.employeeId);
-
-        getCompanyInfo(logins.data,mThis);
+        SharedPreferenceUtil.putString(CompanyApplication.getInstance(),"openId",user.openId);
+        getCompanyInfo(logins.data, mThis);
         String url = user.headPic;
         SharedPreferenceUtil.putString(CompanyApplication.getInstance(),   "head_url", url);
         SharedPreferenceUtil.putString(CompanyApplication.getInstance(), logins.data.userId + "head_url", url);

@@ -79,11 +79,11 @@ public class ManagerColleagueActivity extends CompanyContactListActivity impleme
         mMyThread.start();*/
     }
 
-    @Override
+   /* @Override
     public void onBackPressed() {
         super.onBackPressed();
         finish();
-    }
+    }*/
     @Override
     public void onClick(View v) {
         super.onClick(v);
@@ -121,8 +121,9 @@ public class ManagerColleagueActivity extends CompanyContactListActivity impleme
 
                 startActivityForResult(intent, 200);
                 break;
-        }
+       }
     }
+
     public void onColleagueEdit(CompanyContactListEntity c2,int position){
         entity = c2;
         Intent intent = new Intent(ManagerColleagueActivity.this, DeleteColleActivity.class);

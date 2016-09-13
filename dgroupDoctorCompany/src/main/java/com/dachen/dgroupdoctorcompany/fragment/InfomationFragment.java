@@ -181,10 +181,8 @@ public class InfomationFragment extends BaseFragment implements OnChildClickList
 
         boolean enable = NetUtil.checkNetworkEnable(mActivity);
         if (enable) {
-            Log.d("zxy", "showNetWorkErr: GONE");
             lv.getNetworkErrorView().setVisibility(View.GONE);
         } else  {
-            Log.d("zxy", "showNetWorkErr: VISIBLE ");
             lv.getNetworkErrorView().setVisibility(View.VISIBLE);
         }
     }

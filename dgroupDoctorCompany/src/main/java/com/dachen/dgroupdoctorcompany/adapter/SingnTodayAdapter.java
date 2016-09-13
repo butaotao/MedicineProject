@@ -81,14 +81,26 @@ public class SingnTodayAdapter extends android.widget.BaseAdapter{
             String des = "";
             String text = listVisitVo.tag.get(0);
             if (!TextUtils.isEmpty(text)&&text.length()>0){
-                for (int i = 0;i<text.length();i++){
-                    if (i!=text.length()-1){
-                        des += text.charAt(i)+"\n";
-                    }else {
-                        des += text.charAt(i);
-                    }
+                if (text.length()<4){
+                    for (int i = 0;i<text.length();i++){
+                        if (i!=text.length()-1){
+                            des += text.charAt(i)+"\n";
+                        }else {
+                            des += text.charAt(i);
+                        }
 
+                    }
+                }else {
+                    for (int i = 0;i<text.length();i++){
+                        if (i!=0&&(i-1)%2==0&&i!=text.length()-1){
+                            des += text.charAt(i)+"\n";
+                        }else {
+                            des += text.charAt(i);
+                        }
+
+                    }
                 }
+
             }
             if (text.equals("拜访")){
                 childHolder.rl_des.setVisibility(View.GONE);
@@ -147,6 +159,13 @@ public class SingnTodayAdapter extends android.widget.BaseAdapter{
                 intent.putExtra("address", listVisitVo.address);
                 intent.putExtra("longTime", listVisitVo.longTime);
                 intent.putExtra("signedid",listVisitVo.signedId);
+                /*if(!TextUtils.isEmpty(listVisitVo.coordinate)&&listVisitVo.coordinate.contains(",")){
+                    String[] array = listVisitVo.coordinate.split(",");
+                    String latitude = array[0];
+                    String longitude = array[1];
+                    intent.putExtra("latitude", Double.valueOf(latitude));
+                    intent.putExtra("longitude", Double.valueOf(longitude));
+                }*/
                 intent.putExtra("id",listVisitVo.visitId);
                 if (null != listVisitVo.tag && listVisitVo.tag.size() > 0 && !TextUtils.isEmpty(listVisitVo.tag
                         .get(0))) {

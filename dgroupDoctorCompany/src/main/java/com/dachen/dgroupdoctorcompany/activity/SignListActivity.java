@@ -223,7 +223,7 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
         SignInLists.DataBean.PageDataBean dataBean  =
                 (SignInLists.DataBean.PageDataBean) mAdapter.getItem(position-1);// position 从1开始???醉了!!!
         String type = dataBean.tag.get(0);
-        if("拜访".equals(type)||"协同拜访".equals(type)){
+       // if("拜访".equals(type)||"协同拜访".equals(type)){
             Intent intent = null;
             /*if("拜访".equals(type)){
                 intent = new Intent(SignListActivity.this, AddSignInActivity.class);
@@ -272,6 +272,13 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
             intent.putExtra("address", dataBean.address);
             intent.putExtra("longTime", dataBean.longTime);
             intent.putExtra("signedid",dataBean.signedId);
+         /*    if(coordinate.contains(",")){
+            String[] array = coordinate.split(",");
+            String latitude = array[0];
+            String longitude = array[1];
+            intent.putExtra("latitude", Double.valueOf(latitude));
+            intent.putExtra("longitude", Double.valueOf(longitude));
+                }*/
             intent.putExtra("id",dataBean.visitId);
             if (null != dataBean.tag && dataBean.tag.size() > 0 && !TextUtils.isEmpty(dataBean.tag
                     .get(0))) {
@@ -280,7 +287,7 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
                 intent.putExtra("tag", "");
             }
             startActivity(intent);
-        }else {
+       /* }else {
             String strId = dataBean.signedId;
             String address = dataBean.address;
             address = dataBean.address;
@@ -302,7 +309,7 @@ public class SignListActivity extends BaseActivity implements HttpManager.OnHttp
             Log.d("zxy :", "376 : SignListActivity : onItemClick : id = "+strId+", "+address+", "+time+", "+coordinate+", "+remark);
             startActivityForResult(intent,REQUEST_UPDATE_SIGN_IN);
 
-        }
+        }*/
 
     }
 }

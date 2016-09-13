@@ -2,7 +2,6 @@ package com.dachen.medicine.net;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.dachen.medicine.common.utils.SharedPreferenceUtil;
 import com.dachen.medicine.common.utils.SystemUtils;
@@ -176,8 +175,6 @@ public class Params {
 		}
 		params.put("pageIndex",String.valueOf(pageIndex));
 		params.put("pageSize",String.valueOf(pageSize));
-		Log.d("zxy :", "179 : Params : getList : access_token = " + SharedPreferenceUtil.getString(context, "session", ""));
-		Log.d("zxy :", "180 : Params : getList : type = " + type + ", " + pageIndex + ", " + pageSize);
 		return params;
 	}
 
@@ -507,7 +504,6 @@ public class Params {
 	public static Map<String,String>getServerTime(Context context) {
 		Map<String, String> params = getMapInstance();
 		params.put("access_token", SharedPreferenceUtil.getString(context, "session", ""));
-		Log.d("zxy :", "494 : Params : getServerTime : access_token = "+SharedPreferenceUtil.getString(context, "session", ""));
 		return params;
 	}
 

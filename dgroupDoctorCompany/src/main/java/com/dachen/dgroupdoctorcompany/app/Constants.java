@@ -25,7 +25,7 @@ public class Constants {
     public static String VERIFY_CODE = DRUG+"sms/randcode/verifyCode";
     public static String VISITRECORD = "visit/getVisitList";
     public static String VISITINFO = "visit/getVisitInfoByUserId";
-    public static String GETVOICECODE = DRUG+"user/preResetPasswordVoiceCode";
+    public static String GETVOICECODE = Constants.DRUG+"auth/sendVoiceCode";
     /**
      * 自动登录
      */
@@ -196,7 +196,7 @@ public class Constants {
     //创建者确定协同组
     public static String CONFIRM_VISIT_GROUP = "visit/confirmSynergGroup";
     //品种组 - 根据关键字搜索品种组（分页）
-    public static String GET_GOODSGROUP_LIST = DRUG+"/goods/group/getGoodsGroupList";
+    public static String GET_GOODSGROUP_LIST = "org/goods/group/getGoodsGroupList";
 
     public static String CREATE_AND_JOIN_VISIT_GROUP = "visit/startSynergGroup";
 

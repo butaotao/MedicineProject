@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
@@ -77,7 +76,6 @@ public class EidtColleagueActivity extends BaseActivity{
         switch (v.getId()){
             case R.id.btn_add:
                 Intent intent = new Intent(this,FriendsContactsActivity.class);
-                Log.d("zxy :", "79 : EidtColleagueActivity : onClick : "+"手机型号:" + android.os.Build.MODEL);
                 startActivityForResult(intent, 200);
                 break;
         }
