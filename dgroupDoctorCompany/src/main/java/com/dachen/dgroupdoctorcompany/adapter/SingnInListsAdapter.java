@@ -28,22 +28,22 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
     private String backDate;
 
     public SingnInListsAdapter(Context context) {
-       // super(context);
+        // super(context);
         mContext = context;
     }
 
     public SingnInListsAdapter(Context context, List<SignInLists.DataBean.PageDataBean> data) {
-       // super(context, data);
+        // super(context, data);
         mContext = context;
         mDataLists = data;
     }
 
 
-    public void addData(List<SignInLists.DataBean.PageDataBean> dataLists,boolean refresh){
-        if(refresh){
+    public void addData(List<SignInLists.DataBean.PageDataBean> dataLists, boolean refresh) {
+        if (refresh) {
             mDataLists.clear();
             mDataLists.addAll(dataLists);
-        }else{
+        } else {
             mDataLists.addAll(dataLists);
         }
     }
@@ -67,10 +67,10 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ChildHolder childHolder;
         //   if(null == convertView){
-        childHolder  = new ChildHolder();
-        convertView = LayoutInflater.from(mContext).inflate(R.layout.item_sign_in_child,null);
+        childHolder = new ChildHolder();
+        convertView = LayoutInflater.from(mContext).inflate(R.layout.item_sign_in_child, null);
         childHolder.ivPicture = (ImageView) convertView.findViewById(R.id.ivPicture);
-     //   childHolder.tvName = (TextView) convertView.findViewById(R.id.tvName);
+        //   childHolder.tvName = (TextView) convertView.findViewById(R.id.tvName);
         childHolder.tvTime = (TextView) convertView.findViewById(R.id.tvTime);
         childHolder.vRemark = (LinearLayout) convertView.findViewById(R.id.vRemark);
         childHolder.tvRemark = (TextView) convertView.findViewById(R.id.tvRemark);
@@ -82,53 +82,55 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
             childHolder  = (ChildHolder) convertView.getTag();
         }*/
         SignInLists.DataBean.PageDataBean pageDataBean = mDataLists.get(position);
-        if(null!=pageDataBean){
-            String type = pageDataBean.tag.get(0);
+        if (null != pageDataBean) {
             String headPic = pageDataBean.headPic;
             String doctorname = pageDataBean.userName;
             String remark = pageDataBean.remark;
             long time = pageDataBean.longTime;
-
-            if("拜访".equals(type)){   //如果是上班签到
-                String address = pageDataBean.address;
-                if(TextUtils.isEmpty(address)){
-                    address = pageDataBean.address;
-                }
-                List<String> listLable = pageDataBean.tag;
-                if(null!=listLable && listLable.size()>0){  //显示拜访标签
-                    childHolder.tvLable.setVisibility(View.VISIBLE);
-                    if (TextUtils.isEmpty(listLable.get(0))) {//标签为空的时候显示签到
-                        childHolder.tvLable.setText("签到");
-                    }else {
-                        childHolder.tvLable.setText(listLable.get(0));
+            if (pageDataBean.tag != null) {
+                String type = pageDataBean.tag.get(0);
+                if ("拜访".equals(type)) {   //如果是上班签到
+                    String address = pageDataBean.address;
+                    if (TextUtils.isEmpty(address)) {
+                        address = pageDataBean.address;
                     }
-                }else{
-                    childHolder.tvLable.setVisibility(View.VISIBLE);
-                    //childHolder.tvLable.setVisibility(View.GONE);
-                    childHolder.tvLable.setText("签到");
-                }
-                childHolder.tvAddress.setText(address);
-                childHolder.ivPicture.setBackgroundResource(R.drawable.icon_sign);
-
-            }else {  //独立拜访
-                childHolder.ivPicture.setBackgroundResource(R.drawable.icon_sign);
-                // childHolder.tvName.setText("考勤打卡");
-                String address = pageDataBean.address;
-                childHolder.tvAddress.setText(address);
-
-                List<String> listLable = pageDataBean.tag;
-                if(null!=listLable && listLable.size()>0){
-                    childHolder.tvLable.setVisibility(View.VISIBLE);
-                    if (TextUtils.isEmpty(listLable.get(0))) {
+                    List<String> listLable = pageDataBean.tag;
+                    if (null != listLable && listLable.size() > 0) {  //显示拜访标签
+                        childHolder.tvLable.setVisibility(View.VISIBLE);
+                        if (TextUtils.isEmpty(listLable.get(0))) {//标签为空的时候显示签到
+                            childHolder.tvLable.setText("签到");
+                        } else {
+                            childHolder.tvLable.setText(listLable.get(0));
+                        }
+                    } else {
+                        childHolder.tvLable.setVisibility(View.VISIBLE);
+                        //childHolder.tvLable.setVisibility(View.GONE);
                         childHolder.tvLable.setText("签到");
-                    }else {
-                        childHolder.tvLable.setText(listLable.get(0));
                     }
-                }else{
-                    childHolder.tvLable.setVisibility(View.VISIBLE);
-                    //childHolder.tvLable.setVisibility(View.GONE);
-                    childHolder.tvLable.setText("签到");
+                    childHolder.tvAddress.setText(address);
+                    childHolder.ivPicture.setBackgroundResource(R.drawable.icon_sign);
+
+                } else {  //独立拜访
+                    childHolder.ivPicture.setBackgroundResource(R.drawable.icon_sign);
+                    // childHolder.tvName.setText("考勤打卡");
+                    String address = pageDataBean.address;
+                    childHolder.tvAddress.setText(address);
+
+                    List<String> listLable = pageDataBean.tag;
+                    if (null != listLable && listLable.size() > 0) {
+                        childHolder.tvLable.setVisibility(View.VISIBLE);
+                        if (TextUtils.isEmpty(listLable.get(0))) {
+                            childHolder.tvLable.setText("签到");
+                        } else {
+                            childHolder.tvLable.setText(listLable.get(0));
+                        }
+                    } else {
+                        childHolder.tvLable.setVisibility(View.VISIBLE);
+                        childHolder.tvLable.setText("签到");
+                    }
                 }
+            }else {
+                childHolder.tvLable.setText("签到");
             }
             Date date = new Date(time);
             String strDate = TimeFormatUtils.china_format_date(date);//格式化日期X月X日
@@ -137,27 +139,27 @@ public class SingnInListsAdapter extends android.widget.BaseAdapter {
                 childHolder.tvSinginDate.setVisibility(View.VISIBLE);
                 childHolder.tvSinginDate.setText(strDate);
                 backDate = strDate;
-            }else {//如果后面的时间和前面的时间不一样者显示日期,否则不显示
+            } else {//如果后面的时间和前面的时间不一样者显示日期,否则不显示
                 if (!backDate.equals(strDate)) {
                     childHolder.tvSinginDate.setVisibility(View.VISIBLE);
                     childHolder.tvSinginDate.setText(strDate);
                     backDate = strDate;
                 }
             }
-            String strTime= TimeFormatUtils.time_format_date(date);
+            String strTime = TimeFormatUtils.time_format_date(date);
             childHolder.tvTime.setText(strTime);
         }
         return convertView;
     }
 
-    public static class ChildHolder{
-        public ImageView   ivPicture;
+    public static class ChildHolder {
+        public ImageView ivPicture;
         //public TextView    tvName;
-        public TextView    tvTime;
+        public TextView tvTime;
         public LinearLayout vRemark;
-        public TextView    tvRemark;
-        public TextView    tvAddress;
-        public TextView    tvLable;
-        public TextView    tvSinginDate;
+        public TextView tvRemark;
+        public TextView tvAddress;
+        public TextView tvLable;
+        public TextView tvSinginDate;
     }
 }

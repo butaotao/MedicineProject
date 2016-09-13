@@ -138,7 +138,7 @@ public class MenuWithFABActivity extends SignInActivity implements View.OnClickL
     private boolean isDeptartManager() {
         CompanyContactDao dao = new CompanyContactDao(getApplicationContext());
         CompanyContactListEntity entity = dao.queryByUserid(SharedPreferenceUtil.getString(this, "id", ""));
-        return entity.deptManager == 1;
+        return entity != null && entity.deptManager == 1;
     }
 
     @Override
