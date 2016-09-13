@@ -70,6 +70,7 @@
             android:layout_alignParentRight="true"
             android:layout_marginRight="10dp"
             android:ellipsize="end"
+            android:textSize="15sp"
             android:maxEms="10"
             android:singleLine="true"
             android:text="保存"
