@@ -1,7 +1,10 @@
 package com.dachen.dgroupdoctorcompany.activity;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -9,12 +12,14 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.dachen.dgroupdoctorcompany.R;
+import com.dachen.dgroupdoctorcompany.adapter.BaseAdapter;
 import com.dachen.dgroupdoctorcompany.js.MenuButtonBean;
 import com.dachen.dgroupdoctorcompany.js.TitleBean;
 import com.google.gson.Gson;
@@ -23,6 +28,9 @@ import org.apache.cordova.CordovaActivity;
 import org.apache.cordova.engine.SystemWebChromeClient;
 import org.apache.cordova.engine.SystemWebView;
 import org.apache.cordova.engine.SystemWebViewEngine;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import de.greenrobot1.event.EventBus;
 
@@ -39,38 +47,21 @@ public class LitterAppActivity extends CordovaActivity {
     private PopupWindow popWindow;
     MenuButtonBean mMenuButtonBean;
     private ProgressBar mProgress;
-    private Thread mProgressThread;
+    private String mUrl;
+    private SystemWebView mSystemWebView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTheme(R.style.ActionSheetStyleiOS7);
         EventBus.getDefault().register(this);
-        String url = getIntent().getStringExtra("url");
-        // String url ="http://192.168.3.7/drugorg/web/attachments/JSBridge/";
-        loadUrl(url);
+        mUrl = getIntent().getStringExtra("url");
+        loadUrl(mUrl);
     }
 
 
     private void loadProgress() {
-        mProgress.setVisibility(View.VISIBLE);
-        mProgress.setMax(100);
-      /*  mProgressThread = new Thread(){
-          *//*  @Override
-            public void run() {
-                for (int i = 0; i < 100; i++) {
-                    mProgress.setProgress(i);
-                    SystemClock.sleep(15);
-                }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mProgress.setVisibility(View.GONE);
-                    }
-                });
-            }*//*
-        };*/
-       // mProgressThread.start();
+
     }
 
     @Override
@@ -122,13 +113,55 @@ public class LitterAppActivity extends CordovaActivity {
             @Override
             public void onClick(View v) {
                 if (popWindow == null) {
+                    View contentView = LitterAppActivity.this.getLayoutInflater().inflate(R.layout.apppopwindow, null);
+                    popWindow = new PopupWindow(contentView, ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
+                    popWindow.setFocusable(true);
+                    popWindow.setBackgroundDrawable(new BitmapDrawable());
+                    View rlScan = contentView.findViewById(R.id.rl_scan);
+                    View rlFind = contentView.findViewById(R.id.rl_find);
+                    popWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                        @Override
+                        public void onDismiss() {
+                        }
+                    });
+                    rlScan.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if (null != popWindow && popWindow.isShowing()) {
+                                popWindow.dismiss();
+                            }
+                            mProgress.setVisibility(View.VISIBLE);
+                            mProgress.setMax(100);
+                            mSystemWebView.reload();
+                        }
+                    });
+                    rlFind.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if (null != popWindow && popWindow.isShowing()) {
+                                popWindow.dismiss();
+                            }
+                            Intent intent = new Intent();
+                            intent.setAction("android.intent.action.VIEW");
+                            Uri content_url = Uri.parse(mUrl);
+                            intent.setData(content_url);
+                            startActivity(intent);
+                        }
+                    });
+                }
+                popWindow.showAsDropDown(mMenu, 0, 10);
+               /* if (popWindow == null) {
                     View contentView = View.inflate(LitterAppActivity.this,R.layout.litterapp_popwindow, null);
-                    if (mMenuButtonBean!=null&&"singleMenu".equals(mMenuButtonBean.menuType)) {
+                    ListView popLv = (ListView) contentView.findViewById(R.id.pop_lv);
+                    List<String> menu = initMenu();
+                    popLv.setAdapter(new PopAdapter(LitterAppActivity.this, menu));
+                    *//*if (mMenuButtonBean!=null&&"singleMenu".equals(mMenuButtonBean.menuType)) {
                         TextView textView = new TextView(LitterAppActivity.this);
                         textView.setText(mMenuButtonBean.singleMenu.menuText);
                         LinearLayout layout = (LinearLayout) contentView.findViewById(R.id.pop_ll);
                         layout.addView(textView);
-                    }
+                    }*//*
                     popWindow = new PopupWindow(contentView, ViewGroup.LayoutParams.WRAP_CONTENT,
                             ViewGroup.LayoutParams.WRAP_CONTENT);
                     popWindow.setFocusable(true);
@@ -138,27 +171,18 @@ public class LitterAppActivity extends CordovaActivity {
                         public void onDismiss() {
                         }
                     });
-                   /* rlScan.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View arg0) {
-                            if (null != popWindow && popWindow.isShowing()) {
-                                popWindow.dismiss();
-                            }
-
-                        }
-                    });*/
-                   /* rlFind.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View arg0) {
-
-                        }
-                    });*/
-
                 }
-                popWindow.showAsDropDown(mMenu, 0, 10);
+                popWindow.showAsDropDown(mMenu, 0, 10);*/
             }
         });
 
+    }
+
+    private List<String> initMenu() {
+        ArrayList<String> list = new ArrayList<>();
+        list.add("刷新");
+        list.add("在浏览器打开");
+        return list;
     }
 
     private void initWebView() {
@@ -181,8 +205,9 @@ public class LitterAppActivity extends CordovaActivity {
     @Override
     protected void inited() {
         //必须在初始化后才能设置WebChromeClient，不然systemWebView.getSystemWebViewEngine()为空
-        SystemWebView systemWebView = (SystemWebView) appView.getView();
-        systemWebView.setWebChromeClient(new SystemWebChromeClientEx(systemWebView.getSystemWebViewEngine()));
+        mSystemWebView = (SystemWebView) appView.getView();
+
+        mSystemWebView.setWebChromeClient(new SystemWebChromeClientEx(mSystemWebView.getSystemWebViewEngine()));
     }
 
     class SystemWebChromeClientEx extends SystemWebChromeClient {
@@ -206,11 +231,14 @@ public class LitterAppActivity extends CordovaActivity {
         @Override
         public void onProgressChanged(WebView view, int newProgress) {
             super.onProgressChanged(view,newProgress);
+
             mProgress.setProgress(newProgress);
             if (newProgress == 100) {
                 mProgress.setVisibility(View.GONE);
             }
         }
+
+
     }
 
     @Override
@@ -227,16 +255,47 @@ public class LitterAppActivity extends CordovaActivity {
         super.onDestroy();
     }
 
-    public class AppWebViewClient extends SystemWebChromeClient {
-        public AppWebViewClient(SystemWebViewEngine parentEngine) {
-            super(parentEngine);
+    class PopAdapter extends BaseAdapter<String> {
+
+        public PopAdapter(Context context) {
+            super(context);
+        }
+
+        public PopAdapter(Context context, List<String> data) {
+            super(context, data);
         }
 
         @Override
-        public void onProgressChanged(WebView view, int newProgress) {
-
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder;
+            if (convertView == null) {
+                convertView = View.inflate(LitterAppActivity.this, R.layout.item_app_menupop, null);
+                holder = new ViewHolder(convertView);
+                convertView.setTag(holder);
+            }else{
+                holder = (ViewHolder) convertView.getTag();
+            }
+            String menu = dataSet.get(position);
+            holder.itemmenutext.setText(menu);
+            if (position == getCount() -1) {
+                holder.ivline1.setVisibility(View.GONE);
+            }
+            return convertView;
         }
 
+        public class ViewHolder {
+            public final TextView itemmenutext;
+            public final LinearLayout itemappmenu;
+            public final ImageView ivline1;
+            public final View root;
 
+            public ViewHolder(View root) {
+                itemmenutext = (TextView) root.findViewById(R.id.item_menutext);
+                itemappmenu = (LinearLayout) root.findViewById(R.id.item_appmenu);
+                ivline1 = (ImageView) root.findViewById(R.id.iv_line1);
+                this.root = root;
+            }
+        }
     }
+
 }

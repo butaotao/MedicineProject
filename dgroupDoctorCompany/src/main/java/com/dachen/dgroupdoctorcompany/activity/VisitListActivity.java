@@ -78,6 +78,7 @@ public class VisitListActivity extends BaseActivity implements HttpManager.OnHtt
             mStatistics.setVisibility(View.VISIBLE);
             mStatistics.setTextColor(Color.parseColor("#333333"));
             mStatistics.setOnClickListener(this);
+            showGuider(true);
         }else {
             mStatistics.setVisibility(View.GONE);
         }
@@ -386,5 +387,19 @@ public class VisitListActivity extends BaseActivity implements HttpManager.OnHtt
         CompanyContactDao dao = new CompanyContactDao(getApplicationContext());
         CompanyContactListEntity entity = dao.queryByUserid(SharedPreferenceUtil.getString(this, "id", ""));
         return entity.deptManager == 1;
+    }
+
+
+    /**
+     * 展示这个版本的统计导航
+     * @param isManager 管理员
+     */
+    private void showGuider(Boolean isManager) {//
+        Intent intent = new Intent(getApplicationContext(),GuiderActivity.class);
+        if (isManager && SharedPreferenceUtil.getBoolean(getApplicationContext(),"isFirstVisit",true)) {
+            intent.putExtra("guider","visit");
+            startActivity(intent);
+        }
+        SharedPreferenceUtil.putBoolean(getApplicationContext(),"isFirstVisit",false);
     }
 }

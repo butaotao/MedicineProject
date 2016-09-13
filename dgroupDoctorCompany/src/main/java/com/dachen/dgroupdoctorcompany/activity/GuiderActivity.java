@@ -57,6 +57,10 @@ public class GuiderActivity extends BaseActivity implements ViewPager.OnPageChan
             mDataList.add(imageView1);
             mDataList.add(imageView2);
             mDataList.add(imageView3);
+        }else if("visit".equals(guider)) {
+            ImageView imageView1 = new ImageView(getApplicationContext());
+            imageView1.setBackgroundResource(R.drawable.visit_guider);
+            mDataList.add(imageView1);
         }
     }
 
@@ -69,6 +73,7 @@ public class GuiderActivity extends BaseActivity implements ViewPager.OnPageChan
         mPagerAdapter = new MyPagerAdapter(mDataList);
         mVpGuider.setAdapter(mPagerAdapter);
         mVpGuider.addOnPageChangeListener(this);
+        onPageSelected(0);
 
     }
 

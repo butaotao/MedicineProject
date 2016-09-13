@@ -77,20 +77,9 @@ public class SplashActivity extends BaseActivity implements HttpManager.OnHttpLi
     public void startActivitys(){
         Uri data = getIntent().getData();
         if (data != null) {
-/*            Log.d("zxy :", "85 : SplashActivity : startActivitys :  "+data.getEncodedSchemeSpecificPart());
-            Log.d("zxy :", "85 : SplashActivity : startActivitys :  "+data.getEncodedPath());
-            Log.d("zxy :", "85 : SplashActivity : startActivitys :  "+data.getQuery());
-            Log.d("zxy :", "85 : SplashActivity : startActivitys :  "+data.getQueryParameter("id"));
-            Log.d("zxy :", "85 : SplashActivity : startActivitys :  "+data.getQueryParameter("title"));
-            Log.d("zxy :", "85 : SplashActivity : startActivitys :  data.getPath()"+data.getPath());
-            String url = "http:"+data.getPath();
-            Log.d("zxy :", "SplashActivity : "+"startActivitys: uri = "+data);*/
             SharedPreferenceUtil.putString(getApplicationContext(),"noticeUri",data.toString());
             toNoticeWeb = true;
         }
-
-       /* Uri uridata = this.getIntent().getData();
-        ToastUtil.showToast(this,uridata+"");*/
     }
 //启动notice页面
     private void startNoticeWeb() {
