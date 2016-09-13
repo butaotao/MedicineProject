@@ -76,7 +76,7 @@ public class VisitListActivity extends BaseActivity implements HttpManager.OnHtt
         if(isDeptartManager()){
             mStatistics.setText("统计");
             mStatistics.setVisibility(View.VISIBLE);
-            //颜色
+            //颜色  蓝色
             mStatistics.setTextColor(Color.parseColor("#3cbaff"));
             mStatistics.setOnClickListener(this);
             showGuider(true);
